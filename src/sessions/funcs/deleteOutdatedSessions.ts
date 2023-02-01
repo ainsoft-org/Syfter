@@ -9,39 +9,39 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
 
   const sessionsToDelete = await sessionModel.aggregate([
     {$match: {
-        lastActivity: {$lt: weekAgo}
-      }},
+      lastActivity: {$lt: weekAgo}
+    }},
     {$lookup: {
-        from: "users",
-        localField: "user",
-        foreignField: "_id",
-        as: "populatedUser"
-      }},
+      from: "users",
+      localField: "user",
+      foreignField: "_id",
+      as: "populatedUser"
+    }},
     {$addFields: {
         populatedUser: {$arrayElemAt: ["$populatedUser", 0]}
       }},
     {$addFields: {
-        maxAllowedDate: "$populatedUser.sessionTerminationTimeframe"
-      }},
+      maxAllowedDate: "$populatedUser.sessionTerminationTimeframe"
+    }},
     {$addFields: {
-        maxAllowedDate: {$function: {
-            body: getDateByPeriod,
-            args: [ "$maxAllowedDate" ],
-            lang: "js"
-          }}
-      }},
-    {$addFields: {
-        shouldToDelete: {$function: {
-            body: function(maxAllowedDate, lastActivity) {
-              return new Date(lastActivity).getTime() < new Date(maxAllowedDate).getTime();
-            },
-            args: [ "$maxAllowedDate", "$lastActivity" ],
-            lang: "js"
-          }}
-      }},
-    {$match: {
-        shouldToDelete: true
+      maxAllowedDate: {$function: {
+        body: getDateByPeriod,
+        args: [ "$maxAllowedDate" ],
+        lang: "js"
       }}
+      }},
+    {$addFields: {
+      shouldToDelete: {$function: {
+        body: function(maxAllowedDate, lastActivity) {
+          return new Date(lastActivity).getTime() < new Date(maxAllowedDate).getTime();
+        },
+        args: [ "$maxAllowedDate", "$lastActivity" ],
+        lang: "js"
+      }}
+    }},
+    {$match: {
+      shouldToDelete: true
+    }}
   ])
 
   const data = {sessionIds: [], userIds: []};
