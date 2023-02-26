@@ -5,6 +5,9 @@ import { Session, SessionDocument } from "./session.schema";
 import { User, UserDocument } from "../user/user.schema";
 import { deleteOutdatedSessions } from "./funcs/deleteOutdatedSessions";
 
+import axios from "axios";
+import * as csv from 'csvtojson';
+
 @Injectable()
 export class SessionsService {
   constructor(
@@ -61,5 +64,17 @@ export class SessionsService {
     await user.save();
 
     return { message: "Sessions closed" };
+  }
+
+  async setSessionExpirationPeriod(userId: string, period: string) {
+    try {
+      const user = await this.userModel.findById(userId);
+      user.sessionTerminationTimeframe = period;
+      await user.save();
+
+      return period;
+    } catch (err) {
+      throw new HttpException('Error saving to DB', HttpStatus.BAD_REQUEST);
+    }
   }
 }

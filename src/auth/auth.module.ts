@@ -10,6 +10,9 @@ import { AtStrategy } from "./strategies/at.strategy";
 import { JwtModule } from "@nestjs/jwt";
 import { Session, SessionSchema } from "../sessions/session.schema";
 import { AuthingUser, AuthingUserSchema } from "./authingUser.schema";
+import { TwitterStrategy } from "./strategies/twitter.strategy";
+import { AlphavantageService } from "../alphavantage/alphavantage.service";
+import { AlphavantageModule } from "../alphavantage/alphavantage.module";
 
 @Module({
   imports: [
@@ -19,11 +22,13 @@ import { AuthingUser, AuthingUserSchema } from "./authingUser.schema";
     MongooseModule.forFeature([{ name: AuthingUser.name, schema: AuthingUserSchema }]),
     MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     MailingModule,
-    JwtModule.register({})
+    JwtModule.register({}),
+    AlphavantageModule
   ],
   providers: [
     AuthService,
-    AtStrategy
+    AtStrategy,
+    TwitterStrategy
   ],
   controllers: [AuthController]
 })

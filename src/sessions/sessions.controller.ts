@@ -3,6 +3,7 @@ import { SessionsService } from "./sessions.service";
 import { AuthGuard } from "@nestjs/passport";
 import { SessionIDDto } from "./dto/SessionID.dto";
 import { PinCodeDto } from "./dto/PinCode.dto";
+import { PeriodDto } from "./dto/Period.dto";
 
 @Controller('sessions')
 export class SessionsController {
@@ -24,5 +25,11 @@ export class SessionsController {
   @Post('removeAllSessions')
   closeAllSessions(@Request() req, @Body() dto: PinCodeDto) {
     return this.sessionsService.closeAllSessions(req.user.sessionId, req.user.sub, dto.pin);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('setSessionPeriod')
+  setSessionExpirationPeriod(@Request() req, @Body() dto: PeriodDto) {
+      return this.sessionsService.setSessionExpirationPeriod(req.user.sub, dto.period);
   }
 }

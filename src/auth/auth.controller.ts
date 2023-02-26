@@ -9,6 +9,7 @@ import { SetAddressRegDto } from "./dto/Reg/SetAddressReg.dto";
 import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RefreshTokenDto } from "./dto/RefreshToken.dto";
+import { TwitterAuthGuard } from "./strategies/TwitterAuth.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -20,12 +21,19 @@ export class AuthController {
   }
 
 
+  @UseGuards(TwitterAuthGuard)
+  @Get('/twitter/signin')
+  twitterSignin() {
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('/sui')
-  sui(@Request() req) {
-    return req.user;
+    return "yes";
   }
+
+  @UseGuards(TwitterAuthGuard)
+  @Get('/twitter/redirect')
+  twitterRedirect() {
+    return "redirect"
+  }
+
 
 
 

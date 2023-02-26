@@ -18,8 +18,8 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
       as: "populatedUser"
     }},
     {$addFields: {
-        populatedUser: {$arrayElemAt: ["$populatedUser", 0]}
-      }},
+      populatedUser: {$arrayElemAt: ["$populatedUser", 0]}
+    }},
     {$addFields: {
       maxAllowedDate: "$populatedUser.sessionTerminationTimeframe"
     }},
@@ -29,7 +29,7 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
         args: [ "$maxAllowedDate" ],
         lang: "js"
       }}
-      }},
+    }},
     {$addFields: {
       shouldToDelete: {$function: {
         body: function(maxAllowedDate, lastActivity) {

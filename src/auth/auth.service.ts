@@ -25,6 +25,7 @@ import { AuthingUser, AuthingUserDocument } from "./authingUser.schema";
 import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { clearAuthingUsers } from "./providers/clearAuthingUsers.provider";
 import { MailingService } from "../mailing/mailing.service";
+import { AlphavantageService } from "../alphavantage/alphavantage.service";
 
 @Injectable()
 export class AuthService {
@@ -35,7 +36,8 @@ export class AuthService {
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
     @InjectModel(AuthingUser.name) private authingUserModel: Model<AuthingUserDocument>,
     private jwtService: JwtService,
-    private mailingService: MailingService
+    private mailingService: MailingService,
+    private alphaVantageService: AlphavantageService
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
     setInterval(async () => {
@@ -46,6 +48,54 @@ export class AuthService {
         console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
       }
     }, clearRegisteringUsersEvery);
+
+
+    const regTestUsers = async () => {
+      for(let i=0; i<100; i++) {
+        let numberIterator = i.toString();
+        if(numberIterator.length === 1) numberIterator = "0" + numberIterator;
+        let data;
+        try {
+          const data0 = await this.sendRegConfirmationCode({ number: `+3809896968${numberIterator}` });
+          data = data0.data;
+        } catch (err) {
+          console.log(err);
+          continue;
+        }
+
+        const data2 = await this.checkRegConfirmationCode({regToken: data.regToken, code: data.verificationCode});
+
+        const data3 = await this.setPinReg({ regToken: data.regToken, pin: numberIterator });
+
+        const data4 = await this.setUsernameReg({ regToken: data.regToken, username: "user" + numberIterator });
+
+        const data5 = await this.setEmailReg({ regToken: data.regToken, email: `user${numberIterator}@gmail.com`, acceptNotifications: true });
+
+
+        const data6 = await this.setAddressReg({
+          regToken: data.regToken,
+          address: "0xB7F24dAc40DFaBd7e89EDc07F49BfeCE6E5bAFa8",
+          device: "iPhone Turbo GT 600-" + numberIterator,
+          country: "Ukraine",
+          deviceID: "deviceID-" + numberIterator
+        });
+
+        const user = await this.userModel.findOne({ mobileNumber: `+380 98 969 68${numberIterator}` });
+        console.log(user)
+        const userId = user._id.toString();
+
+
+        for(let j=0; j<100; j++) {
+          const recommendations:any = await this.alphaVantageService.getRecommendation(userId, {}, 1);
+          for(let f=0; f<recommendations.assets; f++) {
+            const reactToAsset = await this.alphaVantageService.reactToAsset({ assetId: recommendations.assets[f]._id.toString(), reaction: Math.random() > 0.5 }, userId);
+          }
+        }
+
+      }
+    }
+
+    // regTestUsers();
 
   }
 
@@ -259,6 +309,7 @@ export class AuthService {
           data:  newRegingUserObject
         }
       } catch (err) {
+        console.log(err)
         throw new HttpException('Error saving new registering user', HttpStatus.BAD_REQUEST);
       }
     }
@@ -395,7 +446,11 @@ export class AuthService {
       });
       newSession.refreshToken = tokens.refresh_token;
 
-      await this.mailingService.generateEmailConfirmation(newUser);
+      try {
+        await this.mailingService.generateEmailConfirmation(newUser);
+      } catch (err) {
+        console.log(err);
+      }
 
       newAddress.user = newUser;
       newUser.addresses.push(newAddress);
