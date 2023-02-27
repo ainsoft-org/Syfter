@@ -13,11 +13,14 @@ export class NewsService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
 
-    const getNews = async () => {
-      await this.getNews(10, {isCryptocurrency: false, period: "new"});
-    }
+    // const getNews = async () => {
+    //   await this.getNews(10, {isCryptocurrency: false, period: "new"});
+    //
+    // }
+    //
+    // getNews();
 
-    getNews();
+    this.getNews(10, {isCryptocurrency: false, period: "new"});
 
   }
 
@@ -29,7 +32,12 @@ export class NewsService {
 
     const likedNewsIndex = user.likedNews.findIndex(liked => liked.toString() === newsId);
     if(likedNewsIndex !== -1) {
-      throw new HttpException("Already liked", HttpStatus.BAD_REQUEST);
+      // throw new HttpException("Already liked", HttpStatus.BAD_REQUEST);
+      news.likes--;
+      user.likedNews.splice(likedNewsIndex, 1);
+      await user.save();
+      await news.save();
+      return news;
     }
 
     const dislikedNewsIndex = user.dislikedNews.findIndex(disliked => disliked.toString() === newsId);
@@ -49,7 +57,10 @@ export class NewsService {
       news.timePrevLike = new Date();
     }
 
+    user.likedNews.push(news);
+
     await news.save();
+    await user.save();
     return news;
   }
 
@@ -60,7 +71,12 @@ export class NewsService {
 
     const dislikedNewsIndex = user.dislikedNews.findIndex(disliked => disliked.toString() === newsId);
     if(dislikedNewsIndex !== -1) {
-      throw new HttpException("Already disliked", HttpStatus.BAD_REQUEST);
+      // throw new HttpException("Already disliked", HttpStatus.BAD_REQUEST);
+      news.dislikes--;
+      user.dislikedNews.splice(dislikedNewsIndex, 1);
+      await user.save();
+      await news.save();
+      return news;
     }
 
     const likedNewsIndex = user.likedNews.findIndex(liked => liked.toString() === newsId);
@@ -71,7 +87,9 @@ export class NewsService {
     }
 
     news.dislikes++;
+    user.dislikedNews.push(news);
     await news.save();
+    await user.save();
     return news;
   }
 
@@ -88,10 +106,12 @@ export class NewsService {
     }
 
     if(filters.isCryptocurrency === true) {
-      matches.AssetType = { $eq: "Cryptocurrency" };
+      matches.AssetType = "Cryptocurrency";
     } else if(filters.isCryptocurrency === false) {
       matches.AssetType = { $ne: "Cryptocurrency" };
     }
+
+    console.log(matches)
 
     const news = await this.newsModel.aggregate([
       {$addFields: {
@@ -111,9 +131,9 @@ export class NewsService {
         coeffLike: -1
       }},
       {$limit: amount},
-      {$unwind: "$currency0"},
-      {$unset: "currency0.news"}
     ]);
+
+    console.log(news)
 
     return news;
   }

@@ -23,7 +23,7 @@ const ReactionSchema = SchemaFactory.createForClass(Reaction);
 export class SectorLikes {
   @Prop({ type: String, required: true })
   Sector: string;
-  @Prop({ type: Number, default: 0 })
+  @Prop({ type: Number, default: 1 })
   likes: number;
 }
 const SectorLikesSchema = SchemaFactory.createForClass(SectorLikes);
