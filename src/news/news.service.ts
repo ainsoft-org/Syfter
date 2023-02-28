@@ -20,7 +20,7 @@ export class NewsService {
     //
     // getNews();
 
-    this.getNews(10, {isCryptocurrency: false, period: "new"});
+    // this.getNews(10, {isCryptocurrency: false, period: "new"});
 
   }
 
