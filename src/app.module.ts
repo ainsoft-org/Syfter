@@ -13,8 +13,8 @@ import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://mongoDB:27017/Syfter'),
-    // MongooseModule.forRoot("mongodb+srv://syfter:nFrE1TnBgtyJeLmd@cluster0.8fgzrra.mongodb.net/?retryWrites=true&w=majority"),
+    // MongooseModule.forRoot('mongodb://mongoDB:27017/Syfter'),
+    MongooseModule.forRoot("mongodb+srv://syfter:nFrE1TnBgtyJeLmd@cluster0.8fgzrra.mongodb.net/?retryWrites=true&w=majority"),
     AuthModule,
     DbModule,
     UserModule,
