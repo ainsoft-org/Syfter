@@ -4,6 +4,7 @@ import { Address } from "../addresses/address.schema";
 import { Session } from "../sessions/session.schema";
 import { Currency } from "../alphavantage/currency.schema";
 import { News } from "../news/news.schema";
+import { Comment } from "../comments/comments.schema";
 export type UserDocument = HydratedDocument<User>;
 declare class Reaction {
     asset: Currency;
@@ -14,6 +15,9 @@ export declare class SectorLikes {
     likes: number;
 }
 export declare class User {
+    comments: Comment[];
+    likedComments: Comment[];
+    dislikedComments: Comment[];
     reactions: Reaction[];
     removedReactions: Currency[];
     dislikedNews: News[];

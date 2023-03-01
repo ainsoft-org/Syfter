@@ -7,6 +7,7 @@ import { Period } from '../sessions/dto/Period.dto'
 import { UserRole } from "../auth/dto/UserRole.dto";
 import { Currency } from "../alphavantage/currency.schema";
 import { News } from "../news/news.schema";
+import { Comment } from "../comments/comments.schema";
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -30,6 +31,13 @@ const SectorLikesSchema = SchemaFactory.createForClass(SectorLikes);
 
 @Schema({ timestamps: true })
 export class User {
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] })
+  comments: Comment[];
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] })
+  likedComments: Comment[];
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] })
+  dislikedComments: Comment[];
+
   @Prop({ type: [ReactionSchema] })
   reactions: Reaction[];
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "currency" }] })

@@ -39,14 +39,12 @@ let AlphavantageService = class AlphavantageService {
         nextDay.setHours(0);
         nextDay.setMinutes(0);
         nextDay.setSeconds(0);
-        (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
         setTimeout(() => {
             (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             setInterval(() => {
                 (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             }, Number(process.env.refreshAssetsEvery));
         }, nextDay.getTime() - now.getTime());
-        (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
         setTimeout(() => {
             (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
             setInterval(() => {

@@ -47,6 +47,18 @@ const SectorLikesSchema = mongoose_1.SchemaFactory.createForClass(SectorLikes);
 let User = class User {
 };
 __decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] }),
+    __metadata("design:type", Array)
+], User.prototype, "comments", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] }),
+    __metadata("design:type", Array)
+], User.prototype, "likedComments", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] }),
+    __metadata("design:type", Array)
+], User.prototype, "dislikedComments", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: [ReactionSchema] }),
     __metadata("design:type", Array)
 ], User.prototype, "reactions", void 0);

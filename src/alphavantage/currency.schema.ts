@@ -7,6 +7,9 @@ export type CurrencyDocument = HydratedDocument<Currency>;
 
 @Schema({ timestamps: true })
 export class Currency {
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] })
+  comments: Comment[];
+
   @Prop({ type: Number, default: 0 })
   likes: number;
   @Prop({ type: Number, default: 0 })

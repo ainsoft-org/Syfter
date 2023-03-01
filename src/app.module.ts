@@ -9,6 +9,7 @@ import { MailingModule } from './mailing/mailing.module';
 import { SessionsModule } from './sessions/sessions.module';
 import { AlphavantageModule } from './alphavantage/alphavantage.module';
 import { NewsModule } from './news/news.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { NewsModule } from './news/news.module';
     SessionsModule,
     AlphavantageModule,
     NewsModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],

@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { News } from "../news/news.schema";
 export type CurrencyDocument = HydratedDocument<Currency>;
 export declare class Currency {
+    comments: Comment[];
     likes: number;
     dislikes: number;
     news: News[];

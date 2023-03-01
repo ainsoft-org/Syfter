@@ -17,6 +17,7 @@ const mailing_module_1 = require("./mailing/mailing.module");
 const sessions_module_1 = require("./sessions/sessions.module");
 const alphavantage_module_1 = require("./alphavantage/alphavantage.module");
 const news_module_1 = require("./news/news.module");
+const comments_module_1 = require("./comments/comments.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -31,6 +32,7 @@ AppModule = __decorate([
             sessions_module_1.SessionsModule,
             alphavantage_module_1.AlphavantageModule,
             news_module_1.NewsModule,
+            comments_module_1.CommentsModule,
         ],
         controllers: [],
         providers: [],
