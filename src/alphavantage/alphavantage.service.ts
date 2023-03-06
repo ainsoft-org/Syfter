@@ -40,19 +40,28 @@ export class AlphavantageService {
 
     // refreshCurrencies(currencyModel, newsModel, currentStatModel);
     setTimeout(() => {
-      refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      // refreshCurrencies(currencyModel, newsModel, currentStatModel);
       setInterval(() => {
-        refreshCurrencies(currencyModel, newsModel, currentStatModel);
+        // refreshCurrencies(currencyModel, newsModel, currentStatModel);
       }, Number(process.env.refreshAssetsEvery));
     }, nextDay.getTime() - now.getTime());
 
     // refreshCryptoCurrencies(currencyModel, newsModel);
     setTimeout(() => {
-      refreshCryptoCurrencies(currencyModel, newsModel);
+      // refreshCryptoCurrencies(currencyModel, newsModel);
       setInterval(() => {
-        refreshCryptoCurrencies(currencyModel, newsModel);
+        // refreshCryptoCurrencies(currencyModel, newsModel);
       }, Number(process.env.refreshCryptosEvery));
     }, nextDay.getTime() - now.getTime());
+
+    const clearNews = async () => {
+      const news = await this.newsModel.find().limit(10000);
+      for(let i=0; i<news.length; i++) {
+        await news[i].remove();
+      }
+    }
+
+    // clearNews();
   }
 
 
@@ -355,7 +364,7 @@ export class AlphavantageService {
     }
   }
 
-  async getAssetData(assets: any[], interval = "24H") {
+  async getAssetData(assets: any[], interval = "24H", chartType = "regular") {
     for(let i=0; i<assets.length; i++) {
       try {
         assets[i] = assets[i].toObject()
@@ -380,31 +389,31 @@ export class AlphavantageService {
         )
         switch (interval) {
           case "1H":
-            await set1HourChartSeries(filteredChartData, symbol);
+            await set1HourChartSeries(filteredChartData, symbol, chartType);
             break;
           case "5H":
-            await set5HoursChartSeries(filteredChartData, symbol);
+            await set5HoursChartSeries(filteredChartData, symbol, chartType);
             break;
           case "24H":
-            await setDayChartSeries(filteredChartData, symbol);
+            await setDayChartSeries(filteredChartData, symbol, chartType);
             break;
           case "1W":
-            await setWeekChartSeries(filteredChartData, symbol);
+            await setWeekChartSeries(filteredChartData, symbol, chartType);
             break;
           case "15D":
-            await set15DaysChartSeries(filteredChartData, asset);
+            await set15DaysChartSeries(filteredChartData, symbol, chartType);
             break;
           case "1M":
-            await setMonthChartSeries(filteredChartData, symbol);
+            await setMonthChartSeries(filteredChartData, symbol, chartType);
             break;
           case "5M":
-            await set5MonthsChartSeries(filteredChartData, symbol);
+            await set5MonthsChartSeries(filteredChartData, symbol, chartType);
             break;
           case "1Y":
-            await setYearChartSeries(filteredChartData, symbol);
+            await setYearChartSeries(filteredChartData, symbol, chartType);
             break;
           case "All":
-            await setAllChartSeries(filteredChartData, symbol);
+            await setAllChartSeries(filteredChartData, symbol, chartType);
             break;
         }
       } else {
@@ -417,31 +426,31 @@ export class AlphavantageService {
         )
         switch (interval) {
           case "1H":
-            await set1HourChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await set1HourChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "5H":
-            await set5HoursChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await set5HoursChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "24H":
-            await setDayChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await setDayChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "1W":
-            await setWeekChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await setWeekChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "15D":
-            await set15DaysChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await set15DaysChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "1M":
-            await setMonthChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await setMonthChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "5M":
-            await set5MonthsChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await set5MonthsChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "1Y":
-            await setYearChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await setYearChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
           case "All":
-            await setAllChartSeriesCrypto(filteredChartData, asset.Symbol);
+            await setAllChartSeriesCrypto(filteredChartData, asset.Symbol, chartType);
             break;
         }
       }

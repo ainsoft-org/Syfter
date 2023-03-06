@@ -2,11 +2,46 @@ import { Body, Controller, Post, Request, UseGuards } from "@nestjs/common";
 import { NewsService } from "./news.service";
 import { AuthGuard } from "@nestjs/passport";
 import { GetRecommendationDto } from "../alphavantage/dto/GetRecommendation.dto";
-import { IsString } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from "class-validator";
+import { Type } from "class-transformer";
 
 class newsIdDto {
   @IsString()
   newsId: string;
+}
+
+enum periodEnum {
+  "old" = "old",
+  "new" = "new"
+}
+
+class FiltersDto {
+  @IsOptional()
+  @IsBoolean()
+  isCryptocurrency?: boolean;
+
+  @IsOptional()
+  @IsString()
+  @IsEnum(periodEnum)
+  period?: periodEnum;
+}
+
+class GetNewsDto {
+  @IsOptional()
+  @IsArray()
+  forIgnore?: string[];
+
+  @IsNumber()
+  @IsPositive()
+  amount: number;
+
+  @IsOptional()
+  @Type(() => FiltersDto)
+  filters?: FiltersDto;
+
+  @IsString()
+  @IsNotEmpty()
+  asset: string;
 }
 
 @Controller('news')
@@ -15,8 +50,8 @@ export class NewsController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('topNews')
-  async topNews(@Request() req, @Body() dto: GetRecommendationDto) {
-    return this.newsService.getNews(dto.amount, dto?.filters ? dto.filters : {}, dto.forIgnore);
+  async topNews(@Request() req, @Body() dto: GetNewsDto) {
+    return this.newsService.getNews(dto.asset, dto.amount, dto?.filters || {}, dto.forIgnore);
   }
 
   @UseGuards(AuthGuard('jwt'))

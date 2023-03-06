@@ -9,6 +9,7 @@ export declare class Comment {
     isReply: boolean;
     replyTo?: Comment;
     replies: Comment[];
+    mainComment?: Comment;
     validate(): void;
     likes: number;
     dislikes: number;

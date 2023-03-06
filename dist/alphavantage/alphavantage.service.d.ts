@@ -64,7 +64,7 @@ export declare class AlphavantageService {
         amount: number;
     }>;
     getAssetsById(assets: string[]): Promise<any>;
-    getAssetData(assets: any[], interval?: string): Promise<any[]>;
+    getAssetData(assets: any[], interval?: string, chartType?: string): Promise<any[]>;
     getAggregationFilter(filters?: any): {
         $expr: {
             $and: any[];

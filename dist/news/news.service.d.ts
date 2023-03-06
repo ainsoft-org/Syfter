@@ -17,5 +17,5 @@ export declare class NewsService {
     } & Required<{
         _id: mongoose.Types.ObjectId;
     }>>;
-    getNews(amount: number, filters?: any, forIgnore?: string[]): Promise<any[]>;
+    getNews(asset: string, amount: number, filters?: any, forIgnore?: string[]): Promise<any[]>;
 }

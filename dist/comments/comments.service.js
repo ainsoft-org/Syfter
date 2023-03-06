@@ -45,21 +45,154 @@ let CommentsService = class CommentsService {
         const comment = await this.commentModel.findById(replyTo);
         if (!comment)
             throw new common_1.HttpException("Comment for reply not found", common_1.HttpStatus.NOT_FOUND);
-        let firstLevelComment = comment;
-        while (firstLevelComment.isReply) {
-            firstLevelComment = await this.commentModel.findById(firstLevelComment.replyTo);
-        }
+        const mainComment = await this.commentModel.findById(comment.mainComment);
         const reply = new this.commentModel({
             content,
             author,
             asset,
             isReply: true,
-            replyTo: comment
+            replyTo: comment,
+            mainComment
         });
         await reply.save();
-        firstLevelComment.replies.push(reply);
-        await firstLevelComment.save();
+        mainComment.replies.push(reply);
+        await mainComment.save();
+        asset.comments.push(reply);
+        await asset.save();
         return reply;
+    }
+    async removeComment(userId, commentId) {
+        const comment = await this.commentModel.findById(commentId);
+        if (!comment)
+            throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
+        if (comment.author.toString() !== userId)
+            throw new common_1.HttpException("No access", common_1.HttpStatus.FORBIDDEN);
+        const asset = await this.currencyModel.findById(comment.asset);
+        if (asset) {
+            const commentIndex = asset.comments.findIndex(assetComment => assetComment.toString() === commentId);
+            if (commentIndex !== -1) {
+                asset.comments.splice(commentIndex, 1);
+                await asset.save();
+            }
+        }
+        if (comment.isReply) {
+            const mainComment = await this.commentModel.findById(comment.mainComment);
+            const replyIndex = mainComment.replies.findIndex(reply => reply.toString() === commentId);
+            if (replyIndex !== -1) {
+                mainComment.replies.splice(replyIndex);
+            }
+            await mainComment.save();
+        }
+        const user = await this.userModel.findById(userId);
+        const commentIndex = user.comments.findIndex(userComment => userComment.toString() === commentId);
+        if (commentIndex !== -1) {
+            user.comments.splice(commentIndex, 1);
+        }
+        await user.save();
+        await comment.remove();
+        return { message: "removed" };
+    }
+    async likeComment(userId, commentId) {
+        const user = await this.userModel.findById(userId);
+        const comment = await this.commentModel.findById(commentId);
+        if (!comment)
+            throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
+        const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
+        if (likedCommentIndex !== -1) {
+            comment.likes--;
+            user.likedComments.splice(likedCommentIndex, 1);
+            await user.save();
+            await comment.save();
+            return comment;
+        }
+        const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
+        if (dislikedCommentIndex !== -1) {
+            user.dislikedComments.splice(dislikedCommentIndex);
+            comment.dislikes--;
+        }
+        comment.likes++;
+        user.likedComments.push(comment);
+        await comment.save();
+        await user.save();
+        return comment;
+    }
+    async dislikeComment(userId, commentId) {
+        const user = await this.userModel.findById(userId);
+        const comment = await this.commentModel.findById(commentId);
+        if (!comment)
+            throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
+        const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
+        if (dislikedCommentIndex !== -1) {
+            comment.dislikes--;
+            user.dislikedComments.splice(dislikedCommentIndex, 1);
+            await user.save();
+            await comment.save();
+            return comment;
+        }
+        const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
+        if (likedCommentIndex !== -1) {
+            user.likedComments.splice(likedCommentIndex);
+            comment.likes--;
+        }
+        comment.dislikes++;
+        user.dislikedComments.push(comment);
+        await comment.save();
+        await user.save();
+        return comment;
+    }
+    async getIdeas(amount, sortBy, forIgnore, repliesTo) {
+        const sortByKey = {};
+        if (sortBy === "reputation") {
+            sortByKey.createdAt = -1;
+        }
+        else {
+            sortByKey.reputation = -1;
+        }
+        const match = {};
+        if (repliesTo) {
+            const comment = await this.commentModel.findById(repliesTo).select("replies");
+            if (!comment)
+                throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
+            match._id = {
+                $in: comment.replies.map(id => new mongoose_2.default.Types.ObjectId(id.toString()))
+            };
+        }
+        const ideas = await this.commentModel.aggregate([
+            { $match: {
+                    _id: {
+                        $nin: forIgnore.map(id => new mongoose_2.default.Types.ObjectId(id))
+                    },
+                    ...match
+                } },
+            { $addFields: {
+                    reputation: { $subtract: ["$likes", "$dislikes"] }
+                } },
+            { $sort: {
+                    ...sortByKey
+                } },
+            { $limit: amount },
+            { $lookup: {
+                    from: "users",
+                    localField: "author",
+                    foreignField: "_id",
+                    as: "author"
+                } },
+            { $unwind: "$author"
+            },
+            { $project: {
+                    "_id": 1,
+                    "content": 1,
+                    "asset": 1,
+                    "replyTo": 1,
+                    "isReply": 1,
+                    "replies": 1,
+                    "reputation": 1,
+                    "createdAt": 1,
+                    "author.avatar": 1,
+                    "author.username": 1
+                } }
+        ]);
+        return ideas;
     }
 };
 CommentsService = __decorate([

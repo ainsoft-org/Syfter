@@ -24,14 +24,27 @@
 /// <reference types="mongoose" />
 /// <reference types="mongoose/types/inferschematype" />
 import { NewsService } from "./news.service";
-import { GetRecommendationDto } from "../alphavantage/dto/GetRecommendation.dto";
 declare class newsIdDto {
     newsId: string;
+}
+declare enum periodEnum {
+    "old" = "old",
+    "new" = "new"
+}
+declare class FiltersDto {
+    isCryptocurrency?: boolean;
+    period?: periodEnum;
+}
+declare class GetNewsDto {
+    forIgnore?: string[];
+    amount: number;
+    filters?: FiltersDto;
+    asset: string;
 }
 export declare class NewsController {
     private newsService;
     constructor(newsService: NewsService);
-    topNews(req: any, dto: GetRecommendationDto): Promise<any[]>;
+    topNews(req: any, dto: GetNewsDto): Promise<any[]>;
     likeNews(req: any, dto: newsIdDto): Promise<import("mongoose").Document<unknown, any, import("./news.schema").News> & import("./news.schema").News & {
         _id: import("mongoose").Types.ObjectId;
     } & Required<{

@@ -87,7 +87,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "likedSectors", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true }),
+    (0, mongoose_1.Prop)({ type: String, required: true, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "mobileNumber", void 0);
 __decorate([
@@ -95,7 +95,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "pin", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [String], enum: UserRole_dto_1.UserRole, default: UserRole_dto_1.UserRole[0] }),
+    (0, mongoose_1.Prop)({ type: [String], enum: UserRole_dto_1.UserRole, default: UserRole_dto_1.UserRole[0], select: false }),
     __metadata("design:type", Array)
 ], User.prototype, "roles", void 0);
 __decorate([
@@ -103,11 +103,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "username", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(String),
+    (0, mongoose_1.Prop)({ type: String, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Boolean, default: false }),
+    (0, mongoose_1.Prop)({ type: Boolean, default: false, select: false }),
     __metadata("design:type", Boolean)
 ], User.prototype, "emailConfirmed", void 0);
 __decorate([
@@ -115,7 +115,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "acceptNotifications", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }], default: [] }),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }], select: false }),
     __metadata("design:type", Array)
 ], User.prototype, "sessions", void 0);
 __decorate([
@@ -127,7 +127,7 @@ __decorate([
     __metadata("design:type", Date)
 ], User.prototype, "lastActivity", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], default: [] }),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], select: false }),
     __metadata("design:type", Array)
 ], User.prototype, "addresses", void 0);
 User = __decorate([

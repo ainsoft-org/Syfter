@@ -29,6 +29,11 @@ const SentimentSchema = SchemaFactory.createForClass(Sentiment);
 
 @Schema({ timestamps: true })
 export class News {
+  @Prop({ type: String, required: true })
+  textContent: string;
+  @Prop({ type: String, required: true })
+  content: string;
+
   @Prop({ type: Number, default: 0 })
   likes: number;
   @Prop({ type: Number, default: 0 })

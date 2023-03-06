@@ -143,7 +143,7 @@ export class AuthService {
     }
 
     const foundUser = await this.userModel.findOne({ mobileNumber: foundAuthingUser.mobileNumber })
-      .select("+pin");
+      .select("+pin +sessions");
 
     if(dto.pin !== foundUser.pin) { // need to compare
       throw new HttpException('PIN is not correct', HttpStatus.FORBIDDEN);
@@ -176,7 +176,7 @@ export class AuthService {
   }
 
   async logout(userId: string, refreshToken: string) {
-    const foundUser = await this.userModel.findById(userId);
+    const foundUser = await this.userModel.findById(userId).select("+sessions");
     if(!foundUser) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }

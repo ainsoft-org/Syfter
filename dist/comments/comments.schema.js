@@ -50,6 +50,10 @@ __decorate([
     __metadata("design:type", Array)
 ], Comment.prototype, "replies", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: "comment", immutable: true }),
+    __metadata("design:type", Comment)
+], Comment.prototype, "mainComment", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: Number, default: 0 }),
     __metadata("design:type", Number)
 ], Comment.prototype, "likes", void 0);

@@ -52,6 +52,14 @@ const SentimentSchema = mongoose_1.SchemaFactory.createForClass(Sentiment);
 let News = class News {
 };
 __decorate([
+    (0, mongoose_1.Prop)({ type: String, required: true }),
+    __metadata("design:type", String)
+], News.prototype, "textContent", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String, required: true }),
+    __metadata("design:type", String)
+], News.prototype, "content", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: Number, default: 0 }),
     __metadata("design:type", Number)
 ], News.prototype, "likes", void 0);

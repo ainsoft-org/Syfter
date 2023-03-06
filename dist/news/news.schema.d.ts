@@ -13,6 +13,8 @@ declare class Sentiment {
     sentiment_label: string;
 }
 export declare class News {
+    textContent: string;
+    content: string;
     likes: number;
     dislikes: number;
     coeffLike: number;

@@ -52,7 +52,7 @@ let AlphavantageController = class AlphavantageController {
     }
     async getAssetData(req, dto) {
         const assets = await this.aplhavantageService.getAssetsById(dto.assets);
-        return this.aplhavantageService.getAssetData(assets, dto?.interval);
+        return this.aplhavantageService.getAssetData(assets, dto.interval || "24H", dto?.chartType);
     }
     async reactToAsset(req, dto) {
         return this.aplhavantageService.reactToAsset(dto, req.user.sub);

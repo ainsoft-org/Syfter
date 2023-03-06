@@ -1,9 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User, UserDocument } from "../user/user.schema";
-import { Model } from "mongoose";
+import mongoose, { Model } from "mongoose";
 import { CommentDocument, Comment } from "./comments.schema";
 import { Currency, CurrencyDocument } from "../alphavantage/currency.schema";
+import { first } from "rxjs";
 
 @Injectable()
 export class CommentsService {
@@ -36,22 +37,177 @@ export class CommentsService {
     const comment = await this.commentModel.findById(replyTo);
     if(!comment) throw new HttpException("Comment for reply not found", HttpStatus.NOT_FOUND);
 
-    let firstLevelComment = comment;
-    while(firstLevelComment.isReply) {
-      firstLevelComment = await this.commentModel.findById(firstLevelComment.replyTo);
-    }
+    const mainComment = await this.commentModel.findById(comment.mainComment);
 
-    const reply = new this.commentModel({
+    const reply: any = new this.commentModel({
       content,
       author,
       asset,
       isReply: true,
-      replyTo: comment
+      replyTo: comment,
+      mainComment
     });
     await reply.save();
-    firstLevelComment.replies.push(reply);
-    await firstLevelComment.save();
+    mainComment.replies.push(reply);
+    await mainComment.save();
+    asset.comments.push(reply);
+    await asset.save();
     return reply;
+  }
+
+  async removeComment(userId: string, commentId: string) {
+    const comment = await this.commentModel.findById(commentId);
+    if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
+    if(comment.author.toString() !== userId) throw new HttpException("No access", HttpStatus.FORBIDDEN);
+
+    const asset = await this.currencyModel.findById(comment.asset);
+    if(asset) {
+      const commentIndex = asset.comments.findIndex(assetComment => assetComment.toString() === commentId);
+      if(commentIndex !== -1) {
+        asset.comments.splice(commentIndex, 1);
+        await asset.save();
+      }
+    }
+
+    // console.log(comment.toObject())
+
+    if(comment.isReply) {
+      const mainComment = await this.commentModel.findById(comment.mainComment);
+
+      const replyIndex = mainComment.replies.findIndex(reply => reply.toString() === commentId);
+      if(replyIndex !== -1) {
+        mainComment.replies.splice(replyIndex);
+      }
+      await mainComment.save();
+    }
+
+    const user = await this.userModel.findById(userId);
+    const commentIndex = user.comments.findIndex(userComment => userComment.toString() === commentId);
+    if(commentIndex !== -1) {
+      user.comments.splice(commentIndex, 1);
+    }
+
+    await user.save();
+    await comment.remove();
+
+    return { message: "removed" };
+  }
+
+
+
+
+  async likeComment(userId: string, commentId: string) {
+    const user = await this.userModel.findById(userId);
+    const comment = await this.commentModel.findById(commentId);
+    if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
+
+    const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
+    if(likedCommentIndex !== -1) {
+      // throw new HttpException("Already liked", HttpStatus.BAD_REQUEST);
+      comment.likes--;
+      user.likedComments.splice(likedCommentIndex, 1);
+      await user.save();
+      await comment.save();
+      return comment;
+    }
+
+    const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
+    if(dislikedCommentIndex !== -1) {
+      user.dislikedComments.splice(dislikedCommentIndex);
+      comment.dislikes--;
+    }
+
+    comment.likes++;
+
+    user.likedComments.push(comment);
+
+    await comment.save();
+    await user.save();
+    return comment;
+  }
+
+  async dislikeComment(userId: string, commentId: string) {
+    const user = await this.userModel.findById(userId);
+    const comment = await this.commentModel.findById(commentId);
+    if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
+
+    const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
+    if(dislikedCommentIndex !== -1) {
+      comment.dislikes--;
+      user.dislikedComments.splice(dislikedCommentIndex, 1);
+      await user.save();
+      await comment.save();
+      return comment;
+    }
+
+    const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
+    if(likedCommentIndex !== -1) {
+      user.likedComments.splice(likedCommentIndex);
+      comment.likes--;
+    }
+
+    comment.dislikes++;
+    user.dislikedComments.push(comment);
+    await comment.save();
+    await user.save();
+    return comment;
+  }
+
+  async getIdeas(amount: number, sortBy: string, forIgnore: string[], repliesTo: string) {
+    const sortByKey: any = {};
+    if(sortBy === "reputation") {
+      sortByKey.createdAt = -1;
+    } else {
+      sortByKey.reputation = -1;
+    }
+
+    const match: any = {};
+    if(repliesTo) {
+      const comment = await this.commentModel.findById(repliesTo).select("replies");
+      if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
+      match._id = {
+        $in: comment.replies.map(id => new mongoose.Types.ObjectId(id.toString()))
+      };
+    }
+
+    const ideas = await this.commentModel.aggregate([
+      {$match: {
+        _id: {
+          $nin: forIgnore.map(id => new mongoose.Types.ObjectId(id))
+        },
+        ...match
+      }},
+      {$addFields: {
+        reputation: {$subtract: ["$likes", "$dislikes"]}
+      }},
+      {$sort: {
+        ...sortByKey
+      }},
+      {$limit: amount},
+      {$lookup: {
+        from: "users",
+        localField: "author",
+        foreignField: "_id",
+        as: "author"
+      }},
+      {$unwind:
+        "$author"
+      },
+      {$project: {
+        "_id": 1,
+        "content": 1,
+        "asset": 1,
+        "replyTo": 1,
+        "isReply": 1,
+        "replies": 1,
+        "reputation": 1,
+        "createdAt": 1,
+        "author.avatar": 1,
+        "author.username": 1
+      }}
+    ]);
+
+    return ideas;
   }
 
 }

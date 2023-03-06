@@ -118,7 +118,7 @@ let AuthService = class AuthService {
             throw new common_1.HttpException('Authing user not found by this authToken', common_1.HttpStatus.NOT_FOUND);
         }
         const foundUser = await this.userModel.findOne({ mobileNumber: foundAuthingUser.mobileNumber })
-            .select("+pin");
+            .select("+pin +sessions");
         if (dto.pin !== foundUser.pin) {
             throw new common_1.HttpException('PIN is not correct', common_1.HttpStatus.FORBIDDEN);
         }
@@ -146,7 +146,7 @@ let AuthService = class AuthService {
         }
     }
     async logout(userId, refreshToken) {
-        const foundUser = await this.userModel.findById(userId);
+        const foundUser = await this.userModel.findById(userId).select("+sessions");
         if (!foundUser) {
             throw new common_1.HttpException('User not found', common_1.HttpStatus.NOT_FOUND);
         }

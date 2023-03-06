@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const currency_schema_1 = require("./currency.schema");
-const refreshCurrencies_1 = require("./funcs/refreshCurrencies");
 const news_schema_1 = require("../news/news.schema");
 const currentStat_schema_1 = require("./currentStat.schema");
 const user_schema_1 = require("../user/user.schema");
@@ -40,17 +39,20 @@ let AlphavantageService = class AlphavantageService {
         nextDay.setMinutes(0);
         nextDay.setSeconds(0);
         setTimeout(() => {
-            (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             setInterval(() => {
-                (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             }, Number(process.env.refreshAssetsEvery));
         }, nextDay.getTime() - now.getTime());
         setTimeout(() => {
-            (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
             setInterval(() => {
-                (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
             }, Number(process.env.refreshCryptosEvery));
         }, nextDay.getTime() - now.getTime());
+        const clearNews = async () => {
+            const news = await this.newsModel.find().limit(10000);
+            for (let i = 0; i < news.length; i++) {
+                await news[i].remove();
+            }
+        };
+        clearNews();
     }
     async getRecommendation(userId, filters, amount = 1, forIgnore = [], type = "") {
         if (amount <= 0) {
@@ -323,7 +325,7 @@ let AlphavantageService = class AlphavantageService {
             throw new common_1.HttpException("Invalid id one of assets", common_1.HttpStatus.BAD_REQUEST);
         }
     }
-    async getAssetData(assets, interval = "24H") {
+    async getAssetData(assets, interval = "24H", chartType = "regular") {
         for (let i = 0; i < assets.length; i++) {
             try {
                 assets[i] = assets[i].toObject();
@@ -342,31 +344,31 @@ let AlphavantageService = class AlphavantageService {
                 data = await (0, aplha_api_1.alpha_api)("TIME_SERIES_INTRADAY", { key: "symbol", value: symbol }, { key: "interval", value: "30min" });
                 switch (interval) {
                     case "1H":
-                        await (0, getCharts_1.set1HourChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.set1HourChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "5H":
-                        await (0, getCharts_1.set5HoursChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.set5HoursChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "24H":
-                        await (0, getCharts_1.setDayChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.setDayChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "1W":
-                        await (0, getCharts_1.setWeekChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.setWeekChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "15D":
-                        await (0, getCharts_1.set15DaysChartSeries)(filteredChartData, asset);
+                        await (0, getCharts_1.set15DaysChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "1M":
-                        await (0, getCharts_1.setMonthChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.setMonthChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "5M":
-                        await (0, getCharts_1.set5MonthsChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.set5MonthsChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "1Y":
-                        await (0, getCharts_1.setYearChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.setYearChartSeries)(filteredChartData, symbol, chartType);
                         break;
                     case "All":
-                        await (0, getCharts_1.setAllChartSeries)(filteredChartData, symbol);
+                        await (0, getCharts_1.setAllChartSeries)(filteredChartData, symbol, chartType);
                         break;
                 }
             }
@@ -375,31 +377,31 @@ let AlphavantageService = class AlphavantageService {
                 data = await (0, aplha_api_1.alpha_api)("CRYPTO_INTRADAY", { key: "symbol", value: asset.Symbol }, { key: "interval", value: "30min" }, { key: "market", value: "USD" });
                 switch (interval) {
                     case "1H":
-                        await (0, getCharts_1.set1HourChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.set1HourChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "5H":
-                        await (0, getCharts_1.set5HoursChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.set5HoursChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "24H":
-                        await (0, getCharts_1.setDayChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.setDayChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "1W":
-                        await (0, getCharts_1.setWeekChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.setWeekChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "15D":
-                        await (0, getCharts_1.set15DaysChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.set15DaysChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "1M":
-                        await (0, getCharts_1.setMonthChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.setMonthChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "5M":
-                        await (0, getCharts_1.set5MonthsChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.set5MonthsChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "1Y":
-                        await (0, getCharts_1.setYearChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.setYearChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                     case "All":
-                        await (0, getCharts_1.setAllChartSeriesCrypto)(filteredChartData, asset.Symbol);
+                        await (0, getCharts_1.setAllChartSeriesCrypto)(filteredChartData, asset.Symbol, chartType);
                         break;
                 }
             }

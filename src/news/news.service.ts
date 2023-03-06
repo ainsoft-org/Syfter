@@ -4,6 +4,8 @@ import { News, NewsDocument } from "./news.schema";
 import mongoose, { Model } from "mongoose";
 import { Cache } from "cache-manager";
 import { User, UserDocument } from "../user/user.schema";
+import { Readability } from "@mozilla/readability";
+import { JSDOM } from 'jsdom';
 
 @Injectable()
 export class NewsService {
@@ -13,17 +15,7 @@ export class NewsService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
 
-    // const getNews = async () => {
-    //   await this.getNews(10, {isCryptocurrency: false, period: "new"});
-    //
-    // }
-    //
-    // getNews();
-
-    // this.getNews(10, {isCryptocurrency: false, period: "new"});
-
   }
-
 
   async likeNews(userId: string, newsId: string) {
     const user = await this.userModel.findById(userId);
@@ -93,7 +85,7 @@ export class NewsService {
     return news;
   }
 
-  async getNews(amount: number, filters: any = {}, forIgnore: string[] = []) {
+  async getNews(asset: string, amount: number, filters: any = {}, forIgnore: string[] = []) {
     const newPeriod = 605000000;
     // const oldPeriod = 1210000000;
 
@@ -111,9 +103,10 @@ export class NewsService {
       matches.AssetType = { $ne: "Cryptocurrency" };
     }
 
-    console.log(matches)
-
     const news = await this.newsModel.aggregate([
+      {$match: {
+        currency: new mongoose.Types.ObjectId(asset)
+      }},
       {$addFields: {
         dateDifference: {$dateDiff: {
           startDate: "$time_published",
@@ -131,9 +124,7 @@ export class NewsService {
         coeffLike: -1
       }},
       {$limit: amount},
-    ]);
-
-    console.log(news)
+    ])
 
     return news;
   }

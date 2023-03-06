@@ -60,7 +60,7 @@ export async function getAssetData24h(symbol: string) {
   }
 }
 
-export async function set5HoursChartSeries(filteredChartData, symbol) {
+export async function set5HoursChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_INTRADAY",
@@ -73,7 +73,7 @@ export async function set5HoursChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 18000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -83,7 +83,7 @@ export async function set5HoursChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function set5HoursChartSeriesCrypto(filteredChartData, symbol) {
+export async function set5HoursChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "CRYPTO_INTRADAY",
@@ -97,7 +97,7 @@ export async function set5HoursChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 18000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -108,7 +108,7 @@ export async function set5HoursChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function set1HourChartSeries(filteredChartData, symbol) {
+export async function set1HourChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_INTRADAY",
@@ -121,7 +121,7 @@ export async function set1HourChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 3600000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -131,7 +131,7 @@ export async function set1HourChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function set1HourChartSeriesCrypto(filteredChartData, symbol) {
+export async function set1HourChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "CRYPTO_INTRADAY",
@@ -145,7 +145,7 @@ export async function set1HourChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 3600000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -156,7 +156,7 @@ export async function set1HourChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function setDayChartSeries(filteredChartData, symbol) {
+export async function setDayChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_INTRADAY",
@@ -169,7 +169,7 @@ export async function setDayChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 86400000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -179,7 +179,7 @@ export async function setDayChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function setDayChartSeriesCrypto(filteredChartData, symbol) {
+export async function setDayChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "CRYPTO_INTRADAY",
@@ -193,7 +193,7 @@ export async function setDayChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 86400000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -204,7 +204,7 @@ export async function setDayChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function setWeekChartSeries(filteredChartData, symbol) {
+export async function setWeekChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_INTRADAY",
@@ -217,7 +217,7 @@ export async function setWeekChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 604800000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -227,7 +227,7 @@ export async function setWeekChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function setWeekChartSeriesCrypto(filteredChartData, symbol) {
+export async function setWeekChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "CRYPTO_INTRADAY",
@@ -241,7 +241,7 @@ export async function setWeekChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 604800000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -252,7 +252,7 @@ export async function setWeekChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function set15DaysChartSeries(filteredChartData, symbol) {
+export async function set15DaysChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_DAILY",
@@ -264,7 +264,7 @@ export async function set15DaysChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 1296000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -274,7 +274,7 @@ export async function set15DaysChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function set15DaysChartSeriesCrypto(filteredChartData, symbol) {
+export async function set15DaysChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "DIGITAL_CURRENCY_DAILY",
@@ -287,7 +287,7 @@ export async function set15DaysChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 1296000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4b. close (USD)"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4b. close (USD)"]) : chartSeries[item];
         continue;
       }
 
@@ -298,7 +298,7 @@ export async function set15DaysChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function setMonthChartSeries(filteredChartData, symbol) {
+export async function setMonthChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_DAILY",
@@ -310,7 +310,7 @@ export async function setMonthChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 2628000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -320,7 +320,7 @@ export async function setMonthChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function setMonthChartSeriesCrypto(filteredChartData, symbol) {
+export async function setMonthChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "DIGITAL_CURRENCY_DAILY",
@@ -333,7 +333,7 @@ export async function setMonthChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 2628000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4b. close (USD)"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4b. close (USD)"]) : chartSeries[item];
         continue;
       }
 
@@ -344,7 +344,7 @@ export async function setMonthChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function set5MonthsChartSeries(filteredChartData, symbol) {
+export async function set5MonthsChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_DAILY",
@@ -356,7 +356,7 @@ export async function set5MonthsChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 13140000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -366,7 +366,7 @@ export async function set5MonthsChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function set5MonthsChartSeriesCrypto(filteredChartData, symbol) {
+export async function set5MonthsChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "DIGITAL_CURRENCY_DAILY",
@@ -379,7 +379,7 @@ export async function set5MonthsChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 13140000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4b. close (USD)"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4b. close (USD)"]) : chartSeries[item];
         continue;
       }
 
@@ -390,7 +390,7 @@ export async function set5MonthsChartSeriesCrypto(filteredChartData, symbol) {
   }
 }
 
-export async function setYearChartSeries(filteredChartData, symbol) {
+export async function setYearChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_WEEKLY",
@@ -402,7 +402,7 @@ export async function setYearChartSeries(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 31540000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
         continue;
       }
 
@@ -412,7 +412,7 @@ export async function setYearChartSeries(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function setYearChartSeriesCrypto(filteredChartData, symbol) {
+export async function setYearChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "DIGITAL_CURRENCY_WEEKLY",
@@ -425,7 +425,7 @@ export async function setYearChartSeriesCrypto(filteredChartData, symbol) {
     for(const item in chartSeries) {
       const date = new Date(item);
       if(new Date(lastItem).getTime() - date.getTime() < 31540000000) {
-        filteredChartData[item] = Number(chartSeries[item]["4b. close (USD)"]);
+        filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4b. close (USD)"]) : chartSeries[item];
         continue;
       }
 
@@ -435,7 +435,7 @@ export async function setYearChartSeriesCrypto(filteredChartData, symbol) {
     filteredChartData = [];
   }
 }
-export async function setAllChartSeries(filteredChartData, symbol) {
+export async function setAllChartSeries(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "TIME_SERIES_MONTHLY",
@@ -446,14 +446,14 @@ export async function setAllChartSeries(filteredChartData, symbol) {
     const lastItem = Object.keys(chartSeries)[0];
     for(const item in chartSeries) {
       const date = new Date(item);
-      filteredChartData[item] = Number(chartSeries[item]["4. close"]);
+      filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
     }
   } catch (err) {
     filteredChartData = [];
   }
 }
 
-export async function setAllChartSeriesCrypto(filteredChartData, symbol) {
+export async function setAllChartSeriesCrypto(filteredChartData, symbol, chartType: string) {
   try {
     const chartData = await alpha_api(
       "DIGITAL_CURRENCY_MONTHLY",
@@ -465,7 +465,7 @@ export async function setAllChartSeriesCrypto(filteredChartData, symbol) {
     const lastItem = Object.keys(chartSeries)[0];
     for(const item in chartSeries) {
       const date = new Date(item);
-      filteredChartData[item] = Number(chartSeries[item]["4b. close (USD)"]);
+      filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4b. close (USD)"]) : chartSeries[item];
     }
   } catch (err) {
     filteredChartData = [];

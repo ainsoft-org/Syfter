@@ -1,8 +1,18 @@
-import { IsString } from "class-validator"
+import { IsOptional, IsString } from "class-validator";
 import { ChartIntervalDto } from "./ChartInterval.dto";
 import { Type } from "class-transformer";
+
+export enum ChartTypes {
+  "regular",
+  "candlestick"
+}
 
 export class GetAssetDataDto extends ChartIntervalDto {
   @IsString({each: true})
   assets: string[];
+
+  @IsOptional()
+  @IsString()
+
+  chartType?: string;
 }

@@ -9,24 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetAssetDataDto = exports.ChartTypes = void 0;
+exports.RemoveCommentDto = void 0;
 const class_validator_1 = require("class-validator");
-const ChartInterval_dto_1 = require("./ChartInterval.dto");
-var ChartTypes;
-(function (ChartTypes) {
-    ChartTypes[ChartTypes["regular"] = 0] = "regular";
-    ChartTypes[ChartTypes["candlestick"] = 1] = "candlestick";
-})(ChartTypes = exports.ChartTypes || (exports.ChartTypes = {}));
-class GetAssetDataDto extends ChartInterval_dto_1.ChartIntervalDto {
+class RemoveCommentDto {
 }
 __decorate([
-    (0, class_validator_1.IsString)({ each: true }),
-    __metadata("design:type", Array)
-], GetAssetDataDto.prototype, "assets", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
-], GetAssetDataDto.prototype, "chartType", void 0);
-exports.GetAssetDataDto = GetAssetDataDto;
-//# sourceMappingURL=GetAssetData.dto.js.map
+], RemoveCommentDto.prototype, "commentId", void 0);
+exports.RemoveCommentDto = RemoveCommentDto;
+//# sourceMappingURL=RemoveComment.dto.js.map

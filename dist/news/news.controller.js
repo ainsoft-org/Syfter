@@ -16,20 +16,60 @@ exports.NewsController = void 0;
 const common_1 = require("@nestjs/common");
 const news_service_1 = require("./news.service");
 const passport_1 = require("@nestjs/passport");
-const GetRecommendation_dto_1 = require("../alphavantage/dto/GetRecommendation.dto");
 const class_validator_1 = require("class-validator");
+const class_transformer_1 = require("class-transformer");
 class newsIdDto {
 }
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], newsIdDto.prototype, "newsId", void 0);
+var periodEnum;
+(function (periodEnum) {
+    periodEnum["old"] = "old";
+    periodEnum["new"] = "new";
+})(periodEnum || (periodEnum = {}));
+class FiltersDto {
+}
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], FiltersDto.prototype, "isCryptocurrency", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEnum)(periodEnum),
+    __metadata("design:type", String)
+], FiltersDto.prototype, "period", void 0);
+class GetNewsDto {
+}
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    __metadata("design:type", Array)
+], GetNewsDto.prototype, "forIgnore", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsPositive)(),
+    __metadata("design:type", Number)
+], GetNewsDto.prototype, "amount", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_transformer_1.Type)(() => FiltersDto),
+    __metadata("design:type", FiltersDto)
+], GetNewsDto.prototype, "filters", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], GetNewsDto.prototype, "asset", void 0);
 let NewsController = class NewsController {
     constructor(newsService) {
         this.newsService = newsService;
     }
     async topNews(req, dto) {
-        return this.newsService.getNews(dto.amount, dto?.filters ? dto.filters : {}, dto.forIgnore);
+        return this.newsService.getNews(dto.asset, dto.amount, dto?.filters || {}, dto.forIgnore);
     }
     async likeNews(req, dto) {
         return this.newsService.likeNews(req.user.sub, dto.newsId);
@@ -44,7 +84,7 @@ __decorate([
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, GetRecommendation_dto_1.GetRecommendationDto]),
+    __metadata("design:paramtypes", [Object, GetNewsDto]),
     __metadata("design:returntype", Promise)
 ], NewsController.prototype, "topNews", null);
 __decorate([

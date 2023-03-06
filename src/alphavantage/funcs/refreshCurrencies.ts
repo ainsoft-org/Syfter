@@ -6,6 +6,9 @@ import { toDate } from "../../common/convertDate";
 import { CurrentStatDocument } from "../currentStat.schema";
 import { alpha_api } from "./aplha_api";
 import { getAssetData24h } from "./getCharts";
+import { Readability } from "@mozilla/readability";
+import { JSDOM } from 'jsdom';
+import axios from "axios";
 
 const speed = Number(process.env.ASSETS_REFRESH_SPEED);
 
@@ -50,7 +53,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
         ExchangeRate: chartSeries[lastItem]["4. close"]
       };
 
-      let foundCurrency = await currencyModel.findOne({ Symbol: cryptoModified.Symbol });
+      let foundCurrency = await currencyModel.findOne({ Symbol: cryptoModified.Symbol }).select("+news");
       if(!foundCurrency) {
         try {
           foundCurrency = new currencyModel(cryptoModified);
@@ -115,6 +118,26 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
   }
 }
 
+function trimNewlines(text) {
+  const regex = /(\s*\n\s*){2,}/g;
+  const trimmedText = text.replace(regex, '\n\n');
+  return trimmedText;
+}
+async function findMainContent(url) {
+  const response = await axios.get(url);
+  if(response.statusText !== "OK") {
+    console.log("NOT OK")
+    return null;
+  }
+  console.log(response.statusText)
+  const html = await response.data;
+
+  const doc = new JSDOM(html, { url: url });
+  const reader = new Readability(doc.window.document);
+  const article = reader.parse();
+
+  return {textContent: trimNewlines(article.textContent), content: trimNewlines(article.content)};
+}
 
 export async function loadNews(symbol: string, foundCurrency, newsModel: Model<NewsDocument>) { // symbol - `CRYPTO:${cryptos[i]["currency code"]}` / currencies[i].symbol
   try {
@@ -142,10 +165,12 @@ export async function loadNews(symbol: string, foundCurrency, newsModel: Model<N
 
       for(let j=0; j<news.feed.length; j++) {
         const date = toDate(news.feed[j].time_published);
+        const contents = await findMainContent(news.feed[j].url);
 
         const newNews = new newsModel({
           currency: foundCurrency,
           ...news.feed[j],
+          ...contents,
           time_published: date,
           newsId: news.feed[j].url + news.feed[j].title,
           AssetType: symbol.includes("CRYPTO") ? "Cryptocurrency" : "Stock"
@@ -187,18 +212,22 @@ export async function loadNews(symbol: string, foundCurrency, newsModel: Model<N
 
     const newNewsList = news.feed.slice(0, lastNewsIndex);
     for (let j = newNewsList.length - 1; j >= 0; j--) { // adding new news to top
+      const contents = await findMainContent(news.feed[j].url);
+
       const newNews = new newsModel({
         currency: foundCurrency,
         ...newNewsList[j],
+        ...contents,
         time_published: toDate(newNewsList[j].time_published),
-        newsId: news.feed[j].url + news.feed[j].title
+        newsId: news.feed[j].url + news.feed[j].title,
+        AssetType: symbol.includes("CRYPTO") ? "Cryptocurrency" : "Stock"
       });
       await newNews.save();
       foundCurrency.news.unshift(newNews);
     }
 
   } catch (err) {
-    console.log(err)
+    // console.log(err)
     console.log("Error news loading");
   }
 
@@ -241,7 +270,7 @@ export const refreshCurrencies = async (
     currencyData.ExchangeRate = temporaryData.ExchangeRate;
     currencyData.boomRatio = !isNaN(temporaryData.boomRatio) ? temporaryData.boomRatio : -1000;
 
-    let foundCurrency = await currencyModel.findOne({ Symbol: currencyData.Symbol });
+    let foundCurrency = await currencyModel.findOne({ Symbol: currencyData.Symbol }).select("+news");
 
     if(!foundCurrency) {
       try {

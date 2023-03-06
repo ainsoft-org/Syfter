@@ -56,26 +56,26 @@ export class User {
   @Prop({ type: [SectorLikesSchema] })
   likedSectors: SectorLikes[];
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, select: false })
   mobileNumber: string;
 
   @Prop({ type: String, select: false, length: 4 })
   pin: string;
 
-  @Prop({ type: [String], enum: UserRole, default: UserRole[0] })
+  @Prop({ type: [String], enum: UserRole, default: UserRole[0], select: false })
   roles: string[];
 
   @Prop(String)
   username: string;
 
-  @Prop(String)
+  @Prop({ type: String, select: false })
   email: string;
-  @Prop({ type: Boolean, default: false })
+  @Prop({ type: Boolean, default: false, select: false })
   emailConfirmed: boolean;
   @Prop({ type: Boolean, default: true })
   acceptNotifications: boolean;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }], default: [] })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Session' }], select: false })
   sessions: Session[];
   @Prop({ type: String, enum: Period, default: Period[0] })
   sessionTerminationTimeframe: string;
@@ -83,7 +83,7 @@ export class User {
   @Prop({ type: Date, default: new Date() })
   lastActivity: Date;
 
-  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], default: [] })
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Address' }], select: false })
   addresses: Address[];
 }
 

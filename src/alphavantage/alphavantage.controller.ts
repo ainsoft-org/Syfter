@@ -41,7 +41,7 @@ export class AlphavantageController {
   @Post('getAssetData')
   async getAssetData(@Request() req, @Body() dto: GetAssetDataDto) {
     const assets = await this.aplhavantageService.getAssetsById(dto.assets);
-    return this.aplhavantageService.getAssetData(assets, dto?.interval);
+    return this.aplhavantageService.getAssetData(assets, dto.interval || "24H", dto?.chartType);
   }
 
   @UseGuards(AuthGuard('jwt'))

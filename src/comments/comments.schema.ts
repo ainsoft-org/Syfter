@@ -25,6 +25,8 @@ export class Comment {
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: "comment" }] })
   replies: Comment[];
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "comment", immutable: true })
+  mainComment?: Comment;
 
   validate() {
     if (this.isReply && this.replies) {
