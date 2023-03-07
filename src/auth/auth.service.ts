@@ -42,14 +42,14 @@ export class AuthService {
     @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
-    setInterval(async () => {
-      if(await clearRegisteringUsers(regingUserModel)) {
-        console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
-      }
-      if(await clearAuthingUsers(authingUserModel)) {
-        console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
-      }
-    }, clearRegisteringUsersEvery);
+    // setInterval(async () => {
+    //   if(await clearRegisteringUsers(regingUserModel)) {
+    //     console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
+    //   }
+    //   if(await clearAuthingUsers(authingUserModel)) {
+    //     console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
+    //   }
+    // }, clearRegisteringUsersEvery);
 
 
     const regTestUsers = async () => {
