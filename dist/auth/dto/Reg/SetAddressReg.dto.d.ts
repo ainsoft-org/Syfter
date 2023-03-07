@@ -4,4 +4,5 @@ export declare class SetAddressRegDto {
     device: string;
     country: string;
     deviceID: string;
+    flag?: boolean;
 }

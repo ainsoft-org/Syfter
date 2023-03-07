@@ -32,7 +32,7 @@ const clearAuthingUsers_provider_1 = require("./providers/clearAuthingUsers.prov
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
 let AuthService = class AuthService {
-    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService) {
+    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService, cacheManager) {
         this.regingUserModel = regingUserModel;
         this.userModel = userModel;
         this.addressModel = addressModel;
@@ -41,6 +41,7 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.mailingService = mailingService;
         this.alphaVantageService = alphaVantageService;
+        this.cacheManager = cacheManager;
         const clearRegisteringUsersEvery = Number(process.env.clearRegisteringUsersEvery);
         setInterval(async () => {
             if (await (0, clearRegisteringUsers_provider_1.clearRegisteringUsers)(regingUserModel)) {
@@ -227,7 +228,11 @@ let AuthService = class AuthService {
             data: foundAuthingUserObject
         };
     }
-    async sendRegConfirmationCode(mobileNumber) {
+    async sendRegConfirmationCode(mobileNumber, flag = false) {
+        const conf_code = await this.cacheManager.get("conf_code");
+        if (conf_code && !flag) {
+            return conf_code;
+        }
         const formattedPhone = (0, phoneNumber_provider_1.parsePhone)(mobileNumber.number).formatInternational();
         const foundUserByPhoneNumber = await this.userModel.findOne({ mobileNumber: formattedPhone });
         if (foundUserByPhoneNumber) {
@@ -266,12 +271,20 @@ let AuthService = class AuthService {
         await foundRegingUser.save();
         await (0, sendSMS_provider_1.sendSMS)("", "", "");
         const foundRegingUserObject = foundRegingUser.toObject();
+        await this.cacheManager.set("conf_code", {
+            message: `Confirmation code resent to number: ${formattedPhone}`,
+            data: foundRegingUserObject
+        }, 3600000000);
         return {
             message: `Confirmation code resent to number: ${formattedPhone}`,
             data: foundRegingUserObject
         };
     }
-    async checkRegConfirmationCode(dto) {
+    async checkRegConfirmationCode(dto, flag = false) {
+        const check_conf_code = await this.cacheManager.get("check_conf_code");
+        if (check_conf_code && !flag) {
+            return check_conf_code;
+        }
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken }).select('+verificationCode');
         if (!foundRegingUser) {
             throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
@@ -285,40 +298,55 @@ let AuthService = class AuthService {
         foundRegingUser.stage = "PIN";
         await foundRegingUser.save();
         const foundRegingUserObj = foundRegingUser.toObject();
+        await this.cacheManager.set("check_conf_code", foundRegingUserObj, 3600000000);
         return foundRegingUserObj;
     }
-    async setPinReg(dto) {
+    async setPinReg(dto, flag = false) {
+        const pin_reg = await this.cacheManager.get("pin_reg");
+        if (pin_reg && !flag) {
+            return pin_reg;
+        }
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken });
         if (!foundRegingUser) {
-            throw new common_1.HttpException('Reging user not found by this phone number', common_1.HttpStatus.NOT_FOUND);
+            throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
         }
         if (foundRegingUser.stage !== "PIN") {
             throw new common_1.HttpException('Error stage for this endpoint', common_1.HttpStatus.BAD_REQUEST);
         }
         foundRegingUser.pin = dto.pin;
         foundRegingUser.stage = "USERNAME";
+        await this.cacheManager.set("pin_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setUsernameReg(dto) {
+    async setUsernameReg(dto, flag = false) {
+        const username_reg = await this.cacheManager.get("username_reg");
+        if (username_reg && !flag) {
+            return username_reg;
+        }
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken });
         if (!foundRegingUser) {
-            throw new common_1.HttpException('Reging user not found by this phone number', common_1.HttpStatus.NOT_FOUND);
+            throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
         }
         if (foundRegingUser.stage !== "USERNAME") {
             throw new common_1.HttpException('Error stage for this endpoint', common_1.HttpStatus.BAD_REQUEST);
         }
         foundRegingUser.username = dto.username;
         foundRegingUser.stage = "EMAIL";
+        await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setEmailReg(dto) {
+    async setEmailReg(dto, flag = false) {
+        const email_reg = await this.cacheManager.get("email_reg");
+        if (email_reg && !flag) {
+            return email_reg;
+        }
         const foundByEmail = await this.userModel.findOne({ email: dto.email, emailConfirmed: true });
         if (foundByEmail) {
             throw new common_1.HttpException('This email is already taken', common_1.HttpStatus.BAD_REQUEST);
         }
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken });
         if (!foundRegingUser) {
-            throw new common_1.HttpException('Reging user not found by this phone number', common_1.HttpStatus.NOT_FOUND);
+            throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
         }
         if (foundRegingUser.stage !== "EMAIL") {
             throw new common_1.HttpException('Error stage for this endpoint', common_1.HttpStatus.BAD_REQUEST);
@@ -326,9 +354,14 @@ let AuthService = class AuthService {
         foundRegingUser.email = dto.email;
         foundRegingUser.acceptNotifications = dto.acceptNotifications;
         foundRegingUser.stage = "ADDRESS";
+        await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setAddressReg(dto) {
+    async setAddressReg(dto, flag = false) {
+        const address_reg = await this.cacheManager.get("address_reg");
+        if (address_reg && !flag) {
+            return address_reg;
+        }
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
             .select("+pin");
         if (!foundRegingUser) {
@@ -374,6 +407,7 @@ let AuthService = class AuthService {
             await newAddress.save();
             await newSession.save();
             await foundRegingUser.remove();
+            await this.cacheManager.set("username_reg", tokens, 3600000000);
             return tokens;
         }
         catch (err) {
@@ -389,6 +423,7 @@ AuthService = __decorate([
     __param(2, (0, mongoose_1.InjectModel)(address_schema_1.Address.name)),
     __param(3, (0, mongoose_1.InjectModel)(session_schema_1.Session.name)),
     __param(4, (0, mongoose_1.InjectModel)(authingUser_schema_1.AuthingUser.name)),
+    __param(8, (0, common_1.Inject)(common_1.CACHE_MANAGER)),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
@@ -396,7 +431,7 @@ AuthService = __decorate([
         mongoose_2.Model,
         jwt_1.JwtService,
         mailing_service_1.MailingService,
-        alphavantage_service_1.AlphavantageService])
+        alphavantage_service_1.AlphavantageService, Object])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

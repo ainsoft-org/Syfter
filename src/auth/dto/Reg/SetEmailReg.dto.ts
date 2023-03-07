@@ -1,4 +1,4 @@
-import { IsBoolean, IsEmail, IsUUID } from "class-validator";
+import { IsBoolean, IsEmail, IsOptional, IsUUID } from "class-validator";
 
 export class SetEmailRegDto {
   @IsUUID(4)
@@ -9,4 +9,8 @@ export class SetEmailRegDto {
 
   @IsBoolean()
   acceptNotifications: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  flag?: boolean;
 }

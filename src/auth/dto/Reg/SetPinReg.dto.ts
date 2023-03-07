@@ -1,4 +1,4 @@
-import { IsNumberString, IsUUID, Length } from "class-validator";
+import { IsBoolean, IsNumberString, IsOptional, IsUUID, Length } from "class-validator";
 
 export class SetPinRegDto {
   @IsUUID(4)
@@ -7,4 +7,8 @@ export class SetPinRegDto {
   @IsNumberString()
   @Length(4, 4)
   pin: string;
+
+  @IsOptional()
+  @IsBoolean()
+  flag?: boolean;
 }

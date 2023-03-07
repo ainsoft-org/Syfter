@@ -1,6 +1,10 @@
-import { IsNumberString, IsPhoneNumber } from "class-validator";
+import { IsBoolean, IsNumberString, IsOptional, IsPhoneNumber } from "class-validator";
 
 export class MobileNumberDto {
   @IsPhoneNumber()
   number: string;
+
+  @IsOptional()
+  @IsBoolean()
+  flag?: boolean;
 }

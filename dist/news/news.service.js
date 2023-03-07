@@ -80,7 +80,7 @@ let NewsService = class NewsService {
         await user.save();
         return news;
     }
-    async getNews(asset, amount, filters = {}, forIgnore = []) {
+    async getNews(amount, asset = "", filters = {}, forIgnore = []) {
         const newPeriod = 605000000;
         const matches = {};
         if (filters.period === "new") {
@@ -96,9 +96,7 @@ let NewsService = class NewsService {
             matches.AssetType = { $ne: "Cryptocurrency" };
         }
         const news = await this.newsModel.aggregate([
-            { $match: {
-                    currency: new mongoose_2.default.Types.ObjectId(asset)
-                } },
+            { $match: asset ? { currency: new mongoose_2.default.Types.ObjectId(asset) } : {} },
             { $addFields: {
                     dateDifference: { $dateDiff: {
                             startDate: "$time_published",

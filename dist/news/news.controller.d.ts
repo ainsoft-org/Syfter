@@ -39,7 +39,7 @@ declare class GetNewsDto {
     forIgnore?: string[];
     amount: number;
     filters?: FiltersDto;
-    asset: string;
+    asset?: string;
 }
 export declare class NewsController {
     private newsService;

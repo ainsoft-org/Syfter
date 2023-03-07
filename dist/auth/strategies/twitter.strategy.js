@@ -18,7 +18,7 @@ let TwitterStrategy = class TwitterStrategy extends (0, passport_1.PassportStrat
         super({
             consumerKey: process.env.TWITTER_API_KEY,
             consumerSecret: process.env.TWITTER_API_SECRET,
-            callbackURL: process.env.host
+            callbackURL: "http://localhost:3000/auth/twitter/redirect"
         });
     }
     async validate(accessToken, refreshToken, profile) {

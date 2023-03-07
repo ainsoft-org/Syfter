@@ -85,7 +85,7 @@ export class NewsService {
     return news;
   }
 
-  async getNews(asset: string, amount: number, filters: any = {}, forIgnore: string[] = []) {
+  async getNews(amount: number, asset = "", filters: any = {}, forIgnore: string[] = []) {
     const newPeriod = 605000000;
     // const oldPeriod = 1210000000;
 
@@ -104,9 +104,7 @@ export class NewsService {
     }
 
     const news = await this.newsModel.aggregate([
-      {$match: {
-        currency: new mongoose.Types.ObjectId(asset)
-      }},
+      {$match: asset ? { currency: new mongoose.Types.ObjectId(asset) } : {} },
       {$addFields: {
         dateDifference: {$dateDiff: {
           startDate: "$time_published",

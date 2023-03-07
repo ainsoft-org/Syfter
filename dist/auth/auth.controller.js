@@ -51,22 +51,22 @@ let AuthController = class AuthController {
         return this.authService.refreshToken(dto.refreshToken);
     }
     sendRegConfirmationCode(mobileNumber) {
-        return this.authService.sendRegConfirmationCode(mobileNumber);
+        return this.authService.sendRegConfirmationCode(mobileNumber, mobileNumber?.flag);
     }
     checkRegConfirmationCode(dto) {
-        return this.authService.checkRegConfirmationCode(dto);
+        return this.authService.checkRegConfirmationCode(dto, dto?.flag);
     }
     setPinReg(dto) {
-        return this.authService.setPinReg(dto);
+        return this.authService.setPinReg(dto, dto?.flag);
     }
     setUsernameReg(dto) {
-        return this.authService.setUsernameReg(dto);
+        return this.authService.setUsernameReg(dto, dto?.flag);
     }
     setEmailReg(dto) {
-        return this.authService.setEmailReg(dto);
+        return this.authService.setEmailReg(dto, dto?.flag);
     }
     setAddressReg(dto) {
-        return this.authService.setAddressReg(dto);
+        return this.authService.setAddressReg(dto, dto?.flag);
     }
 };
 __decorate([

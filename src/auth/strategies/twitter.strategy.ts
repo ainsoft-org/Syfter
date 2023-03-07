@@ -8,7 +8,7 @@ export class TwitterStrategy extends PassportStrategy(Strategy) {
     super({
       consumerKey: process.env.TWITTER_API_KEY,
       consumerSecret: process.env.TWITTER_API_SECRET,
-      callbackURL: process.env.host
+      callbackURL: "http://localhost:3000/auth/twitter/redirect" // process.env.host
     });
   }
 

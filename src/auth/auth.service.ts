@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { CACHE_MANAGER, HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { User, UserDocument } from "../user/user.schema";
 import { Model } from "mongoose";
@@ -26,6 +26,7 @@ import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { clearAuthingUsers } from "./providers/clearAuthingUsers.provider";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
+import { Cache } from "cache-manager";
 
 @Injectable()
 export class AuthService {
@@ -37,7 +38,8 @@ export class AuthService {
     @InjectModel(AuthingUser.name) private authingUserModel: Model<AuthingUserDocument>,
     private jwtService: JwtService,
     private mailingService: MailingService,
-    private alphaVantageService: AlphavantageService
+    private alphaVantageService: AlphavantageService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
     setInterval(async () => {
@@ -280,7 +282,12 @@ export class AuthService {
   }
 
   // Registration endpoints
-  async sendRegConfirmationCode(mobileNumber: MobileNumberDto) {
+  async sendRegConfirmationCode(mobileNumber: MobileNumberDto, flag = false) {
+    const conf_code: any = await this.cacheManager.get("conf_code");
+    if (conf_code && !flag) {
+      return conf_code;
+    }
+
     const formattedPhone = parsePhone(mobileNumber.number).formatInternational();
 
     const foundUserByPhoneNumber = await this.userModel.findOne({ mobileNumber: formattedPhone });
@@ -327,13 +334,24 @@ export class AuthService {
 
     const foundRegingUserObject = foundRegingUser.toObject();
     // delete foundRegingUserObject.verificationCode;
+
+    await this.cacheManager.set("conf_code", {
+      message: `Confirmation code resent to number: ${formattedPhone}`,
+      data: foundRegingUserObject
+    }, 3600000000);
+
     return {
       message: `Confirmation code resent to number: ${formattedPhone}`,
       data: foundRegingUserObject
     }
   }
 
-  async checkRegConfirmationCode(dto: CheckRegConfirmationCode) {
+  async checkRegConfirmationCode(dto: CheckRegConfirmationCode, flag = false) {
+    const check_conf_code: any = await this.cacheManager.get("check_conf_code");
+    if (check_conf_code && !flag) {
+      return check_conf_code;
+    }
+
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken }).select('+verificationCode');
     if(!foundRegingUser) {
       throw new HttpException('Reging user not found by this regToken', HttpStatus.NOT_FOUND);
@@ -352,13 +370,21 @@ export class AuthService {
 
     const foundRegingUserObj = foundRegingUser.toObject();
     // delete foundRegingUserObj.verificationCode;
+
+    await this.cacheManager.set("check_conf_code", foundRegingUserObj, 3600000000);
+
     return foundRegingUserObj;
   }
 
-  async setPinReg(dto: SetPinRegDto) {
+  async setPinReg(dto: SetPinRegDto, flag = false) {
+    const pin_reg: any = await this.cacheManager.get("pin_reg");
+    if (pin_reg && !flag) {
+      return pin_reg;
+    }
+
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
     if(!foundRegingUser) {
-      throw new HttpException('Reging user not found by this phone number', HttpStatus.NOT_FOUND);
+      throw new HttpException('Reging user not found by this regToken', HttpStatus.NOT_FOUND);
     }
 
     if(foundRegingUser.stage !== "PIN") {
@@ -367,13 +393,21 @@ export class AuthService {
 
     foundRegingUser.pin = dto.pin;
     foundRegingUser.stage = "USERNAME";
+
+    await this.cacheManager.set("pin_reg", await foundRegingUser.save(), 3600000000);
+
     return await foundRegingUser.save();
   }
 
-  async setUsernameReg(dto: SetUsernameRegDto) {
+  async setUsernameReg(dto: SetUsernameRegDto, flag = false) {
+    const username_reg: any = await this.cacheManager.get("username_reg");
+    if (username_reg && !flag) {
+      return username_reg;
+    }
+
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
     if(!foundRegingUser) {
-      throw new HttpException('Reging user not found by this phone number', HttpStatus.NOT_FOUND);
+      throw new HttpException('Reging user not found by this regToken', HttpStatus.NOT_FOUND);
     }
 
     if(foundRegingUser.stage !== "USERNAME") {
@@ -382,10 +416,18 @@ export class AuthService {
 
     foundRegingUser.username = dto.username;
     foundRegingUser.stage = "EMAIL";
+
+    await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
+
     return await foundRegingUser.save();
   }
 
-  async setEmailReg(dto: SetEmailRegDto) {
+  async setEmailReg(dto: SetEmailRegDto, flag = false) {
+    const email_reg: any = await this.cacheManager.get("email_reg");
+    if (email_reg && !flag) {
+      return email_reg;
+    }
+
     const foundByEmail = await this.userModel.findOne({ email: dto.email, emailConfirmed: true });
     if(foundByEmail) {
       throw new HttpException('This email is already taken', HttpStatus.BAD_REQUEST);
@@ -395,7 +437,7 @@ export class AuthService {
 
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
     if(!foundRegingUser) {
-      throw new HttpException('Reging user not found by this phone number', HttpStatus.NOT_FOUND);
+      throw new HttpException('Reging user not found by this regToken', HttpStatus.NOT_FOUND);
     }
 
     if(foundRegingUser.stage !== "EMAIL") {
@@ -405,10 +447,18 @@ export class AuthService {
     foundRegingUser.email = dto.email;
     foundRegingUser.acceptNotifications = dto.acceptNotifications;
     foundRegingUser.stage = "ADDRESS";
+
+    await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
+
     return await foundRegingUser.save();
   }
 
-  async setAddressReg(dto: SetAddressRegDto) {
+  async setAddressReg(dto: SetAddressRegDto, flag = false) {
+    const address_reg: any = await this.cacheManager.get("address_reg");
+    if (address_reg && !flag) {
+      return address_reg;
+    }
+
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
       .select("+pin");
     if(!foundRegingUser) {
@@ -460,6 +510,8 @@ export class AuthService {
       await newAddress.save();
       await newSession.save();
       await foundRegingUser.remove();
+
+      await this.cacheManager.set("username_reg", tokens, 3600000000);
 
       return tokens;
     } catch (err) {

@@ -60,6 +60,7 @@ __decorate([
     __metadata("design:type", FiltersDto)
 ], GetNewsDto.prototype, "filters", void 0);
 __decorate([
+    (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
@@ -69,7 +70,7 @@ let NewsController = class NewsController {
         this.newsService = newsService;
     }
     async topNews(req, dto) {
-        return this.newsService.getNews(dto.asset, dto.amount, dto?.filters || {}, dto.forIgnore);
+        return this.newsService.getNews(dto.amount, dto?.asset || "", dto?.filters || {}, dto.forIgnore || []);
     }
     async likeNews(req, dto) {
         return this.newsService.likeNews(req.user.sub, dto.newsId);

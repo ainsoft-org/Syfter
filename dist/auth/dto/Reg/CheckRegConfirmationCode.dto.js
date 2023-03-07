@@ -22,5 +22,10 @@ __decorate([
     (0, class_validator_1.Length)(4),
     __metadata("design:type", String)
 ], CheckRegConfirmationCode.prototype, "code", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CheckRegConfirmationCode.prototype, "flag", void 0);
 exports.CheckRegConfirmationCode = CheckRegConfirmationCode;
 //# sourceMappingURL=CheckRegConfirmationCode.dto.js.map

@@ -13,6 +13,8 @@ import { AuthingUser, AuthingUserSchema } from "./authingUser.schema";
 import { TwitterStrategy } from "./strategies/twitter.strategy";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
 import { AlphavantageModule } from "../alphavantage/alphavantage.module";
+import { CacheModule } from "@nestjs/common/cache";
+import { RedisClientOptions } from "redis";
 
 @Module({
   imports: [
@@ -23,7 +25,13 @@ import { AlphavantageModule } from "../alphavantage/alphavantage.module";
     MongooseModule.forFeature([{ name: Session.name, schema: SessionSchema }]),
     MailingModule,
     JwtModule.register({}),
-    AlphavantageModule
+    AlphavantageModule,
+    CacheModule.register<RedisClientOptions>({
+      socket: {
+        host: 'localhost',
+        port: 6379
+      }
+    }),
   ],
   providers: [
     AuthService,

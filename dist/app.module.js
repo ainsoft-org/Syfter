@@ -23,7 +23,7 @@ let AppModule = class AppModule {
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forRoot("mongodb+srv://syfter:nFrE1TnBgtyJeLmd@cluster0.8fgzrra.mongodb.net/?retryWrites=true&w=majority"),
+            mongoose_1.MongooseModule.forRoot('mongodb://127.0.0.1:27017/Syfter'),
             auth_module_1.AuthModule,
             db_module_1.DbModule,
             user_module_1.UserModule,

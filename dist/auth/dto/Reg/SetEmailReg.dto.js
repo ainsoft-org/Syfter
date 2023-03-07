@@ -25,5 +25,10 @@ __decorate([
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
 ], SetEmailRegDto.prototype, "acceptNotifications", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], SetEmailRegDto.prototype, "flag", void 0);
 exports.SetEmailRegDto = SetEmailRegDto;
 //# sourceMappingURL=SetEmailReg.dto.js.map

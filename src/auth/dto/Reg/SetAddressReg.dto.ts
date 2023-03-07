@@ -1,4 +1,4 @@
-import { IsString, IsUUID, Matches } from "class-validator";
+import { IsBoolean, IsOptional, IsString, IsUUID, Matches } from "class-validator";
 
 export class SetAddressRegDto {
   @IsUUID(4)
@@ -16,4 +16,8 @@ export class SetAddressRegDto {
 
   @IsString()
   deviceID: string;
+
+  @IsOptional()
+  @IsBoolean()
+  flag?: boolean;
 }

@@ -21,6 +21,7 @@ const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
 const twitter_strategy_1 = require("./strategies/twitter.strategy");
 const alphavantage_module_1 = require("../alphavantage/alphavantage.module");
+const cache_1 = require("@nestjs/common/cache");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -33,7 +34,13 @@ AuthModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: session_schema_1.Session.name, schema: session_schema_1.SessionSchema }]),
             mailing_module_1.MailingModule,
             jwt_1.JwtModule.register({}),
-            alphavantage_module_1.AlphavantageModule
+            alphavantage_module_1.AlphavantageModule,
+            cache_1.CacheModule.register({
+                socket: {
+                    host: 'localhost',
+                    port: 6379
+                }
+            }),
         ],
         providers: [
             auth_service_1.AuthService,
