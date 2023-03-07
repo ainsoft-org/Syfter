@@ -61,7 +61,7 @@ export class AlphavantageService {
       }
     }
 
-    // clearNews();
+    clearNews();
   }
 
 
