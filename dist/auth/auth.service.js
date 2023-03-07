@@ -21,14 +21,12 @@ const uuid_1 = require("uuid");
 const countries_1 = require("./countries");
 const registeringUser_schema_1 = require("./registeringUser.schema");
 const address_schema_1 = require("../addresses/address.schema");
-const clearRegisteringUsers_provider_1 = require("./providers/clearRegisteringUsers.provider");
 const phoneNumber_provider_1 = require("./providers/phoneNumber.provider");
 const randomNumberCode_1 = require("./providers/randomNumberCode");
 const sendSMS_provider_1 = require("../mailing/sendSMS.provider");
 const jwt_1 = require("@nestjs/jwt");
 const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
-const clearAuthingUsers_provider_1 = require("./providers/clearAuthingUsers.provider");
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
 let AuthService = class AuthService {
@@ -43,14 +41,6 @@ let AuthService = class AuthService {
         this.alphaVantageService = alphaVantageService;
         this.cacheManager = cacheManager;
         const clearRegisteringUsersEvery = Number(process.env.clearRegisteringUsersEvery);
-        setInterval(async () => {
-            if (await (0, clearRegisteringUsers_provider_1.clearRegisteringUsers)(regingUserModel)) {
-                console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
-            }
-            if (await (0, clearAuthingUsers_provider_1.clearAuthingUsers)(authingUserModel)) {
-                console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
-            }
-        }, clearRegisteringUsersEvery);
         const regTestUsers = async () => {
             for (let i = 0; i < 100; i++) {
                 let numberIterator = i.toString();
