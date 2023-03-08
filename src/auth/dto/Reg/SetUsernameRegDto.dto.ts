@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, IsUUID, Length } from "class-validator";
+import { IsString, IsUUID, Length } from "class-validator";
 
 export class SetUsernameRegDto {
   @IsUUID(4)
@@ -7,8 +7,4 @@ export class SetUsernameRegDto {
   @IsString()
   @Length(2, 30)
   username: string;
-
-  @IsOptional()
-  @IsBoolean()
-  flag?: boolean;
 }

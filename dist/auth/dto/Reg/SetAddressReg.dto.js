@@ -34,10 +34,5 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], SetAddressRegDto.prototype, "deviceID", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], SetAddressRegDto.prototype, "flag", void 0);
 exports.SetAddressRegDto = SetAddressRegDto;
 //# sourceMappingURL=SetAddressReg.dto.js.map

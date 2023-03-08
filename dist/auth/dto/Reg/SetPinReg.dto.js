@@ -22,10 +22,5 @@ __decorate([
     (0, class_validator_1.Length)(4, 4),
     __metadata("design:type", String)
 ], SetPinRegDto.prototype, "pin", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], SetPinRegDto.prototype, "flag", void 0);
 exports.SetPinRegDto = SetPinRegDto;
 //# sourceMappingURL=SetPinReg.dto.js.map

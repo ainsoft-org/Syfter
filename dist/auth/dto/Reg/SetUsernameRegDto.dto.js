@@ -22,10 +22,5 @@ __decorate([
     (0, class_validator_1.Length)(2, 30),
     __metadata("design:type", String)
 ], SetUsernameRegDto.prototype, "username", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], SetUsernameRegDto.prototype, "flag", void 0);
 exports.SetUsernameRegDto = SetUsernameRegDto;
 //# sourceMappingURL=SetUsernameRegDto.dto.js.map
