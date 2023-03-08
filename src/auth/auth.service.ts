@@ -451,11 +451,11 @@ export class AuthService {
       });
       newSession.refreshToken = tokens.refresh_token;
 
-      try {
-        await this.mailingService.generateEmailConfirmation(newUser);
-      } catch (err) {
-        console.log(err);
-      }
+      // try {
+      //   await this.mailingService.generateEmailConfirmation(newUser);
+      // } catch (err) {
+      //   console.log(err);
+      // }
 
       newAddress.user = newUser;
       newUser.addresses.push(newAddress);

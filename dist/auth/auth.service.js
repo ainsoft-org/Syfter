@@ -321,7 +321,7 @@ let AuthService = class AuthService {
     }
     async setAddressReg(dto) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
-            .select("+pin");
+            .select("+pin +mobileNumber +username +email +acceptNotifications");
         if (!foundRegingUser) {
             throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
         }
@@ -352,12 +352,6 @@ let AuthService = class AuthService {
                 sessionId: newSession._id.toString()
             });
             newSession.refreshToken = tokens.refresh_token;
-            try {
-                await this.mailingService.generateEmailConfirmation(newUser);
-            }
-            catch (err) {
-                console.log(err);
-            }
             newAddress.user = newUser;
             newUser.addresses.push(newAddress);
             newUser.sessions.push(newSession);
