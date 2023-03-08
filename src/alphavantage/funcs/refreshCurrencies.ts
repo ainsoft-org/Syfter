@@ -129,7 +129,7 @@ async function findMainContent(url) {
     console.log("NOT OK")
     return null;
   }
-  console.log(response.statusText)
+  // console.log(response.statusText)
   const html = await response.data;
 
   const doc = new JSDOM(html, { url: url });

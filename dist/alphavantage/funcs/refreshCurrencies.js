@@ -107,7 +107,6 @@ async function findMainContent(url) {
         console.log("NOT OK");
         return null;
     }
-    console.log(response.statusText);
     const html = await response.data;
     const doc = new jsdom_1.JSDOM(html, { url: url });
     const reader = new readability_1.Readability(doc.window.document);
