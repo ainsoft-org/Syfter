@@ -38,19 +38,19 @@ export class AlphavantageService {
     nextDay.setDate(now.getDate() + 1); nextDay.setHours(0);
     nextDay.setMinutes(0); nextDay.setSeconds(0);
 
-    // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+    refreshCurrencies(currencyModel, newsModel, currentStatModel);
     setTimeout(() => {
-      // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      refreshCurrencies(currencyModel, newsModel, currentStatModel);
       setInterval(() => {
-        // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+        refreshCurrencies(currencyModel, newsModel, currentStatModel);
       }, Number(process.env.refreshAssetsEvery));
     }, nextDay.getTime() - now.getTime());
 
-    // refreshCryptoCurrencies(currencyModel, newsModel);
+    refreshCryptoCurrencies(currencyModel, newsModel);
     setTimeout(() => {
-      // refreshCryptoCurrencies(currencyModel, newsModel);
+      refreshCryptoCurrencies(currencyModel, newsModel);
       setInterval(() => {
-        // refreshCryptoCurrencies(currencyModel, newsModel);
+        refreshCryptoCurrencies(currencyModel, newsModel);
       }, Number(process.env.refreshCryptosEvery));
     }, nextDay.getTime() - now.getTime());
 
