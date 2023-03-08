@@ -24,7 +24,7 @@
 /// <reference types="mongoose/types/inferschematype" />
 import { UserDocument } from "../user/user.schema";
 import { Model } from "mongoose";
-import { RegisteringUserDocument } from "./registeringUser.schema";
+import { RegisteringUser, RegisteringUserDocument } from "./registeringUser.schema";
 import { AddressDocument } from "../addresses/address.schema";
 import { MobileNumberDto } from "./dto/MobileNumber.dto";
 import { CheckRegConfirmationCode } from "./dto/Reg/CheckRegConfirmationCode.dto";
@@ -1794,10 +1794,32 @@ export declare class AuthService {
             _id: import("mongoose").Types.ObjectId;
         };
     }>;
-    sendRegConfirmationCode(mobileNumber: MobileNumberDto, flag?: boolean): Promise<any>;
-    checkRegConfirmationCode(dto: CheckRegConfirmationCode, flag?: boolean): Promise<any>;
-    setPinReg(dto: SetPinRegDto, flag?: boolean): Promise<any>;
-    setUsernameReg(dto: SetUsernameRegDto, flag?: boolean): Promise<any>;
-    setEmailReg(dto: SetEmailRegDto, flag?: boolean): Promise<any>;
-    setAddressReg(dto: SetAddressRegDto, flag?: boolean): Promise<any>;
+    sendRegConfirmationCode(mobileNumber: MobileNumberDto): Promise<{
+        message: string;
+        data: import("mongoose").LeanDocument<RegisteringUser> & {
+            _id: import("mongoose").Types.ObjectId;
+        };
+    }>;
+    checkRegConfirmationCode(dto: CheckRegConfirmationCode): Promise<import("mongoose").LeanDocument<RegisteringUser> & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    setPinReg(dto: SetPinRegDto): Promise<import("mongoose").Document<unknown, any, RegisteringUser> & RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setUsernameReg(dto: SetUsernameRegDto): Promise<import("mongoose").Document<unknown, any, RegisteringUser> & RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setEmailReg(dto: SetEmailRegDto): Promise<import("mongoose").Document<unknown, any, RegisteringUser> & RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setAddressReg(dto: SetAddressRegDto): Promise<{
+        refresh_token: string;
+        access_token: string;
+    }>;
 }

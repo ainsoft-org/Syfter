@@ -68,31 +68,31 @@ export class AuthController {
 
   @Post('/sendRegConfirmationCode')
   sendRegConfirmationCode(@Body() mobileNumber: MobileNumberDto) {
-    return this.authService.sendRegConfirmationCode(mobileNumber, mobileNumber?.flag);
+    return this.authService.sendRegConfirmationCode(mobileNumber);
   }
 
   @Post('/checkRegConfirmationCode')
   checkRegConfirmationCode(@Body() dto: CheckRegConfirmationCode) {
-    return this.authService.checkRegConfirmationCode(dto, dto?.flag)
+    return this.authService.checkRegConfirmationCode(dto)
   }
 
   @Post('/setPinReg')
   setPinReg(@Body() dto: SetPinRegDto) {
-    return this.authService.setPinReg(dto, dto?.flag);
+    return this.authService.setPinReg(dto);
   }
 
   @Post('/setUsernameReg')
   setUsernameReg(@Body() dto: SetUsernameRegDto) {
-    return this.authService.setUsernameReg(dto, dto?.flag);
+    return this.authService.setUsernameReg(dto);
   }
 
   @Post('/setEmailReg')
   setEmailReg(@Body() dto: SetEmailRegDto) {
-    return this.authService.setEmailReg(dto, dto?.flag);
+    return this.authService.setEmailReg(dto);
   }
 
   @Post('/setAddressReg')
   setAddressReg(@Body() dto: SetAddressRegDto) {
-    return this.authService.setAddressReg(dto, dto?.flag);
+    return this.authService.setAddressReg(dto);
   }
 }

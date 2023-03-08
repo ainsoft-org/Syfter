@@ -1779,10 +1779,32 @@ export declare class AuthController {
     refreshToken(dto: RefreshTokenDto): Promise<{
         access_token: string;
     }>;
-    sendRegConfirmationCode(mobileNumber: MobileNumberDto): Promise<any>;
-    checkRegConfirmationCode(dto: CheckRegConfirmationCode): Promise<any>;
-    setPinReg(dto: SetPinRegDto): Promise<any>;
-    setUsernameReg(dto: SetUsernameRegDto): Promise<any>;
-    setEmailReg(dto: SetEmailRegDto): Promise<any>;
-    setAddressReg(dto: SetAddressRegDto): Promise<any>;
+    sendRegConfirmationCode(mobileNumber: MobileNumberDto): Promise<{
+        message: string;
+        data: import("mongoose").LeanDocument<import("./registeringUser.schema").RegisteringUser> & {
+            _id: import("mongoose").Types.ObjectId;
+        };
+    }>;
+    checkRegConfirmationCode(dto: CheckRegConfirmationCode): Promise<import("mongoose").LeanDocument<import("./registeringUser.schema").RegisteringUser> & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    setPinReg(dto: SetPinRegDto): Promise<import("mongoose").Document<unknown, any, import("./registeringUser.schema").RegisteringUser> & import("./registeringUser.schema").RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setUsernameReg(dto: SetUsernameRegDto): Promise<import("mongoose").Document<unknown, any, import("./registeringUser.schema").RegisteringUser> & import("./registeringUser.schema").RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setEmailReg(dto: SetEmailRegDto): Promise<import("mongoose").Document<unknown, any, import("./registeringUser.schema").RegisteringUser> & import("./registeringUser.schema").RegisteringUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    setAddressReg(dto: SetAddressRegDto): Promise<{
+        refresh_token: string;
+        access_token: string;
+    }>;
 }

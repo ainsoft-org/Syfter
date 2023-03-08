@@ -218,11 +218,7 @@ let AuthService = class AuthService {
             data: foundAuthingUserObject
         };
     }
-    async sendRegConfirmationCode(mobileNumber, flag = false) {
-        const conf_code = await this.cacheManager.get("conf_code");
-        if (conf_code && !flag) {
-            return conf_code;
-        }
+    async sendRegConfirmationCode(mobileNumber) {
         const formattedPhone = (0, phoneNumber_provider_1.parsePhone)(mobileNumber.number).formatInternational();
         const foundUserByPhoneNumber = await this.userModel.findOne({ mobileNumber: formattedPhone });
         if (foundUserByPhoneNumber) {
@@ -261,20 +257,12 @@ let AuthService = class AuthService {
         await foundRegingUser.save();
         await (0, sendSMS_provider_1.sendSMS)("", "", "");
         const foundRegingUserObject = foundRegingUser.toObject();
-        await this.cacheManager.set("conf_code", {
-            message: `Confirmation code resent to number: ${formattedPhone}`,
-            data: foundRegingUserObject
-        }, 3600000000);
         return {
             message: `Confirmation code resent to number: ${formattedPhone}`,
             data: foundRegingUserObject
         };
     }
-    async checkRegConfirmationCode(dto, flag = false) {
-        const check_conf_code = await this.cacheManager.get("check_conf_code");
-        if (check_conf_code && !flag) {
-            return check_conf_code;
-        }
+    async checkRegConfirmationCode(dto) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken }).select('+verificationCode');
         if (!foundRegingUser) {
             throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
@@ -288,14 +276,9 @@ let AuthService = class AuthService {
         foundRegingUser.stage = "PIN";
         await foundRegingUser.save();
         const foundRegingUserObj = foundRegingUser.toObject();
-        await this.cacheManager.set("check_conf_code", foundRegingUserObj, 3600000000);
         return foundRegingUserObj;
     }
-    async setPinReg(dto, flag = false) {
-        const pin_reg = await this.cacheManager.get("pin_reg");
-        if (pin_reg && !flag) {
-            return pin_reg;
-        }
+    async setPinReg(dto) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken });
         if (!foundRegingUser) {
             throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
@@ -305,14 +288,9 @@ let AuthService = class AuthService {
         }
         foundRegingUser.pin = dto.pin;
         foundRegingUser.stage = "USERNAME";
-        await this.cacheManager.set("pin_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setUsernameReg(dto, flag = false) {
-        const username_reg = await this.cacheManager.get("username_reg");
-        if (username_reg && !flag) {
-            return username_reg;
-        }
+    async setUsernameReg(dto) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken });
         if (!foundRegingUser) {
             throw new common_1.HttpException('Reging user not found by this regToken', common_1.HttpStatus.NOT_FOUND);
@@ -322,14 +300,9 @@ let AuthService = class AuthService {
         }
         foundRegingUser.username = dto.username;
         foundRegingUser.stage = "EMAIL";
-        await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setEmailReg(dto, flag = false) {
-        const email_reg = await this.cacheManager.get("email_reg");
-        if (email_reg && !flag) {
-            return email_reg;
-        }
+    async setEmailReg(dto) {
         const foundByEmail = await this.userModel.findOne({ email: dto.email, emailConfirmed: true });
         if (foundByEmail) {
             throw new common_1.HttpException('This email is already taken', common_1.HttpStatus.BAD_REQUEST);
@@ -344,14 +317,9 @@ let AuthService = class AuthService {
         foundRegingUser.email = dto.email;
         foundRegingUser.acceptNotifications = dto.acceptNotifications;
         foundRegingUser.stage = "ADDRESS";
-        await this.cacheManager.set("username_reg", await foundRegingUser.save(), 3600000000);
         return await foundRegingUser.save();
     }
-    async setAddressReg(dto, flag = false) {
-        const address_reg = await this.cacheManager.get("address_reg");
-        if (address_reg && !flag) {
-            return address_reg;
-        }
+    async setAddressReg(dto) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
             .select("+pin");
         if (!foundRegingUser) {
@@ -397,7 +365,6 @@ let AuthService = class AuthService {
             await newAddress.save();
             await newSession.save();
             await foundRegingUser.remove();
-            await this.cacheManager.set("username_reg", tokens, 3600000000);
             return tokens;
         }
         catch (err) {
