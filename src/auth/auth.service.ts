@@ -261,9 +261,9 @@ export class AuthService {
       }
     }
 
-    if(foundAuthingUser.sentConfirmations >= 3) {
-      throw new HttpException('Too many attempts. Please try again in a hour', HttpStatus.FORBIDDEN);
-    }
+    // if(foundAuthingUser.sentConfirmations >= 3) {
+    //   throw new HttpException('Too many attempts. Please try again in a hour', HttpStatus.FORBIDDEN);
+    // }
 
     const confirmationCode: string = randomNumberCode(5);
     foundAuthingUser.verificationCode = confirmationCode;
