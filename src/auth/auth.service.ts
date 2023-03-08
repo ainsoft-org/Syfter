@@ -415,7 +415,7 @@ export class AuthService {
 
   async setAddressReg(dto: SetAddressRegDto) {
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
-      .select("+pin");
+      .select("+pin +mobileNumber +username +email +acceptNotifications");
     if(!foundRegingUser) {
       throw new HttpException('Reging user not found by this regToken', HttpStatus.NOT_FOUND);
     }
