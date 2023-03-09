@@ -15,7 +15,7 @@ export class Session {
   @Prop({ type: String, select: false, required: false })
   refreshToken: string;
 
-  @Prop({ type: String, required: true, select: false, unique: true })
+  @Prop({ type: String, required: true, select: false }) // , unique: true
   deviceID: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'user', required: true })

@@ -17,7 +17,6 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const currency_schema_1 = require("./currency.schema");
-const refreshCurrencies_1 = require("./funcs/refreshCurrencies");
 const news_schema_1 = require("../news/news.schema");
 const currentStat_schema_1 = require("./currentStat.schema");
 const user_schema_1 = require("../user/user.schema");
@@ -39,18 +38,12 @@ let AlphavantageService = class AlphavantageService {
         nextDay.setHours(0);
         nextDay.setMinutes(0);
         nextDay.setSeconds(0);
-        (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
         setTimeout(() => {
-            (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             setInterval(() => {
-                (0, refreshCurrencies_1.refreshCurrencies)(currencyModel, newsModel, currentStatModel);
             }, Number(process.env.refreshAssetsEvery));
         }, nextDay.getTime() - now.getTime());
-        (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
         setTimeout(() => {
-            (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
             setInterval(() => {
-                (0, refreshCurrencies_1.refreshCryptoCurrencies)(currencyModel, newsModel);
             }, Number(process.env.refreshCryptosEvery));
         }, nextDay.getTime() - now.getTime());
         const clearNews = async () => {

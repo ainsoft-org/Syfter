@@ -24,7 +24,6 @@ let TwitterStrategy = class TwitterStrategy extends (0, passport_1.PassportStrat
     async validate(accessToken, refreshToken, profile) {
         console.log(accessToken);
         console.log(refreshToken);
-        console.log(profile);
     }
 };
 TwitterStrategy = __decorate([

@@ -33,9 +33,11 @@ let AuthController = class AuthController {
         return this.authService.getCountries();
     }
     twitterSignin() {
+        console.log("signin");
         return "yes";
     }
     twitterRedirect() {
+        console.log("redirect");
         return "redirect";
     }
     sendAuthConfirmationCode(dto) {
@@ -83,7 +85,6 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "twitterSignin", null);
 __decorate([
-    (0, common_1.UseGuards)(TwitterAuth_guard_1.TwitterAuthGuard),
     (0, common_1.Get)('/twitter/redirect'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),

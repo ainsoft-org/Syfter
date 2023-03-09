@@ -24,13 +24,14 @@ export class AuthController {
   @UseGuards(TwitterAuthGuard)
   @Get('/twitter/signin')
   twitterSignin() {
-
+    console.log("signin")
     return "yes";
   }
 
-  @UseGuards(TwitterAuthGuard)
+  // @UseGuards(TwitterAuthGuard)
   @Get('/twitter/redirect')
   twitterRedirect() {
+    console.log("redirect")
     return "redirect"
   }
 
