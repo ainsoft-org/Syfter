@@ -52,7 +52,6 @@ let AlphavantageService = class AlphavantageService {
                 await news[i].remove();
             }
         };
-        clearNews();
     }
     async getRecommendation(userId, filters, amount = 1, forIgnore = [], type = "") {
         if (amount <= 0) {

@@ -7,10 +7,10 @@ export async function clearAuthingUsers(authingUserModel: Model<AuthingUserDocum
   const userUnconfirmedLifeTime = Number(process.env.registringUserLifetime);
   const now = new Date();
 
-  const users = await authingUserModel.find();
+  const users: any = await authingUserModel.find();
 
   users.forEach(user => {
-    const prevCodeDate = new Date(user.prevCodeTime);
+    const prevCodeDate = new Date(user.createdAt);
     if(now.getTime() - prevCodeDate.getTime() >= userUnconfirmedLifeTime) {
       user.remove();
     }

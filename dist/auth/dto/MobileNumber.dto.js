@@ -17,10 +17,5 @@ __decorate([
     (0, class_validator_1.IsPhoneNumber)(),
     __metadata("design:type", String)
 ], MobileNumberDto.prototype, "number", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsBoolean)(),
-    __metadata("design:type", Boolean)
-], MobileNumberDto.prototype, "flag", void 0);
 exports.MobileNumberDto = MobileNumberDto;
 //# sourceMappingURL=MobileNumber.dto.js.map

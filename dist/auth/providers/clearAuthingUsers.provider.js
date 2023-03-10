@@ -8,7 +8,7 @@ async function clearAuthingUsers(authingUserModel) {
     const now = new Date();
     const users = await authingUserModel.find();
     users.forEach(user => {
-        const prevCodeDate = new Date(user.prevCodeTime);
+        const prevCodeDate = new Date(user.createdAt);
         if (now.getTime() - prevCodeDate.getTime() >= userUnconfirmedLifeTime) {
             user.remove();
         }

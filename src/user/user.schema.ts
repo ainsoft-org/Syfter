@@ -56,7 +56,7 @@ export class User {
   @Prop({ type: [SectorLikesSchema] })
   likedSectors: SectorLikes[];
 
-  @Prop({ type: String, required: true, select: false })
+  @Prop({ type: String, select: false })
   mobileNumber: string;
 
   @Prop({ type: String, select: false, length: 4 })
@@ -79,6 +79,11 @@ export class User {
   sessions: Session[];
   @Prop({ type: String, enum: Period, default: Period[0] })
   sessionTerminationTimeframe: string;
+
+
+  @Prop({ type: String, unique: true })
+  twitterId: string;
+
 
   @Prop({ type: Date, default: new Date() })
   lastActivity: Date;

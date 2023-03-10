@@ -8,24 +8,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TwitterAuthGuard = void 0;
+exports.SessionSerializer = void 0;
 const passport_1 = require("@nestjs/passport");
+const mongoose_1 = require("@nestjs/mongoose");
+const registeringUser_schema_1 = require("../registeringUser.schema");
+const mongoose_2 = require("mongoose");
 const common_1 = require("@nestjs/common");
-let TwitterAuthGuard = class TwitterAuthGuard extends (0, passport_1.AuthGuard)('twitter') {
-    constructor() {
+let SessionSerializer = class SessionSerializer extends passport_1.PassportSerializer {
+    constructor(regingUserModel) {
         super();
+        this.regingUserModel = regingUserModel;
     }
-    async canActivate(context) {
-        const activate = (await super.canActivate(context));
-        const request = context.switchToHttp().getRequest();
-        await super.logIn(request);
-        return activate;
+    serializeUser(user, done) {
+        done(null, user);
+    }
+    async deserializeUser(payload, done) {
+        return done(null, null);
     }
 };
-TwitterAuthGuard = __decorate([
+SessionSerializer = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [])
-], TwitterAuthGuard);
-exports.TwitterAuthGuard = TwitterAuthGuard;
-//# sourceMappingURL=TwitterAuth.guard.js.map
+    __param(0, (0, mongoose_1.InjectModel)(registeringUser_schema_1.RegisteringUser.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model])
+], SessionSerializer);
+exports.SessionSerializer = SessionSerializer;
+//# sourceMappingURL=Serializer.js.map

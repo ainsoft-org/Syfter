@@ -16,7 +16,7 @@ export class RegisteringUser extends User {
   @Prop({ type: String, default: "SMS" })
   stage: string;
 
-  @Prop({ type: String, required: true, select: false })
+  @Prop({ type: String, select: false })
   verificationCode: string;
 
   @Prop({ type: Number, default: 1 })

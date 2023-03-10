@@ -87,7 +87,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "likedSectors", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true, select: false }),
+    (0, mongoose_1.Prop)({ type: String, select: false }),
     __metadata("design:type", String)
 ], User.prototype, "mobileNumber", void 0);
 __decorate([
@@ -122,6 +122,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: String, enum: Period_dto_1.Period, default: Period_dto_1.Period[0] }),
     __metadata("design:type", String)
 ], User.prototype, "sessionTerminationTimeframe", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String, unique: true }),
+    __metadata("design:type", String)
+], User.prototype, "twitterId", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: Date, default: new Date() }),
     __metadata("design:type", Date)

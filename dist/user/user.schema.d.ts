@@ -34,6 +34,7 @@ export declare class User {
     acceptNotifications: boolean;
     sessions: Session[];
     sessionTerminationTimeframe: string;
+    twitterId: string;
     lastActivity: Date;
     addresses: Address[];
 }

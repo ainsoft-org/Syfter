@@ -1760,12 +1760,10 @@ export declare class AuthController {
         };
     };
     twitterSignin(): string;
-    twitterRedirect(): string;
+    twitterRedirect(req: any): any;
     sendAuthConfirmationCode(dto: MobileNumberDto): Promise<{
         message: string;
-        data: import("mongoose").LeanDocument<import("./authingUser.schema").AuthingUser> & {
-            _id: import("mongoose").Types.ObjectId;
-        };
+        authToken: string;
     }>;
     signinLocal(dto: SignInLocalDto): Promise<{
         refresh_token: string;

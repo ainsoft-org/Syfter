@@ -30,7 +30,7 @@ const authingUser_schema_1 = require("./authingUser.schema");
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
 let AuthService = class AuthService {
-    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService, cacheManager) {
+    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService) {
         this.regingUserModel = regingUserModel;
         this.userModel = userModel;
         this.addressModel = addressModel;
@@ -39,7 +39,6 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.mailingService = mailingService;
         this.alphaVantageService = alphaVantageService;
-        this.cacheManager = cacheManager;
         const clearRegisteringUsersEvery = Number(process.env.clearRegisteringUsersEvery);
         const regTestUsers = async () => {
             for (let i = 0; i < 100; i++) {
@@ -108,7 +107,7 @@ let AuthService = class AuthService {
         if (!foundAuthingUser) {
             throw new common_1.HttpException('Authing user not found by this authToken', common_1.HttpStatus.NOT_FOUND);
         }
-        const foundUser = await this.userModel.findOne({ mobileNumber: foundAuthingUser.mobileNumber })
+        const foundUser = await this.userModel.findById(foundAuthingUser.userID)
             .select("+pin +sessions");
         if (dto.pin !== foundUser.pin) {
             throw new common_1.HttpException('PIN is not correct', common_1.HttpStatus.FORBIDDEN);
@@ -175,47 +174,44 @@ let AuthService = class AuthService {
         });
         return { access_token: newAccessToken };
     }
-    async sendAuthConfirmationCode(mobileNumber) {
-        const formattedPhone = (0, phoneNumber_provider_1.parsePhone)(mobileNumber.number).formatInternational();
-        const foundUserByPhoneNumber = await this.userModel.findOne({ mobileNumber: formattedPhone });
-        if (!foundUserByPhoneNumber) {
-            throw new common_1.HttpException('This phone number is not registered', common_1.HttpStatus.FORBIDDEN);
+    async sendAuthConfirmationCode(mobileNumber, twitterId = "") {
+        let formattedPhone = null;
+        try {
+            formattedPhone = (0, phoneNumber_provider_1.parsePhone)(mobileNumber).formatInternational();
         }
-        const foundAuthingUser = await this.authingUserModel.findOne({ mobileNumber: formattedPhone });
+        catch (err) { }
+        let foundUser;
+        if (formattedPhone) {
+            foundUser = await this.userModel.findOne({ mobileNumber: formattedPhone }).select("_id");
+        }
+        else if (twitterId) {
+            foundUser = await this.userModel.findOne({ twitterId }).select("_id");
+        }
+        if (!foundUser) {
+            throw new common_1.HttpException('Account is not registered', common_1.HttpStatus.FORBIDDEN);
+        }
+        const foundAuthingUser = await this.authingUserModel.findOne({ userID: foundUser._id });
         if (!foundAuthingUser) {
-            const confirmationCode = (0, randomNumberCode_1.randomNumberCode)(5);
             const authToken = (0, uuid_1.v4)();
             try {
                 const newAuthingUser = new this.authingUserModel({
-                    verificationCode: confirmationCode,
-                    mobileNumber: formattedPhone,
+                    userID: foundUser._id,
                     authToken
                 });
                 await newAuthingUser.save();
-                await (0, sendSMS_provider_1.sendSMS)("", "", "");
-                const newAuthingUserObject = newAuthingUser.toObject();
                 return {
-                    message: `Confirmation code sent to number: ${formattedPhone}`,
-                    data: newAuthingUserObject
+                    message: `Authing process started`,
+                    authToken
                 };
             }
             catch (err) {
-                throw new common_1.HttpException('Error saving new registering user', common_1.HttpStatus.BAD_REQUEST);
+                console.log(err);
+                throw new common_1.HttpException('Error saving new authing user', common_1.HttpStatus.BAD_REQUEST);
             }
         }
-        if (foundAuthingUser.sentConfirmations >= 3) {
-            throw new common_1.HttpException('Too many attempts. Please try again in a hour', common_1.HttpStatus.FORBIDDEN);
-        }
-        const confirmationCode = (0, randomNumberCode_1.randomNumberCode)(5);
-        foundAuthingUser.verificationCode = confirmationCode;
-        foundAuthingUser.sentConfirmations++;
-        foundAuthingUser.prevCodeTime = new Date();
-        await foundAuthingUser.save();
-        await (0, sendSMS_provider_1.sendSMS)("", "", "");
-        const foundAuthingUserObject = foundAuthingUser.toObject();
         return {
-            message: `Confirmation code resent to number: ${formattedPhone}`,
-            data: foundAuthingUserObject
+            message: `Authing process is still active`,
+            authToken: foundAuthingUser.authToken
         };
     }
     async sendRegConfirmationCode(mobileNumber) {
@@ -338,7 +334,8 @@ let AuthService = class AuthService {
                 pin: foundRegingUser.pin,
                 username: foundRegingUser.username,
                 email: foundRegingUser.email,
-                acceptNotifications: foundRegingUser.acceptNotifications
+                acceptNotifications: foundRegingUser.acceptNotifications,
+                twitterId: foundRegingUser.twitterId
             });
             const newSession = new this.sessionModel({
                 device: dto.device,
@@ -352,6 +349,12 @@ let AuthService = class AuthService {
                 sessionId: newSession._id.toString()
             });
             newSession.refreshToken = tokens.refresh_token;
+            try {
+                await this.mailingService.generateEmailConfirmation(newUser);
+            }
+            catch (err) {
+                console.log(err);
+            }
             newAddress.user = newUser;
             newUser.addresses.push(newAddress);
             newUser.sessions.push(newSession);
@@ -374,7 +377,6 @@ AuthService = __decorate([
     __param(2, (0, mongoose_1.InjectModel)(address_schema_1.Address.name)),
     __param(3, (0, mongoose_1.InjectModel)(session_schema_1.Session.name)),
     __param(4, (0, mongoose_1.InjectModel)(authingUser_schema_1.AuthingUser.name)),
-    __param(8, (0, common_1.Inject)(common_1.CACHE_MANAGER)),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
@@ -382,7 +384,7 @@ AuthService = __decorate([
         mongoose_2.Model,
         jwt_1.JwtService,
         mailing_service_1.MailingService,
-        alphavantage_service_1.AlphavantageService, Object])
+        alphavantage_service_1.AlphavantageService])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

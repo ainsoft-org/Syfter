@@ -28,34 +28,27 @@ export class AuthController {
     return "yes";
   }
 
-  // @UseGuards(TwitterAuthGuard)
+  @UseGuards(TwitterAuthGuard)
   @Get('/twitter/redirect')
-  twitterRedirect() {
-    console.log("redirect")
-    return "redirect"
+  twitterRedirect(@Request() req) {
+    return req.user;
   }
 
 
 
-
-  // @Post('/local/signup')
-  // signupLocal(@Body() dto) {
-  //   this.authService.signupLocal();
-  // }
-
-  @Post('/sendAuthConfirmationCode')
+  @Post('/checkAccount')
   sendAuthConfirmationCode(@Body() dto: MobileNumberDto) {
     return this.authService.sendAuthConfirmationCode(dto)
   }
 
   // @UseGuards(AuthGuard())
-  @Post('/local/signin')
+  @Post('/signin')
   signinLocal(@Body() dto: SignInLocalDto) {
     return this.authService.signinLocal(dto);
   }
 
   @UseGuards(AuthGuard('jwt'))
-  @Post('/local/logout')
+  @Post('/logout')
   logout(@Request() req, @Body() dto: RefreshTokenDto) {
     return this.authService.logout(req.user.sub, dto.refreshToken);
   }

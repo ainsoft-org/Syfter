@@ -11,30 +11,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthingUserSchema = exports.AuthingUser = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 const dotenv = require("dotenv");
 dotenv.config();
 let AuthingUser = class AuthingUser {
 };
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true }),
-    __metadata("design:type", String)
-], AuthingUser.prototype, "mobileNumber", void 0);
+    (0, mongoose_1.Prop)({ type: mongoose_2.default.Schema.Types.ObjectId, ref: "user", required: true }),
+    __metadata("design:type", mongoose_2.default.Schema.Types.ObjectId)
+], AuthingUser.prototype, "userID", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: String, unique: true, required: true }),
     __metadata("design:type", String)
 ], AuthingUser.prototype, "authToken", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true, select: false }),
-    __metadata("design:type", String)
-], AuthingUser.prototype, "verificationCode", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: Number, default: 1 }),
-    __metadata("design:type", Number)
-], AuthingUser.prototype, "sentConfirmations", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ type: Date, default: new Date() }),
-    __metadata("design:type", Date)
-], AuthingUser.prototype, "prevCodeTime", void 0);
 AuthingUser = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], AuthingUser);

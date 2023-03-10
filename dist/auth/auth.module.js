@@ -21,7 +21,7 @@ const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
 const twitter_strategy_1 = require("./strategies/twitter.strategy");
 const alphavantage_module_1 = require("../alphavantage/alphavantage.module");
-const cache_1 = require("@nestjs/common/cache");
+const Serializer_1 = require("./strategies/Serializer");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -35,17 +35,12 @@ AuthModule = __decorate([
             mailing_module_1.MailingModule,
             jwt_1.JwtModule.register({}),
             alphavantage_module_1.AlphavantageModule,
-            cache_1.CacheModule.register({
-                socket: {
-                    host: 'localhost',
-                    port: 6379
-                }
-            }),
         ],
         providers: [
             auth_service_1.AuthService,
             at_strategy_1.AtStrategy,
-            twitter_strategy_1.TwitterStrategy
+            twitter_strategy_1.TwitterStrategy,
+            Serializer_1.SessionSerializer
         ],
         controllers: [auth_controller_1.AuthController]
     })

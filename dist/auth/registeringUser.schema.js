@@ -25,7 +25,7 @@ __decorate([
     __metadata("design:type", String)
 ], RegisteringUser.prototype, "stage", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true, select: false }),
+    (0, mongoose_1.Prop)({ type: String, select: false }),
     __metadata("design:type", String)
 ], RegisteringUser.prototype, "verificationCode", void 0);
 __decorate([

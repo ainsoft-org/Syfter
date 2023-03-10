@@ -11,10 +11,10 @@ import { JwtModule } from "@nestjs/jwt";
 import { Session, SessionSchema } from "../sessions/session.schema";
 import { AuthingUser, AuthingUserSchema } from "./authingUser.schema";
 import { TwitterStrategy } from "./strategies/twitter.strategy";
-import { AlphavantageService } from "../alphavantage/alphavantage.service";
 import { AlphavantageModule } from "../alphavantage/alphavantage.module";
 import { CacheModule } from "@nestjs/common/cache";
 import { RedisClientOptions } from "redis";
+import { SessionSerializer } from "./strategies/Serializer";
 
 @Module({
   imports: [
@@ -26,17 +26,12 @@ import { RedisClientOptions } from "redis";
     MailingModule,
     JwtModule.register({}),
     AlphavantageModule,
-    CacheModule.register<RedisClientOptions>({
-      socket: {
-        host: 'localhost',
-        port: 6379
-      }
-    }),
   ],
   providers: [
     AuthService,
     AtStrategy,
-    TwitterStrategy
+    TwitterStrategy,
+    SessionSerializer
   ],
   controllers: [AuthController]
 })

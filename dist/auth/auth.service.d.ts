@@ -34,11 +34,10 @@ import { SetEmailRegDto } from "./dto/Reg/SetEmailReg.dto";
 import { SetAddressRegDto } from "./dto/Reg/SetAddressReg.dto";
 import { JwtService } from "@nestjs/jwt";
 import { Session, SessionDocument } from "../sessions/session.schema";
-import { AuthingUser, AuthingUserDocument } from "./authingUser.schema";
+import { AuthingUserDocument } from "./authingUser.schema";
 import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
-import { Cache } from "cache-manager";
 export declare class AuthService {
     private regingUserModel;
     private userModel;
@@ -48,8 +47,7 @@ export declare class AuthService {
     private jwtService;
     private mailingService;
     private alphaVantageService;
-    private cacheManager;
-    constructor(regingUserModel: Model<RegisteringUserDocument>, userModel: Model<UserDocument>, addressModel: Model<AddressDocument>, sessionModel: Model<SessionDocument>, authingUserModel: Model<AuthingUserDocument>, jwtService: JwtService, mailingService: MailingService, alphaVantageService: AlphavantageService, cacheManager: Cache);
+    constructor(regingUserModel: Model<RegisteringUserDocument>, userModel: Model<UserDocument>, addressModel: Model<AddressDocument>, sessionModel: Model<SessionDocument>, authingUserModel: Model<AuthingUserDocument>, jwtService: JwtService, mailingService: MailingService, alphaVantageService: AlphavantageService);
     getCountries(): {
         AD: {
             name: string;
@@ -1788,11 +1786,9 @@ export declare class AuthService {
     refreshToken(refreshToken: string): Promise<{
         access_token: string;
     }>;
-    sendAuthConfirmationCode(mobileNumber: MobileNumberDto): Promise<{
+    sendAuthConfirmationCode(mobileNumber: any, twitterId?: string): Promise<{
         message: string;
-        data: import("mongoose").LeanDocument<AuthingUser> & {
-            _id: import("mongoose").Types.ObjectId;
-        };
+        authToken: string;
     }>;
     sendRegConfirmationCode(mobileNumber: MobileNumberDto): Promise<{
         message: string;

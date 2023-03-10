@@ -26,7 +26,6 @@ import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { clearAuthingUsers } from "./providers/clearAuthingUsers.provider";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
-import { Cache } from "cache-manager";
 
 @Injectable()
 export class AuthService {
@@ -38,8 +37,7 @@ export class AuthService {
     @InjectModel(AuthingUser.name) private authingUserModel: Model<AuthingUserDocument>,
     private jwtService: JwtService,
     private mailingService: MailingService,
-    private alphaVantageService: AlphavantageService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache
+    private alphaVantageService: AlphavantageService
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
     // setInterval(async () => {
@@ -144,7 +142,7 @@ export class AuthService {
       throw new HttpException('Authing user not found by this authToken', HttpStatus.NOT_FOUND);
     }
 
-    const foundUser = await this.userModel.findOne({ mobileNumber: foundAuthingUser.mobileNumber })
+    const foundUser = await this.userModel.findById(foundAuthingUser.userID)
       .select("+pin +sessions");
 
     if(dto.pin !== foundUser.pin) { // need to compare
@@ -228,55 +226,45 @@ export class AuthService {
 
 
 
-  async sendAuthConfirmationCode(mobileNumber: MobileNumberDto) {
-    const formattedPhone = parsePhone(mobileNumber.number).formatInternational();
+  async sendAuthConfirmationCode(mobileNumber, twitterId = "") {
+    let formattedPhone: any = null;
+    try {
+      formattedPhone = parsePhone(mobileNumber).formatInternational();
+    } catch (err) {}
 
-    const foundUserByPhoneNumber = await this.userModel.findOne({ mobileNumber: formattedPhone });
-    if(!foundUserByPhoneNumber) {
-      throw new HttpException('This phone number is not registered', HttpStatus.FORBIDDEN);
+    let foundUser;
+    if(formattedPhone) {
+      foundUser = await this.userModel.findOne({ mobileNumber: formattedPhone }).select("_id");
+    } else if(twitterId) {
+      foundUser = await this.userModel.findOne({ twitterId }).select("_id");
+    }
+    if(!foundUser) {
+      throw new HttpException('Account is not registered', HttpStatus.FORBIDDEN);
     }
 
-    const foundAuthingUser = await this.authingUserModel.findOne({ mobileNumber: formattedPhone });
-
+    const foundAuthingUser = await this.authingUserModel.findOne({ userID: foundUser._id });
     if(!foundAuthingUser) {
-      const confirmationCode: string = randomNumberCode(5);
       const authToken: string = uuidv4();
       try {
         const newAuthingUser = new this.authingUserModel({
-          verificationCode: confirmationCode,
-          mobileNumber: formattedPhone,
+          userID: foundUser._id,
           authToken
         });
         await newAuthingUser.save();
-        await sendSMS("", "", "");
 
-        const newAuthingUserObject = newAuthingUser.toObject();
-        // delete newAuthingUserObject.verificationCode;
         return {
-          message: `Confirmation code sent to number: ${formattedPhone}`,
-          data:  newAuthingUserObject
+          message: `Authing process started`,
+          authToken
         }
       } catch (err) {
-        throw new HttpException('Error saving new registering user', HttpStatus.BAD_REQUEST);
+        console.log(err)
+        throw new HttpException('Error saving new authing user', HttpStatus.BAD_REQUEST);
       }
     }
 
-    if(foundAuthingUser.sentConfirmations >= 3) {
-      throw new HttpException('Too many attempts. Please try again in a hour', HttpStatus.FORBIDDEN);
-    }
-
-    const confirmationCode: string = randomNumberCode(5);
-    foundAuthingUser.verificationCode = confirmationCode;
-    foundAuthingUser.sentConfirmations++;
-    foundAuthingUser.prevCodeTime = new Date();
-    await foundAuthingUser.save();
-    await sendSMS("", "", "");
-
-    const foundAuthingUserObject = foundAuthingUser.toObject();
-    // delete foundAuthingUserObject.verificationCode;
     return {
-      message: `Confirmation code resent to number: ${formattedPhone}`,
-      data: foundAuthingUserObject
+      message: `Authing process is still active`,
+      authToken: foundAuthingUser.authToken
     }
 
   }
@@ -435,7 +423,8 @@ export class AuthService {
         pin: foundRegingUser.pin,
         username: foundRegingUser.username,
         email: foundRegingUser.email,
-        acceptNotifications: foundRegingUser.acceptNotifications
+        acceptNotifications: foundRegingUser.acceptNotifications,
+        twitterId: foundRegingUser.twitterId
       });
 
       const newSession = new this.sessionModel({
@@ -451,11 +440,11 @@ export class AuthService {
       });
       newSession.refreshToken = tokens.refresh_token;
 
-      // try {
-      //   await this.mailingService.generateEmailConfirmation(newUser);
-      // } catch (err) {
-      //   console.log(err);
-      // }
+      try {
+        await this.mailingService.generateEmailConfirmation(newUser);
+      } catch (err) {
+        console.log(err);
+      }
 
       newAddress.user = newUser;
       newUser.addresses.push(newAddress);

@@ -36,9 +36,8 @@ let AuthController = class AuthController {
         console.log("signin");
         return "yes";
     }
-    twitterRedirect() {
-        console.log("redirect");
-        return "redirect";
+    twitterRedirect(req) {
+        return req.user;
     }
     sendAuthConfirmationCode(dto) {
         return this.authService.sendAuthConfirmationCode(dto);
@@ -85,20 +84,22 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "twitterSignin", null);
 __decorate([
+    (0, common_1.UseGuards)(TwitterAuth_guard_1.TwitterAuthGuard),
     (0, common_1.Get)('/twitter/redirect'),
+    __param(0, (0, common_1.Request)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "twitterRedirect", null);
 __decorate([
-    (0, common_1.Post)('/sendAuthConfirmationCode'),
+    (0, common_1.Post)('/checkAccount'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [MobileNumber_dto_1.MobileNumberDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "sendAuthConfirmationCode", null);
 __decorate([
-    (0, common_1.Post)('/local/signin'),
+    (0, common_1.Post)('/signin'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [SignInLocal_dto_1.SignInLocalDto]),
@@ -106,7 +107,7 @@ __decorate([
 ], AuthController.prototype, "signinLocal", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
-    (0, common_1.Post)('/local/logout'),
+    (0, common_1.Post)('/logout'),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
