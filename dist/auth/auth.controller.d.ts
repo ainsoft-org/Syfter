@@ -1765,7 +1765,7 @@ export declare class AuthController {
         message: string;
         authToken: string;
     }>;
-    signinLocal(dto: SignInLocalDto): Promise<{
+    signinLocal(req: any, dto: SignInLocalDto): Promise<{
         refresh_token: string;
         access_token: string;
     }>;
@@ -1801,7 +1801,7 @@ export declare class AuthController {
     } & Required<{
         _id: import("mongoose").Types.ObjectId;
     }>>;
-    setAddressReg(dto: SetAddressRegDto): Promise<{
+    setAddressReg(req: any, dto: SetAddressRegDto): Promise<{
         refresh_token: string;
         access_token: string;
     }>;

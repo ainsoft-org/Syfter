@@ -43,8 +43,9 @@ export class AuthController {
 
   // @UseGuards(AuthGuard())
   @Post('/signin')
-  signinLocal(@Body() dto: SignInLocalDto) {
-    return this.authService.signinLocal(dto);
+  signinLocal(@Request() req, @Body() dto: SignInLocalDto) {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    return this.authService.signinLocal(dto, ip);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -86,7 +87,8 @@ export class AuthController {
   }
 
   @Post('/setAddressReg')
-  setAddressReg(@Body() dto: SetAddressRegDto) {
-    return this.authService.setAddressReg(dto);
+  setAddressReg(@Request() req, @Body() dto: SetAddressRegDto) {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    return this.authService.setAddressReg(dto, ip);
   }
 }

@@ -29,10 +29,6 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], SignInLocalDto.prototype, "ip", void 0);
-__decorate([
-    (0, class_validator_1.IsString)(),
-    __metadata("design:type", String)
 ], SignInLocalDto.prototype, "deviceID", void 0);
 exports.SignInLocalDto = SignInLocalDto;
 //# sourceMappingURL=SignInLocal.dto.js.map

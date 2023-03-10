@@ -12,8 +12,5 @@ export class SetAddressRegDto {
   device: string;
 
   @IsString()
-  ip: string;
-
-  @IsString()
   deviceID: string;
 }

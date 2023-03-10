@@ -42,8 +42,9 @@ let AuthController = class AuthController {
     sendAuthConfirmationCode(dto) {
         return this.authService.sendAuthConfirmationCode(dto.number);
     }
-    signinLocal(dto) {
-        return this.authService.signinLocal(dto);
+    signinLocal(req, dto) {
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        return this.authService.signinLocal(dto, ip);
     }
     logout(req, dto) {
         return this.authService.logout(req.user.sub, dto.refreshToken);
@@ -66,8 +67,9 @@ let AuthController = class AuthController {
     setEmailReg(dto) {
         return this.authService.setEmailReg(dto);
     }
-    setAddressReg(dto) {
-        return this.authService.setAddressReg(dto);
+    setAddressReg(req, dto) {
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        return this.authService.setAddressReg(dto, ip);
     }
 };
 __decorate([
@@ -100,9 +102,10 @@ __decorate([
 ], AuthController.prototype, "sendAuthConfirmationCode", null);
 __decorate([
     (0, common_1.Post)('/signin'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SignInLocal_dto_1.SignInLocalDto]),
+    __metadata("design:paramtypes", [Object, SignInLocal_dto_1.SignInLocalDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "signinLocal", null);
 __decorate([
@@ -158,9 +161,10 @@ __decorate([
 ], AuthController.prototype, "setEmailReg", null);
 __decorate([
     (0, common_1.Post)('/setAddressReg'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [SetAddressReg_dto_1.SetAddressRegDto]),
+    __metadata("design:paramtypes", [Object, SetAddressReg_dto_1.SetAddressRegDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "setAddressReg", null);
 AuthController = __decorate([

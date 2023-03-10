@@ -140,7 +140,7 @@ export class AuthService {
     return lookupIP(ip).country;
   }
 
-  async signinLocal(dto: SignInLocalDto) {
+  async signinLocal(dto: SignInLocalDto, ip: string) {
     const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
 
     if(!foundAuthingUser) {
@@ -157,7 +157,7 @@ export class AuthService {
     try {
       const newSession = new this.sessionModel({
         device: dto.device,
-        country: this.getCountry(dto.ip),
+        country: this.getCountry(ip),
         deviceID: dto.deviceID,
         user: foundUser
       });
@@ -406,7 +406,7 @@ export class AuthService {
     return await foundRegingUser.save();
   }
 
-  async setAddressReg(dto: SetAddressRegDto) {
+  async setAddressReg(dto: SetAddressRegDto, ip: string) {
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
       .select("+pin +mobileNumber +username +email +acceptNotifications");
     if(!foundRegingUser) {
@@ -434,7 +434,7 @@ export class AuthService {
 
       const newSession = new this.sessionModel({
         device: dto.device,
-        country: this.getCountry(dto.ip),
+        country: this.getCountry(ip),
         deviceID: dto.deviceID,
         user: newUser
       });

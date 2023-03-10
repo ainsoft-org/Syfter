@@ -1775,7 +1775,7 @@ export declare class AuthService {
     private getTokens;
     private generateAt;
     private getCountry;
-    signinLocal(dto: SignInLocalDto): Promise<{
+    signinLocal(dto: SignInLocalDto, ip: string): Promise<{
         refresh_token: string;
         access_token: string;
     }>;
@@ -1815,7 +1815,7 @@ export declare class AuthService {
     } & Required<{
         _id: import("mongoose").Types.ObjectId;
     }>>;
-    setAddressReg(dto: SetAddressRegDto): Promise<{
+    setAddressReg(dto: SetAddressRegDto, ip: string): Promise<{
         refresh_token: string;
         access_token: string;
     }>;

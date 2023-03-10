@@ -99,7 +99,7 @@ let AuthService = class AuthService {
     getCountry(ip) {
         return (0, geoip_lite_1.lookup)(ip).country;
     }
-    async signinLocal(dto) {
+    async signinLocal(dto, ip) {
         const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
         if (!foundAuthingUser) {
             throw new common_1.HttpException('Authing user not found by this authToken', common_1.HttpStatus.NOT_FOUND);
@@ -112,7 +112,7 @@ let AuthService = class AuthService {
         try {
             const newSession = new this.sessionModel({
                 device: dto.device,
-                country: this.getCountry(dto.ip),
+                country: this.getCountry(ip),
                 deviceID: dto.deviceID,
                 user: foundUser
             });
@@ -312,7 +312,7 @@ let AuthService = class AuthService {
         foundRegingUser.stage = "ADDRESS";
         return await foundRegingUser.save();
     }
-    async setAddressReg(dto) {
+    async setAddressReg(dto, ip) {
         const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
             .select("+pin +mobileNumber +username +email +acceptNotifications");
         if (!foundRegingUser) {
@@ -336,7 +336,7 @@ let AuthService = class AuthService {
             });
             const newSession = new this.sessionModel({
                 device: dto.device,
-                country: this.getCountry(dto.ip),
+                country: this.getCountry(ip),
                 deviceID: dto.deviceID,
                 user: newUser
             });
