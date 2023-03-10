@@ -29,7 +29,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
-], SetAddressRegDto.prototype, "country", void 0);
+], SetAddressRegDto.prototype, "ip", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)

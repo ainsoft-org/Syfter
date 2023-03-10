@@ -2,6 +2,6 @@ export declare class SetAddressRegDto {
     regToken: string;
     address: string;
     device: string;
-    country: string;
+    ip: string;
     deviceID: string;
 }

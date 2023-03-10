@@ -29,6 +29,7 @@ const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
+const geoip_lite_1 = require("geoip-lite");
 let AuthService = class AuthService {
     constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService) {
         this.regingUserModel = regingUserModel;
@@ -58,13 +59,6 @@ let AuthService = class AuthService {
                 const data3 = await this.setPinReg({ regToken: data.regToken, pin: numberIterator });
                 const data4 = await this.setUsernameReg({ regToken: data.regToken, username: "user" + numberIterator });
                 const data5 = await this.setEmailReg({ regToken: data.regToken, email: `user${numberIterator}@gmail.com`, acceptNotifications: true });
-                const data6 = await this.setAddressReg({
-                    regToken: data.regToken,
-                    address: "0xB7F24dAc40DFaBd7e89EDc07F49BfeCE6E5bAFa8",
-                    device: "iPhone Turbo GT 600-" + numberIterator,
-                    country: "Ukraine",
-                    deviceID: "deviceID-" + numberIterator
-                });
                 const user = await this.userModel.findOne({ mobileNumber: `+380 98 969 68${numberIterator}` });
                 console.log(user);
                 const userId = user._id.toString();
@@ -102,6 +96,9 @@ let AuthService = class AuthService {
             expiresIn: Number(process.env.access_expires)
         });
     }
+    getCountry(ip) {
+        return (0, geoip_lite_1.lookup)(ip).country;
+    }
     async signinLocal(dto) {
         const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
         if (!foundAuthingUser) {
@@ -115,7 +112,7 @@ let AuthService = class AuthService {
         try {
             const newSession = new this.sessionModel({
                 device: dto.device,
-                country: dto.country,
+                country: this.getCountry(dto.ip),
                 deviceID: dto.deviceID,
                 user: foundUser
             });
@@ -339,7 +336,7 @@ let AuthService = class AuthService {
             });
             const newSession = new this.sessionModel({
                 device: dto.device,
-                country: dto.country,
+                country: this.getCountry(dto.ip),
                 deviceID: dto.deviceID,
                 user: newUser
             });

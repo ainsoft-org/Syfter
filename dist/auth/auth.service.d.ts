@@ -1774,6 +1774,7 @@ export declare class AuthService {
     };
     private getTokens;
     private generateAt;
+    private getCountry;
     signinLocal(dto: SignInLocalDto): Promise<{
         refresh_token: string;
         access_token: string;

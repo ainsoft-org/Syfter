@@ -26,6 +26,7 @@ import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { clearAuthingUsers } from "./providers/clearAuthingUsers.provider";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
+import { lookup as lookupIP } from 'geoip-lite';
 
 @Injectable()
 export class AuthService {
@@ -72,13 +73,13 @@ export class AuthService {
         const data5 = await this.setEmailReg({ regToken: data.regToken, email: `user${numberIterator}@gmail.com`, acceptNotifications: true });
 
 
-        const data6 = await this.setAddressReg({
-          regToken: data.regToken,
-          address: "0xB7F24dAc40DFaBd7e89EDc07F49BfeCE6E5bAFa8",
-          device: "iPhone Turbo GT 600-" + numberIterator,
-          country: "Ukraine",
-          deviceID: "deviceID-" + numberIterator
-        });
+        // const data6 = await this.setAddressReg({
+        //   regToken: data.regToken,
+        //   address: "0xB7F24dAc40DFaBd7e89EDc07F49BfeCE6E5bAFa8",
+        //   device: "iPhone Turbo GT 600-" + numberIterator,
+        //   country: "Ukraine",
+        //   deviceID: "deviceID-" + numberIterator
+        // });
 
         const user = await this.userModel.findOne({ mobileNumber: `+380 98 969 68${numberIterator}` });
         console.log(user)
@@ -135,6 +136,10 @@ export class AuthService {
 
   // signupLocal() {}
 
+  private getCountry(ip) {
+    return lookupIP(ip).country;
+  }
+
   async signinLocal(dto: SignInLocalDto) {
     const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
 
@@ -152,7 +157,7 @@ export class AuthService {
     try {
       const newSession = new this.sessionModel({
         device: dto.device,
-        country: dto.country,
+        country: this.getCountry(dto.ip),
         deviceID: dto.deviceID,
         user: foundUser
       });
@@ -429,7 +434,7 @@ export class AuthService {
 
       const newSession = new this.sessionModel({
         device: dto.device,
-        country: dto.country,
+        country: this.getCountry(dto.ip),
         deviceID: dto.deviceID,
         user: newUser
       });

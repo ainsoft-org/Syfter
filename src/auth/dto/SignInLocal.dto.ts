@@ -12,7 +12,7 @@ export class SignInLocalDto {
   device: string;
 
   @IsString()
-  country: string;
+  ip: string;
 
   @IsString()
   deviceID: string;

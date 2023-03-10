@@ -12,7 +12,7 @@ export class SetAddressRegDto {
   device: string;
 
   @IsString()
-  country: string;
+  ip: string;
 
   @IsString()
   deviceID: string;

@@ -2,6 +2,6 @@ export declare class SignInLocalDto {
     authToken: string;
     pin: string;
     device: string;
-    country: string;
+    ip: string;
     deviceID: string;
 }
