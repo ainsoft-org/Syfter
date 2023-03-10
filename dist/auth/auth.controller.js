@@ -40,7 +40,7 @@ let AuthController = class AuthController {
         return req.user;
     }
     sendAuthConfirmationCode(dto) {
-        return this.authService.sendAuthConfirmationCode(dto);
+        return this.authService.sendAuthConfirmationCode(dto.number);
     }
     signinLocal(dto) {
         return this.authService.signinLocal(dto);

@@ -38,7 +38,7 @@ export class AuthController {
 
   @Post('/checkAccount')
   sendAuthConfirmationCode(@Body() dto: MobileNumberDto) {
-    return this.authService.sendAuthConfirmationCode(dto)
+    return this.authService.sendAuthConfirmationCode(dto.number)
   }
 
   // @UseGuards(AuthGuard())
