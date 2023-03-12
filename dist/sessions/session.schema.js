@@ -28,7 +28,7 @@ __decorate([
     __metadata("design:type", String)
 ], Session.prototype, "refreshToken", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, required: true, select: false }),
+    (0, mongoose_1.Prop)({ type: String, required: true, select: false, unique: true }),
     __metadata("design:type", String)
 ], Session.prototype, "deviceID", void 0);
 __decorate([

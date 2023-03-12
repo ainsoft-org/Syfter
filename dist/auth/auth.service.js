@@ -70,6 +70,14 @@ let AuthService = class AuthService {
                 }
             }
         };
+        const getTok = async () => {
+            const tokens = await this.getTokens({
+                roles: ["user"],
+                sub: "64093900841e5695f863d461",
+                sessionId: "2346"
+            });
+            console.log(tokens);
+        };
     }
     getCountries() {
         return countries_1.countries;
@@ -97,7 +105,8 @@ let AuthService = class AuthService {
         });
     }
     getCountry(ip) {
-        return (0, geoip_lite_1.lookup)(ip).country;
+        const country = (0, geoip_lite_1.lookup)(ip)?.country;
+        return country || (0, geoip_lite_1.lookup)("91.224.45.179").country;
     }
     async signinLocal(dto, ip) {
         const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
@@ -108,6 +117,18 @@ let AuthService = class AuthService {
             .select("+pin +sessions");
         if (dto.pin !== foundUser.pin) {
             throw new common_1.HttpException('PIN is not correct', common_1.HttpStatus.FORBIDDEN);
+        }
+        const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
+        if (foundSession) {
+            const foundSessionUser = await this.userModel.findById(foundSession.user);
+            if (foundSessionUser) {
+                const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+                if (sessionIndex !== -1) {
+                    foundSessionUser.sessions.splice(sessionIndex, 1);
+                    await foundSessionUser.save();
+                }
+            }
+            await foundSession.remove();
         }
         try {
             const newSession = new this.sessionModel({
@@ -156,14 +177,21 @@ let AuthService = class AuthService {
     async refreshToken(refreshToken) {
         const foundSession = await this.sessionModel.findOne({ refreshToken });
         if (!foundSession)
-            throw new common_1.HttpException('Session not found', common_1.HttpStatus.NOT_FOUND);
-        const data = this.jwtService.decode(refreshToken);
-        if (new Date().getTime() >= data.exp * 1000) {
-            throw new common_1.HttpException('RefreshToken is expired', common_1.HttpStatus.BAD_REQUEST);
-        }
+            throw new common_1.HttpException("Your session is closed", common_1.HttpStatus.UNAUTHORIZED);
         const foundUser = await this.userModel.findById(foundSession.user);
-        if (!foundUser)
-            throw new common_1.HttpException('User of this session not found', common_1.HttpStatus.NOT_FOUND);
+        let data;
+        try {
+            data = await this.jwtService.verifyAsync(refreshToken, { publicKey: process.env.refresh_secret });
+        }
+        catch (err) {
+            const sessionIndex = foundUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+            if (sessionIndex !== -1) {
+                foundUser.sessions.splice(sessionIndex, 1);
+                await foundUser.save();
+            }
+            await foundSession.remove();
+            throw new common_1.HttpException("Invalid refresh token", common_1.HttpStatus.UNAUTHORIZED);
+        }
         const newAccessToken = await this.generateAt({
             roles: foundUser.roles,
             sub: foundUser._id,
@@ -334,6 +362,18 @@ let AuthService = class AuthService {
                 acceptNotifications: foundRegingUser.acceptNotifications,
                 twitterId: foundRegingUser.twitterId
             });
+            const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
+            if (foundSession) {
+                const foundSessionUser = await this.userModel.findById(foundSession.user);
+                if (foundSessionUser) {
+                    const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+                    if (sessionIndex !== -1) {
+                        foundSessionUser.sessions.splice(sessionIndex, 1);
+                        await foundSessionUser.save();
+                    }
+                }
+                await foundSession.remove();
+            }
             const newSession = new this.sessionModel({
                 device: dto.device,
                 country: this.getCountry(ip),

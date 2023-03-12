@@ -98,6 +98,18 @@ export class AuthService {
 
     // regTestUsers();
 
+    const getTok = async () => {
+      const tokens = await this.getTokens({
+        roles: ["user"],
+        sub: "64093900841e5695f863d461",
+        sessionId: "2346"
+      });
+
+      console.log(tokens)
+    }
+
+    // getTok()
+
   }
 
   // Common endpoints
@@ -137,7 +149,8 @@ export class AuthService {
   // signupLocal() {}
 
   private getCountry(ip) {
-    return lookupIP(ip).country;
+    const country = lookupIP(ip)?.country;
+    return country || lookupIP("91.224.45.179").country;
   }
 
   async signinLocal(dto: SignInLocalDto, ip: string) {
@@ -152,6 +165,19 @@ export class AuthService {
 
     if(dto.pin !== foundUser.pin) { // need to compare
       throw new HttpException('PIN is not correct', HttpStatus.FORBIDDEN);
+    }
+
+    const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
+    if(foundSession) {
+      const foundSessionUser = await this.userModel.findById(foundSession.user);
+      if(foundSessionUser) {
+        const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+        if(sessionIndex !== -1) {
+          foundSessionUser.sessions.splice(sessionIndex, 1);
+          await foundSessionUser.save();
+        }
+      }
+      await foundSession.remove();
     }
 
     try {
@@ -209,16 +235,21 @@ export class AuthService {
 
   async refreshToken(refreshToken: string) {
     const foundSession = await this.sessionModel.findOne({ refreshToken });
-    if(!foundSession) throw new HttpException('Session not found', HttpStatus.NOT_FOUND);
-
-    const data: any = this.jwtService.decode(refreshToken);
-
-    if(new Date().getTime() >= data.exp * 1000) {
-      throw new HttpException('RefreshToken is expired', HttpStatus.BAD_REQUEST);
-    }
+    if(!foundSession) throw new HttpException("Your session is closed", HttpStatus.UNAUTHORIZED);
 
     const foundUser = await this.userModel.findById(foundSession.user);
-    if(!foundUser) throw new HttpException('User of this session not found', HttpStatus.NOT_FOUND);
+    let data: any;
+    try {
+      data = await this.jwtService.verifyAsync(refreshToken, { publicKey: process.env.refresh_secret });
+    } catch (err) {
+      const sessionIndex = foundUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+      if(sessionIndex !== -1) {
+        foundUser.sessions.splice(sessionIndex, 1);
+        await foundUser.save();
+      }
+      await foundSession.remove();
+      throw new HttpException("Invalid refresh token", HttpStatus.UNAUTHORIZED);
+    }
 
     const newAccessToken = await this.generateAt({
       roles: foundUser.roles,
@@ -431,6 +462,19 @@ export class AuthService {
         acceptNotifications: foundRegingUser.acceptNotifications,
         twitterId: foundRegingUser.twitterId
       });
+
+      const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
+      if(foundSession) {
+        const foundSessionUser = await this.userModel.findById(foundSession.user);
+        if(foundSessionUser) {
+          const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
+          if(sessionIndex !== -1) {
+            foundSessionUser.sessions.splice(sessionIndex, 1);
+            await foundSessionUser.save();
+          }
+        }
+        await foundSession.remove();
+      }
 
       const newSession = new this.sessionModel({
         device: dto.device,

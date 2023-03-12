@@ -20,14 +20,16 @@ const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("../../user/user.schema");
 const mongoose_2 = require("mongoose");
 const session_schema_1 = require("../../sessions/session.schema");
+const jwt_1 = require("@nestjs/jwt");
 let AtStrategy = class AtStrategy extends (0, passport_1.PassportStrategy)(passport_jwt_1.Strategy, 'jwt') {
-    constructor(userModel, sessionModel) {
+    constructor(userModel, sessionModel, jwtService) {
         super({
             jwtFromRequest: passport_jwt_1.ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: process.env.access_secret
         });
         this.userModel = userModel;
         this.sessionModel = sessionModel;
+        this.jwtService = jwtService;
     }
     async validate(payload) {
         const user = await this.userModel.findById(payload.sub)
@@ -35,6 +37,19 @@ let AtStrategy = class AtStrategy extends (0, passport_1.PassportStrategy)(passp
         const session = await this.sessionModel.findById(payload.sessionId);
         if (!session) {
             throw new common_1.HttpException("Your session is closed", common_1.HttpStatus.UNAUTHORIZED);
+        }
+        let data;
+        try {
+            data = await this.jwtService.verifyAsync(session.refreshToken, { publicKey: process.env.refresh_secret });
+        }
+        catch (err) {
+            const sessionIndex = user.sessions.findIndex(sessionsId => sessionsId.toString() === session._id.toString());
+            if (sessionIndex !== -1) {
+                user.sessions.splice(sessionIndex, 1);
+                await user.save();
+            }
+            await session.remove();
+            throw new common_1.HttpException("Invalid refresh token", common_1.HttpStatus.UNAUTHORIZED);
         }
         session.lastActivity = new Date();
         user.lastActivity = new Date();
@@ -48,7 +63,8 @@ AtStrategy = __decorate([
     __param(0, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
     __param(1, (0, mongoose_1.InjectModel)(session_schema_1.Session.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        mongoose_2.Model])
+        mongoose_2.Model,
+        jwt_1.JwtService])
 ], AtStrategy);
 exports.AtStrategy = AtStrategy;
 //# sourceMappingURL=at.strategy.js.map

@@ -22,7 +22,8 @@ SessionsModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }])
         ],
         controllers: [sessions_controller_1.SessionsController],
-        providers: [sessions_service_1.SessionsService]
+        providers: [sessions_service_1.SessionsService],
+        exports: [sessions_service_1.SessionsService]
     })
 ], SessionsModule);
 exports.SessionsModule = SessionsModule;
