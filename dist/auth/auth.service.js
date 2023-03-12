@@ -120,7 +120,7 @@ let AuthService = class AuthService {
         }
         const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
         if (foundSession) {
-            const foundSessionUser = await this.userModel.findById(foundSession.user);
+            const foundSessionUser = await this.userModel.findById(foundSession.user).select("+sessions");
             if (foundSessionUser) {
                 const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
                 if (sessionIndex !== -1) {
@@ -178,7 +178,7 @@ let AuthService = class AuthService {
         const foundSession = await this.sessionModel.findOne({ refreshToken });
         if (!foundSession)
             throw new common_1.HttpException("Your session is closed", common_1.HttpStatus.UNAUTHORIZED);
-        const foundUser = await this.userModel.findById(foundSession.user);
+        const foundUser = await this.userModel.findById(foundSession.user).select("+sessions");
         let data;
         try {
             data = await this.jwtService.verifyAsync(refreshToken, { publicKey: process.env.refresh_secret });
@@ -364,7 +364,7 @@ let AuthService = class AuthService {
             });
             const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
             if (foundSession) {
-                const foundSessionUser = await this.userModel.findById(foundSession.user);
+                const foundSessionUser = await this.userModel.findById(foundSession.user).select("+sessions");
                 if (foundSessionUser) {
                     const sessionIndex = foundSessionUser.sessions.findIndex(sessionsId => sessionsId.toString() === foundSession._id.toString());
                     if (sessionIndex !== -1) {
