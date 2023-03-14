@@ -33,7 +33,7 @@ export declare class AlphavantageService {
     } & Required<{
         _id: mongoose.Types.ObjectId;
     }>>;
-    getTrendingNow(amount: any, forIgnore?: any[], filters?: {}): Promise<{
+    getTrendingNow(amount: number, forIgnore?: any[], filters?: {}): Promise<{
         assets: any[];
         amount: any;
     }>;

@@ -182,9 +182,11 @@ let AlphavantageService = class AlphavantageService {
         return asset;
     }
     async getTrendingNow(amount, forIgnore = [], filters = {}) {
-        const cashed_assets = await this.cacheManager.get("trendingAssets");
-        if (cashed_assets) {
-            return { assets: await this.getAssetData(cashed_assets), amount: cashed_assets.length };
+        if (!forIgnore.length && !Object.keys(filters).length) {
+            const cashed_assets = await this.cacheManager.get(amount + "trendingAssets");
+            if (cashed_assets) {
+                return { assets: await this.getAssetData(cashed_assets), amount: cashed_assets.length };
+            }
         }
         const assets = await this.currencyModel.aggregate([
             { $match: {
@@ -200,7 +202,9 @@ let AlphavantageService = class AlphavantageService {
             { $limit: amount },
             { $unset: ["news"] }
         ]);
-        await this.cacheManager.set("trendingAssets", assets, 3600000);
+        if (!forIgnore.length && !Object.keys(filters).length) {
+            await this.cacheManager.set(amount + "trendingAssets", assets, 3600000);
+        }
         return { assets: await this.getAssetData(assets), amount: assets.length };
     }
     async getRecByPriceIncrease(amount, forIgnore, filters) {
