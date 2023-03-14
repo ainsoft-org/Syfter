@@ -360,7 +360,10 @@ export class AlphavantageService {
     const result: any = [];
     try {
       for(const asset of assets) {
-        result.push(await this.currencyModel.findById(asset));
+        const foundAsset = await this.currencyModel.findById(asset);
+        if(foundAsset) {
+          result.push(foundAsset);
+        }
       }
       return result;
     } catch (err) {

@@ -320,7 +320,10 @@ let AlphavantageService = class AlphavantageService {
         const result = [];
         try {
             for (const asset of assets) {
-                result.push(await this.currencyModel.findById(asset));
+                const foundAsset = await this.currencyModel.findById(asset);
+                if (foundAsset) {
+                    result.push(foundAsset);
+                }
             }
             return result;
         }

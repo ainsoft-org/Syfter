@@ -26,6 +26,9 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsEnum)(ChartTypes, {
+        message: `must be regular|candlestick`
+    }),
     __metadata("design:type", String)
 ], GetAssetDataDto.prototype, "chartType", void 0);
 exports.GetAssetDataDto = GetAssetDataDto;
