@@ -23,7 +23,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(payload: any) {
     const user = await this.userModel.findById(payload.sub)
       .select('+pin -reactions -likedSectors -removedReactions +sessions');
-s
+
     const session = await this.sessionModel.findById(payload.sessionId).select("+refreshToken");
 
     if(!session) {
