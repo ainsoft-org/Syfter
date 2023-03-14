@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailingService = void 0;
 const common_1 = require("@nestjs/common");
 const client_ses_1 = require("@aws-sdk/client-ses");
+const client_sns_1 = require("@aws-sdk/client-sns");
 const mongoose_1 = require("@nestjs/mongoose");
 const EmailConfirmation_schema_1 = require("./EmailConfirmation.schema");
 const user_schema_1 = require("../user/user.schema");
@@ -25,19 +26,21 @@ let MailingService = class MailingService {
     constructor(userModel, emailConfirmationModel) {
         this.userModel = userModel;
         this.emailConfirmationModel = emailConfirmationModel;
-        this.client = new client_ses_1.SESClient({ region: "eu-central-1" });
+        this.clientSES = new client_ses_1.SESClient({ region: "eu-central-1" });
+        this.clientSNS = new client_sns_1.SNSClient({ region: "eu-central-1" });
         const clearEmailConfirmationsEvery = Number(process.env.clearEmailConfirmationsEvery);
         setInterval(async () => {
             if (await (0, clearEmailConfirmations_1.clearEmailConfirmations)(emailConfirmationModel)) {
                 console.log(`--cleared email confirmations after specified time (.env)--${new Date()}`);
             }
         }, clearEmailConfirmationsEvery);
+        this.generateSMSConfirmation("+380963739436");
     }
     async generateEmailConfirmation(user) {
         try {
             const newEmailConfirmation = new this.emailConfirmationModel({ user });
             const sendEmailCommand = (0, EmailConfirmation_command_1.createEmailConfirmationCommand)(user.email, `${process.env.host}/mailing/emailConfirmation/${newEmailConfirmation._id.toString()}`);
-            await this.client.send(sendEmailCommand);
+            await this.clientSES.send(sendEmailCommand);
             await newEmailConfirmation.save();
         }
         catch (err) {
@@ -60,6 +63,19 @@ let MailingService = class MailingService {
             throw new common_1.HttpException('Something went wrong', common_1.HttpStatus.BAD_REQUEST);
         }
         return "Confirmed";
+    }
+    async generateSMSConfirmation(number) {
+        const setAttributesCommand = new client_sns_1.SetSMSAttributesCommand({
+            attributes: {
+                DefaultSenderID: "Syfter",
+                DefaultSMSType: "Transactional"
+            },
+        });
+        const publishCommand = new client_sns_1.PublishCommand({
+            Message: "Test code sdsdg",
+            PhoneNumber: number
+        });
+        const res2 = await this.clientSNS.send(publishCommand);
     }
 };
 MailingService = __decorate([

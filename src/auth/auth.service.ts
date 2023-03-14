@@ -12,7 +12,6 @@ import { clearRegisteringUsers } from "./providers/clearRegisteringUsers.provide
 import { MobileNumberDto } from "./dto/MobileNumber.dto";
 import { parsePhone } from "./providers/phoneNumber.provider";
 import { randomNumberCode } from "./providers/randomNumberCode";
-import { sendSMS } from "../mailing/sendSMS.provider";
 import { CheckRegConfirmationCode } from "./dto/Reg/CheckRegConfirmationCode.dto";
 import { SetPinRegDto } from "./dto/Reg/SetPinReg.dto";
 import { SetUsernameRegDto } from "./dto/Reg/SetUsernameRegDto.dto";
@@ -326,7 +325,7 @@ export class AuthService {
           regToken
         });
         await newRegingUser.save();
-        await sendSMS("", "", "");
+        // await sendSMS("", "", "");
 
         const newRegingUserObject = newRegingUser.toObject();
         // delete newRegingUserObject.verificationCode;
@@ -349,7 +348,7 @@ export class AuthService {
     foundRegingUser.sentConfirmations++;
     foundRegingUser.prevCodeTime = new Date();
     await foundRegingUser.save();
-    await sendSMS("", "", "");
+    // await sendSMS("", "", "");
 
     const foundRegingUserObject = foundRegingUser.toObject();
     // delete foundRegingUserObject.verificationCode;

@@ -33,7 +33,7 @@ let AtStrategy = class AtStrategy extends (0, passport_1.PassportStrategy)(passp
     }
     async validate(payload) {
         const user = await this.userModel.findById(payload.sub)
-            .select('+pin -reactions -likedSectors -removedReactions');
+            .select('+pin -reactions -likedSectors -removedReactions +sessions');
         const session = await this.sessionModel.findById(payload.sessionId);
         if (!session) {
             throw new common_1.HttpException("Your session is closed", common_1.HttpStatus.UNAUTHORIZED);

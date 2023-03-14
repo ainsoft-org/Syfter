@@ -23,7 +23,6 @@ const registeringUser_schema_1 = require("./registeringUser.schema");
 const address_schema_1 = require("../addresses/address.schema");
 const phoneNumber_provider_1 = require("./providers/phoneNumber.provider");
 const randomNumberCode_1 = require("./providers/randomNumberCode");
-const sendSMS_provider_1 = require("../mailing/sendSMS.provider");
 const jwt_1 = require("@nestjs/jwt");
 const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
@@ -256,7 +255,6 @@ let AuthService = class AuthService {
                     regToken
                 });
                 await newRegingUser.save();
-                await (0, sendSMS_provider_1.sendSMS)("", "", "");
                 const newRegingUserObject = newRegingUser.toObject();
                 return {
                     message: `Confirmation code sent to number: ${formattedPhone}`,
@@ -276,7 +274,6 @@ let AuthService = class AuthService {
         foundRegingUser.sentConfirmations++;
         foundRegingUser.prevCodeTime = new Date();
         await foundRegingUser.save();
-        await (0, sendSMS_provider_1.sendSMS)("", "", "");
         const foundRegingUserObject = foundRegingUser.toObject();
         return {
             message: `Confirmation code resent to number: ${formattedPhone}`,
