@@ -38,7 +38,7 @@ export class AlphavantageService {
     nextDay.setDate(now.getDate() + 1); nextDay.setHours(0);
     nextDay.setMinutes(0); nextDay.setSeconds(0);
 
-    refreshCurrencies(currencyModel, newsModel, currentStatModel);
+    // refreshCurrencies(currencyModel, newsModel, currentStatModel);
     setTimeout(() => {
       // refreshCurrencies(currencyModel, newsModel, currentStatModel);
       setInterval(() => {
@@ -46,7 +46,7 @@ export class AlphavantageService {
       }, Number(process.env.refreshAssetsEvery));
     }, nextDay.getTime() - now.getTime());
 
-    refreshCryptoCurrencies(currencyModel, newsModel);
+    // refreshCryptoCurrencies(currencyModel, newsModel);
     setTimeout(() => {
       // refreshCryptoCurrencies(currencyModel, newsModel);
       setInterval(() => {
@@ -556,7 +556,6 @@ export class AlphavantageService {
     let cryptos = [];
     let forIgnoreObjectIds = [];
 
-    console.log(forIgnore)
     try {
       if(forIgnore.length) forIgnoreObjectIds = forIgnore.map(ignoreItem => new mongoose.Types.ObjectId(ignoreItem));
     } catch (err) {

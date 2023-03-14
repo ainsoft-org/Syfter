@@ -27,7 +27,7 @@ export async function getCurrencies() {
 
     return currenciesJSON;
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return null;
   }
 }
@@ -66,7 +66,7 @@ export async function getCryptoCurrencies(): Promise<currencyDto[] | null> {
     const currenciesJSON: currencyDto[] = await csv().fromString(response.data);
     return currenciesJSON;
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     return null;
   }
 }

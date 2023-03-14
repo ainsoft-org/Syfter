@@ -59,7 +59,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
           foundCurrency = new currencyModel(cryptoModified);
           await foundCurrency.save();
         } catch (err) {
-          console.log(err);
+          // console.log(err);
           continue;
         }
       } else {
@@ -103,7 +103,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
 
       await foundCurrency.save();
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       continue;
     }
   }
@@ -113,7 +113,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
     try {
       await notFoundCurrencies[i].remove();
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   }
 }
@@ -260,7 +260,7 @@ export const refreshCurrencies = async (
       if(!temporaryData) continue;
       if(!currencyData.Symbol) continue;
     } catch (err) {
-      console.log(err);
+      // console.log(err);
       continue;
     }
     foundCurrencies.push(currencyData.Symbol);
@@ -301,7 +301,7 @@ export const refreshCurrencies = async (
     try {
       await notFoundCurrencies[i].remove();
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   }
 }
