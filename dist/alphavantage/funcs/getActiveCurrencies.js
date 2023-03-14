@@ -19,7 +19,6 @@ async function getCurrencies() {
         return currenciesJSON;
     }
     catch (err) {
-        console.log(err);
         return null;
     }
 }
@@ -44,7 +43,6 @@ async function getCryptoCurrencies() {
         return currenciesJSON;
     }
     catch (err) {
-        console.log(err);
         return null;
     }
 }

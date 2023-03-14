@@ -40,7 +40,6 @@ const refreshCryptoCurrencies = async (currencyModel, newsModel) => {
                     await foundCurrency.save();
                 }
                 catch (err) {
-                    console.log(err);
                     continue;
                 }
             }
@@ -81,7 +80,6 @@ const refreshCryptoCurrencies = async (currencyModel, newsModel) => {
             await foundCurrency.save();
         }
         catch (err) {
-            console.log(err);
             continue;
         }
     }
@@ -91,7 +89,6 @@ const refreshCryptoCurrencies = async (currencyModel, newsModel) => {
             await notFoundCurrencies[i].remove();
         }
         catch (err) {
-            console.log(err);
         }
     }
 };
@@ -213,7 +210,6 @@ const refreshCurrencies = async (currencyModel, newsModel, currentStatModel) => 
                 continue;
         }
         catch (err) {
-            console.log(err);
             continue;
         }
         foundCurrencies.push(currencyData.Symbol);
@@ -250,7 +246,6 @@ const refreshCurrencies = async (currencyModel, newsModel, currentStatModel) => 
             await notFoundCurrencies[i].remove();
         }
         catch (err) {
-            console.log(err);
         }
     }
 };
