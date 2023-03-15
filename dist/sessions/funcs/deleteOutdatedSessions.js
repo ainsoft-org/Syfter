@@ -36,7 +36,6 @@ const deleteOutdatedSessions = async (sessionModel, userModel) => {
                 $expr: { $lt: ["$lastActivity", "$maxAllowedDate"] }
             } }
     ]);
-    console.log(sessionsToDelete);
     const data = { sessionIds: [], userIds: [] };
     sessionsToDelete.forEach(session => {
         data.sessionIds.push(session._id);

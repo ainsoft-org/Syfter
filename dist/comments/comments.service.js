@@ -27,7 +27,7 @@ let CommentsService = class CommentsService {
     }
     async addComment(userId, assetId, content, replyTo = "") {
         const author = await this.userModel.findById(userId);
-        const asset = await this.currencyModel.findById(assetId);
+        const asset = await this.currencyModel.findById(assetId).select("comments");
         if (!asset)
             throw new common_1.HttpException("Asset not found", common_1.HttpStatus.NOT_FOUND);
         if (!replyTo) {
@@ -45,7 +45,9 @@ let CommentsService = class CommentsService {
         const comment = await this.commentModel.findById(replyTo);
         if (!comment)
             throw new common_1.HttpException("Comment for reply not found", common_1.HttpStatus.NOT_FOUND);
-        const mainComment = await this.commentModel.findById(comment.mainComment);
+        if (comment.asset.toString() !== assetId)
+            throw new common_1.HttpException("The replyTo asset and the reply asset are different", common_1.HttpStatus.BAD_REQUEST);
+        const mainComment = await this.commentModel.findById(comment.mainComment).select("replies") || comment;
         const reply = new this.commentModel({
             content,
             author,
@@ -67,7 +69,7 @@ let CommentsService = class CommentsService {
             throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
         if (comment.author.toString() !== userId)
             throw new common_1.HttpException("No access", common_1.HttpStatus.FORBIDDEN);
-        const asset = await this.currencyModel.findById(comment.asset);
+        const asset = await this.currencyModel.findById(comment.asset).select("comments");
         if (asset) {
             const commentIndex = asset.comments.findIndex(assetComment => assetComment.toString() === commentId);
             if (commentIndex !== -1) {
@@ -79,7 +81,7 @@ let CommentsService = class CommentsService {
             const mainComment = await this.commentModel.findById(comment.mainComment);
             const replyIndex = mainComment.replies.findIndex(reply => reply.toString() === commentId);
             if (replyIndex !== -1) {
-                mainComment.replies.splice(replyIndex);
+                mainComment.replies.splice(replyIndex, 1);
             }
             await mainComment.save();
         }

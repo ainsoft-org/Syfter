@@ -55,8 +55,6 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
     }}
   ])
 
-  console.log(sessionsToDelete)
-
   const data = {sessionIds: [], userIds: []};
   sessionsToDelete.forEach(session => {
     data.sessionIds.push(session._id);

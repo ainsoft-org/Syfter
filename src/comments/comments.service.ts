@@ -17,7 +17,7 @@ export class CommentsService {
   async addComment(userId: string, assetId: string, content: string, replyTo = "") {
     const author = await this.userModel.findById(userId);
 
-    const asset = await this.currencyModel.findById(assetId);
+    const asset = await this.currencyModel.findById(assetId).select("comments");
     if(!asset) throw new HttpException("Asset not found", HttpStatus.NOT_FOUND);
 
     if(!replyTo) {
@@ -36,8 +36,9 @@ export class CommentsService {
 
     const comment = await this.commentModel.findById(replyTo);
     if(!comment) throw new HttpException("Comment for reply not found", HttpStatus.NOT_FOUND);
+    if(comment.asset.toString() !== assetId) throw new HttpException("The replyTo asset and the reply asset are different", HttpStatus.BAD_REQUEST);
 
-    const mainComment = await this.commentModel.findById(comment.mainComment);
+    const mainComment = await this.commentModel.findById(comment.mainComment).select("replies") || comment;
 
     const reply: any = new this.commentModel({
       content,
@@ -60,7 +61,7 @@ export class CommentsService {
     if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
     if(comment.author.toString() !== userId) throw new HttpException("No access", HttpStatus.FORBIDDEN);
 
-    const asset = await this.currencyModel.findById(comment.asset);
+    const asset = await this.currencyModel.findById(comment.asset).select("comments");
     if(asset) {
       const commentIndex = asset.comments.findIndex(assetComment => assetComment.toString() === commentId);
       if(commentIndex !== -1) {
@@ -69,14 +70,12 @@ export class CommentsService {
       }
     }
 
-    // console.log(comment.toObject())
-
     if(comment.isReply) {
       const mainComment = await this.commentModel.findById(comment.mainComment);
 
       const replyIndex = mainComment.replies.findIndex(reply => reply.toString() === commentId);
       if(replyIndex !== -1) {
-        mainComment.replies.splice(replyIndex);
+        mainComment.replies.splice(replyIndex, 1);
       }
       await mainComment.save();
     }

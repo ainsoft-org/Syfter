@@ -15,7 +15,7 @@ const mongoose_2 = require("mongoose");
 let Currency = class Currency {
 };
 __decorate([
-    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: "comment" }] }),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.default.Schema.Types.ObjectId, ref: "comment", select: false }] }),
     __metadata("design:type", Array)
 ], Currency.prototype, "comments", void 0);
 __decorate([
