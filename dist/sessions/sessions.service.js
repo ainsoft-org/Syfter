@@ -29,7 +29,9 @@ let SessionsService = class SessionsService {
         nextDay.setHours(0);
         nextDay.setMinutes(0);
         nextDay.setSeconds(0);
+        (0, deleteOutdatedSessions_1.deleteOutdatedSessions)(sessionModel, userModel);
         setTimeout(() => {
+            (0, deleteOutdatedSessions_1.deleteOutdatedSessions)(sessionModel, userModel);
             setInterval(() => {
                 console.log("--cleared outdated sessions");
                 (0, deleteOutdatedSessions_1.deleteOutdatedSessions)(sessionModel, userModel);

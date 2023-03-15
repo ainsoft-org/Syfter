@@ -94,17 +94,11 @@ let AlphavantageService = class AlphavantageService {
                     ...this.getAggregationFilter(filters)
                 } },
             { $addFields: {
-                    reactions: likedReactions
-                } },
-            { $addFields: {
                     position: {
-                        $function: {
-                            body: function (reactions, id) {
-                                return reactions.findIndex(reaction => reaction.asset.toString() === id.toString());
-                            },
-                            args: ["$reactions", "$_id"],
-                            lang: "js"
-                        }
+                        $indexOfArray: [
+                            likedReactions.map(reaction => reaction.asset),
+                            "$_id"
+                        ]
                     }
                 } },
             { $sort: {
@@ -130,13 +124,10 @@ let AlphavantageService = class AlphavantageService {
                 } },
             { $addFields: {
                     position: {
-                        $function: {
-                            body: function (favourites, id) {
-                                return favourites.findIndex(favourite => favourite.toString() === id.toString());
-                            },
-                            args: ["$favourites", "$_id"],
-                            lang: "js"
-                        }
+                        $indexOfArray: [
+                            user.favourites,
+                            "$_id"
+                        ]
                     }
                 } },
             { $sort: {
@@ -297,16 +288,26 @@ let AlphavantageService = class AlphavantageService {
                 } },
             { $unset: ["news"] },
             { $addFields: {
-                    favouriteSectorCoeff: { $function: {
-                            body: function (Sector, likedSectors) {
-                                const sectorLikes = likedSectors.find(sector => sector.Sector === Sector);
-                                if (!sectorLikes)
-                                    return 0;
-                                return sectorLikes.likes;
+                    favouriteSectorCoeff: {
+                        $let: {
+                            vars: {
+                                likedSectors: {
+                                    $filter: {
+                                        input: likedSectors,
+                                        as: "likedSector",
+                                        cond: { $eq: ["$$likedSector.Sector", "$Sector"] }
+                                    }
+                                }
                             },
-                            args: ["$Sector", likedSectors],
-                            lang: "js"
-                        } }
+                            in: {
+                                $cond: [
+                                    { $gt: [{ $size: "$$likedSectors" }, 0] },
+                                    { $arrayElemAt: ["$$likedSectors.likes", 0] },
+                                    0
+                                ]
+                            }
+                        }
+                    }
                 } },
             { $sort: {
                     favouriteSectorCoeff: -1,

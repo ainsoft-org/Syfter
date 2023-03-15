@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteOutdatedSessions = void 0;
-const getDateByPeriod_1 = require("./getDateByPeriod");
 const deleteOutdatedSessions = async (sessionModel, userModel) => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
@@ -22,32 +21,29 @@ const deleteOutdatedSessions = async (sessionModel, userModel) => {
                 maxAllowedDate: "$populatedUser.sessionTerminationTimeframe"
             } },
         { $addFields: {
-                maxAllowedDate: { $function: {
-                        body: getDateByPeriod_1.getDateByPeriod,
-                        args: ["$maxAllowedDate"],
-                        lang: "js"
-                    } }
-            } },
-        { $addFields: {
-                shouldToDelete: { $function: {
-                        body: function (maxAllowedDate, lastActivity) {
-                            return new Date(lastActivity).getTime() < new Date(maxAllowedDate).getTime();
-                        },
-                        args: ["$maxAllowedDate", "$lastActivity"],
-                        lang: "js"
-                    } }
+                maxAllowedDate: {
+                    $switch: {
+                        branches: [
+                            { case: { $eq: ["$populatedUser.sessionTerminationTimeframe", "week"] }, then: { $subtract: [new Date(), 7 * 24 * 60 * 60 * 1000] } },
+                            { case: { $eq: ["$populatedUser.sessionTerminationTimeframe", "month"] }, then: { $subtract: [new Date(), 30 * 24 * 60 * 60 * 1000] } },
+                            { case: { $eq: ["$populatedUser.sessionTerminationTimeframe", "3months"] }, then: { $subtract: [new Date(), 3 * 30 * 24 * 60 * 60 * 1000] } },
+                            { case: { $eq: ["$populatedUser.sessionTerminationTimeframe", "6months"] }, then: { $subtract: [new Date(), 6 * 30 * 24 * 60 * 60 * 1000] } }
+                        ]
+                    }
+                }
             } },
         { $match: {
-                shouldToDelete: true
+                $expr: { $lt: ["$lastActivity", "$maxAllowedDate"] }
             } }
     ]);
+    console.log(sessionsToDelete);
     const data = { sessionIds: [], userIds: [] };
     sessionsToDelete.forEach(session => {
         data.sessionIds.push(session._id);
         data.userIds.push(session.populatedUser._id);
     });
     for (let i = 0; i < data.userIds.length; i++) {
-        const user = await userModel.findById(data.userIds[i]);
+        const user = await userModel.findById(data.userIds[i]).select("sessions");
         if (!user)
             continue;
         const sessionIndex = user.sessions.findIndex(session => session.toString() === data.sessionIds[i].toString());

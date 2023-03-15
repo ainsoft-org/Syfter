@@ -24,25 +24,38 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
       maxAllowedDate: "$populatedUser.sessionTerminationTimeframe"
     }},
     {$addFields: {
-      maxAllowedDate: {$function: {
-        body: getDateByPeriod,
-        args: [ "$maxAllowedDate" ],
-        lang: "js"
-      }}
+      maxAllowedDate: {
+        $switch: {
+          branches: [
+            {case: {$eq: ["$populatedUser.sessionTerminationTimeframe", "week"]}, then: {$subtract: [new Date(), 7 * 24 * 60 * 60 * 1000]}},
+            {case: {$eq: ["$populatedUser.sessionTerminationTimeframe", "month"]}, then: {$subtract: [new Date(), 30 * 24 * 60 * 60 * 1000]}},
+            {case: {$eq: ["$populatedUser.sessionTerminationTimeframe", "3months"]}, then: {$subtract: [new Date(), 3 * 30 * 24 * 60 * 60 * 1000]}},
+            {case: {$eq: ["$populatedUser.sessionTerminationTimeframe", "6months"]}, then: {$subtract: [new Date(), 6 * 30 * 24 * 60 * 60 * 1000]}}
+          ]
+        }
+      }
+        // {$function: {
+        //   body: getDateByPeriod,
+        //   args: [ "$maxAllowedDate" ],
+        //   lang: "js"
+        // }}
     }},
-    {$addFields: {
-      shouldToDelete: {$function: {
-        body: function(maxAllowedDate, lastActivity) {
-          return new Date(lastActivity).getTime() < new Date(maxAllowedDate).getTime();
-        },
-        args: [ "$maxAllowedDate", "$lastActivity" ],
-        lang: "js"
-      }}
-    }},
+    // {$addFields: {
+    //   shouldToDelete:
+    //     {$function: {
+    //       body: function(maxAllowedDate, lastActivity) {
+    //         return new Date(lastActivity).getTime() < new Date(maxAllowedDate).getTime();
+    //       },
+    //       args: [ "$maxAllowedDate", "$lastActivity" ],
+    //       lang: "js"
+    //     }}
+    // }},
     {$match: {
-      shouldToDelete: true
+      $expr: {$lt: [ "$lastActivity", "$maxAllowedDate" ]}
     }}
   ])
+
+  console.log(sessionsToDelete)
 
   const data = {sessionIds: [], userIds: []};
   sessionsToDelete.forEach(session => {
@@ -51,7 +64,7 @@ export const deleteOutdatedSessions = async (sessionModel: Model<SessionDocument
   })
 
   for(let i=0; i<data.userIds.length; i++) {
-    const user = await userModel.findById(data.userIds[i]);
+    const user = await userModel.findById(data.userIds[i]).select("sessions");
     if(!user) continue;
 
     const sessionIndex = user.sessions.findIndex(session => session.toString() === data.sessionIds[i].toString());
