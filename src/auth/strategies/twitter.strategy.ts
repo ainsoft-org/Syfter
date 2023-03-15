@@ -25,7 +25,9 @@ export class TwitterStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: Profile, done: (error: any, user?: any) => void) {
+  async validate(accessToken: string, refreshToken: string, profile: Profile) {
+    console.log(profile)
+
     const twitterId = profile._json.id_str;
     const user = await this.userModel.findOne({ twitterId });
     if(user) {

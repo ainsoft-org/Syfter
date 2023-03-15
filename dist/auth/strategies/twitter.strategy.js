@@ -36,7 +36,8 @@ let TwitterStrategy = class TwitterStrategy extends (0, passport_1.PassportStrat
         this.sessionModel = sessionModel;
         this.authService = authService;
     }
-    async validate(accessToken, refreshToken, profile, done) {
+    async validate(accessToken, refreshToken, profile) {
+        console.log(profile);
         const twitterId = profile._json.id_str;
         const user = await this.userModel.findOne({ twitterId });
         if (user) {

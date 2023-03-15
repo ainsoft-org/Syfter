@@ -11,7 +11,7 @@ export declare class TwitterStrategy extends TwitterStrategy_base {
     private sessionModel;
     private authService;
     constructor(regingUserModel: Model<RegisteringUserDocument>, userModel: Model<UserDocument>, sessionModel: Model<SessionDocument>, authService: AuthService);
-    validate(accessToken: string, refreshToken: string, profile: Profile, done: (error: any, user?: any) => void): Promise<{
+    validate(accessToken: string, refreshToken: string, profile: Profile): Promise<{
         data: {
             message: string;
             authToken: string;
