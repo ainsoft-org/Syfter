@@ -36,6 +36,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Date, default: new Date() }),
     __metadata("design:type", Date)
 ], RegisteringUser.prototype, "prevCodeTime", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String }),
+    __metadata("design:type", String)
+], RegisteringUser.prototype, "image", void 0);
 RegisteringUser = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], RegisteringUser);

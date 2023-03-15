@@ -24,6 +24,9 @@ export class RegisteringUser extends User {
 
   @Prop({ type: Date, default: new Date() })
   prevCodeTime: Date;
+
+  @Prop({ type: String })
+  image: string;
 }
 
 export const RegisteringUserSchema = SchemaFactory.createForClass(RegisteringUser);

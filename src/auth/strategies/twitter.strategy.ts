@@ -26,20 +26,23 @@ export class TwitterStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(accessToken: string, refreshToken: string, profile: Profile) {
-    console.log(profile)
-
+    const image = profile._json.profile_image_url;
     const twitterId = profile._json.id_str;
     const user = await this.userModel.findOne({ twitterId });
     if(user) {
+      if(image) user.image = image;
+      await user.save();
       return { data: await this.authService.sendAuthConfirmationCode("", twitterId), status: "auth" };
     }
 
     const regToken: string = uuidv4();
-    const newRegisteringUser = new this.regingUserModel({
+    const payload: any = {
       twitterId,
       regToken,
       stage: "PIN"
-    });
+    };
+    if(image) payload.image = image;
+    const newRegisteringUser = new this.regingUserModel(payload);
     await newRegisteringUser.save();
 
     return {

@@ -83,6 +83,8 @@ export class User {
 
   @Prop({ type: String, unique: true })
   twitterId: string;
+  @Prop({ type: String })
+  image: string;
 
 
   @Prop({ type: Date, default: new Date() })

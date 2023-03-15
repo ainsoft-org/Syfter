@@ -37,18 +37,24 @@ let TwitterStrategy = class TwitterStrategy extends (0, passport_1.PassportStrat
         this.authService = authService;
     }
     async validate(accessToken, refreshToken, profile) {
-        console.log(profile);
+        const image = profile._json.profile_image_url;
         const twitterId = profile._json.id_str;
         const user = await this.userModel.findOne({ twitterId });
         if (user) {
+            if (image)
+                user.image = image;
+            await user.save();
             return { data: await this.authService.sendAuthConfirmationCode("", twitterId), status: "auth" };
         }
         const regToken = (0, uuid_1.v4)();
-        const newRegisteringUser = new this.regingUserModel({
+        const payload = {
             twitterId,
             regToken,
             stage: "PIN"
-        });
+        };
+        if (image)
+            payload.image = image;
+        const newRegisteringUser = new this.regingUserModel(payload);
         await newRegisteringUser.save();
         return {
             status: "reg",

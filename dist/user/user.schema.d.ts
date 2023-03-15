@@ -35,6 +35,7 @@ export declare class User {
     sessions: Session[];
     sessionTerminationTimeframe: string;
     twitterId: string;
+    image: string;
     lastActivity: Date;
     addresses: Address[];
 }

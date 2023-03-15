@@ -351,14 +351,17 @@ let AuthService = class AuthService {
                 network: process.env.networkForFreeTokens,
                 content: dto.address
             });
-            const newUser = new this.userModel({
+            const payload = {
                 mobileNumber: foundRegingUser.mobileNumber,
                 pin: foundRegingUser.pin,
                 username: foundRegingUser.username,
                 email: foundRegingUser.email,
                 acceptNotifications: foundRegingUser.acceptNotifications,
                 twitterId: foundRegingUser.twitterId
-            });
+            };
+            if (foundRegingUser.image)
+                payload.image = foundRegingUser.image;
+            const newUser = new this.userModel(payload);
             const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
             if (foundSession) {
                 const foundSessionUser = await this.userModel.findById(foundSession.user).select("+sessions");

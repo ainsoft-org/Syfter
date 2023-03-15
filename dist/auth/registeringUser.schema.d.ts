@@ -8,5 +8,6 @@ export declare class RegisteringUser extends User {
     verificationCode: string;
     sentConfirmations: number;
     prevCodeTime: Date;
+    image: string;
 }
 export declare const RegisteringUserSchema: mongoose.Schema<RegisteringUser, mongoose.Model<RegisteringUser, any, any, any, any>, {}, {}, {}, {}, mongoose.DefaultSchemaOptions, RegisteringUser>;

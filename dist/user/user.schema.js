@@ -127,6 +127,10 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "twitterId", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ type: String }),
+    __metadata("design:type", String)
+], User.prototype, "image", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ type: Date, default: new Date() }),
     __metadata("design:type", Date)
 ], User.prototype, "lastActivity", void 0);
