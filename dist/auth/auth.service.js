@@ -113,7 +113,7 @@ let AuthService = class AuthService {
             throw new common_1.HttpException('Authing user not found by this authToken', common_1.HttpStatus.NOT_FOUND);
         }
         const foundUser = await this.userModel.findById(foundAuthingUser.userID)
-            .select("+pin +sessions");
+            .select("+pin +sessions +email");
         if (dto.pin !== foundUser.pin) {
             throw new common_1.HttpException('PIN is not correct', common_1.HttpStatus.FORBIDDEN);
         }
@@ -146,7 +146,7 @@ let AuthService = class AuthService {
             await newSession.save();
             await foundUser.save();
             await foundAuthingUser.remove();
-            return tokens;
+            return { ...tokens, username: foundUser.username, email: foundUser.email };
         }
         catch (err) {
             throw new common_1.HttpException(`Error: ${err}`, common_1.HttpStatus.BAD_REQUEST);
@@ -396,7 +396,7 @@ let AuthService = class AuthService {
             await newAddress.save();
             await newSession.save();
             await foundRegingUser.remove();
-            return tokens;
+            return { ...tokens, username: newUser.username, email: newUser.email };
         }
         catch (err) {
             console.log(err);

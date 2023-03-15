@@ -160,7 +160,7 @@ export class AuthService {
     }
 
     const foundUser = await this.userModel.findById(foundAuthingUser.userID)
-      .select("+pin +sessions");
+      .select("+pin +sessions +email");
 
     if(dto.pin !== foundUser.pin) { // need to compare
       throw new HttpException('PIN is not correct', HttpStatus.FORBIDDEN);
@@ -199,7 +199,7 @@ export class AuthService {
       await foundUser.save();
       await foundAuthingUser.remove();
 
-      return tokens;
+      return { ...tokens, username: foundUser.username, email: foundUser.email };
     } catch (err) {
       throw new HttpException(`Error: ${err}`, HttpStatus.BAD_REQUEST);
     }
@@ -503,7 +503,7 @@ export class AuthService {
       await newSession.save();
       await foundRegingUser.remove();
 
-      return tokens;
+      return { ...tokens, username: newUser.username, email: newUser.email };
     } catch (err) {
       console.log(err)
       throw new HttpException({message: "Something went wrong. Please try later"}, HttpStatus.BAD_REQUEST);
