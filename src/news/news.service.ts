@@ -124,7 +124,7 @@ export class NewsService {
       {$limit: amount},
     ])
 
-    return news;
+    return { news: news };
   }
 
 
