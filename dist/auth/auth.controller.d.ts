@@ -1768,6 +1768,7 @@ export declare class AuthController {
     signinLocal(req: any, dto: SignInLocalDto): Promise<{
         username: string;
         email: string;
+        image: string;
         refresh_token: string;
         access_token: string;
     }>;
@@ -1806,6 +1807,7 @@ export declare class AuthController {
     setAddressReg(req: any, dto: SetAddressRegDto): Promise<{
         username: string;
         email: string;
+        image: string;
         refresh_token: string;
         access_token: string;
     }>;

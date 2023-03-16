@@ -10,6 +10,7 @@ import { SessionsModule } from './sessions/sessions.module';
 import { AlphavantageModule } from './alphavantage/alphavantage.module';
 import { NewsModule } from './news/news.module';
 import { CommentsModule } from './comments/comments.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CommentsModule } from './comments/comments.module';
     AlphavantageModule,
     NewsModule,
     CommentsModule,
+    UploadsModule,
   ],
   controllers: [],
   providers: [],

@@ -1778,6 +1778,7 @@ export declare class AuthService {
     signinLocal(dto: SignInLocalDto, ip: string): Promise<{
         username: string;
         email: string;
+        image: string;
         refresh_token: string;
         access_token: string;
     }>;
@@ -1820,6 +1821,7 @@ export declare class AuthService {
     setAddressReg(dto: SetAddressRegDto, ip: string): Promise<{
         username: string;
         email: string;
+        image: string;
         refresh_token: string;
         access_token: string;
     }>;

@@ -199,7 +199,7 @@ export class AuthService {
       await foundUser.save();
       await foundAuthingUser.remove();
 
-      return { ...tokens, username: foundUser.username, email: foundUser.email };
+      return { ...tokens, username: foundUser.username, email: foundUser.email, image: foundUser.image || process.env.host + "/uploads/default_image.png" };
     } catch (err) {
       throw new HttpException(`Error: ${err}`, HttpStatus.BAD_REQUEST);
     }
@@ -461,7 +461,7 @@ export class AuthService {
         acceptNotifications: foundRegingUser.acceptNotifications,
         twitterId: foundRegingUser.twitterId
       }
-      if(foundRegingUser.image) payload.image = foundRegingUser.image;
+      payload.image = foundRegingUser.image || process.env.host + "/uploads/default_image.png";
       const newUser = new this.userModel(payload);
 
       const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
@@ -505,7 +505,7 @@ export class AuthService {
       await newSession.save();
       await foundRegingUser.remove();
 
-      return { ...tokens, username: newUser.username, email: newUser.email };
+      return { ...tokens, username: newUser.username, email: newUser.email, image: newUser.image };
     } catch (err) {
       console.log(err)
       throw new HttpException({message: "Something went wrong. Please try later"}, HttpStatus.BAD_REQUEST);

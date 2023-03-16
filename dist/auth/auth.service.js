@@ -146,7 +146,7 @@ let AuthService = class AuthService {
             await newSession.save();
             await foundUser.save();
             await foundAuthingUser.remove();
-            return { ...tokens, username: foundUser.username, email: foundUser.email };
+            return { ...tokens, username: foundUser.username, email: foundUser.email, image: foundUser.image || process.env.host + "/uploads/default_image.png" };
         }
         catch (err) {
             throw new common_1.HttpException(`Error: ${err}`, common_1.HttpStatus.BAD_REQUEST);
@@ -359,8 +359,7 @@ let AuthService = class AuthService {
                 acceptNotifications: foundRegingUser.acceptNotifications,
                 twitterId: foundRegingUser.twitterId
             };
-            if (foundRegingUser.image)
-                payload.image = foundRegingUser.image;
+            payload.image = foundRegingUser.image || process.env.host + "/uploads/default_image.png";
             const newUser = new this.userModel(payload);
             const foundSession = await this.sessionModel.findOne({ deviceID: dto.deviceID });
             if (foundSession) {
@@ -399,7 +398,7 @@ let AuthService = class AuthService {
             await newAddress.save();
             await newSession.save();
             await foundRegingUser.remove();
-            return { ...tokens, username: newUser.username, email: newUser.email };
+            return { ...tokens, username: newUser.username, email: newUser.email, image: newUser.image };
         }
         catch (err) {
             console.log(err);

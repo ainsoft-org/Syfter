@@ -41,7 +41,11 @@ export class TwitterStrategy extends PassportStrategy(Strategy) {
       regToken,
       stage: "PIN"
     };
-    if(image) payload.image = image;
+    if(image) {
+      payload.image = image;
+    } else {
+      payload.image = process.env.host + "/uploads/default_image.png";
+    }
     const newRegisteringUser = new this.regingUserModel(payload);
     await newRegisteringUser.save();
 
