@@ -5,6 +5,6 @@ import { Response } from 'express';
 export class UploadsController {
   @Get(":filename")
   getFile(@Param("filename") filename: string, @Res() res: Response) {
-    return res.sendFile(filename, { root: "." })
+    return res.sendFile(filename, { root: "./src/uploads" })
   }
 }

@@ -16,7 +16,7 @@ exports.UploadsController = void 0;
 const common_1 = require("@nestjs/common");
 let UploadsController = class UploadsController {
     getFile(filename, res) {
-        return res.sendFile(filename, { root: "." });
+        return res.sendFile(filename, { root: "./src/uploads" });
     }
 };
 __decorate([
