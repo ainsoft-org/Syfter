@@ -8,12 +8,22 @@ const getCharts_1 = require("./getCharts");
 const readability_1 = require("@mozilla/readability");
 const jsdom_1 = require("jsdom");
 const axios_1 = require("axios");
+const fs = require("fs");
+const path = require("path");
 const speed = Number(process.env.ASSETS_REFRESH_SPEED);
 const refreshCryptoCurrencies = async (currencyModel, newsModel) => {
     const foundCurrencies = [];
     const cryptos = await (0, getActiveCurrencies_1.getCryptoCurrencies)();
     if (!cryptos)
         return null;
+    const logosResponse = await axios_1.default.get(`https://rest.coinapi.io/v1/assets/icons/512?apikey=${process.env.coinAPIKey}`);
+    const logos = logosResponse.data;
+    const logosObj = {};
+    for (let i = 0; i < logos.length; i++) {
+        logosObj[logos[i].asset_id] = logos[i].url;
+    }
+    const saveTo = path.join(__dirname, '../../common/cryptoLogos.json');
+    fs.writeFileSync(saveTo, JSON.stringify(logosObj));
     for (let i = 0; i < cryptos.length; i++) {
         await new Promise(resolve => setTimeout(resolve, speed));
         try {

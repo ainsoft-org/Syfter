@@ -9,6 +9,8 @@ import { getAssetData24h } from "./getCharts";
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from 'jsdom';
 import axios from "axios";
+import * as fs from "fs";
+import * as path from "path";
 
 const speed = Number(process.env.ASSETS_REFRESH_SPEED);
 
@@ -17,6 +19,15 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
 
   const cryptos = await getCryptoCurrencies();
   if(!cryptos) return null;
+
+  const logosResponse = await axios.get(`https://rest.coinapi.io/v1/assets/icons/512?apikey=${process.env.coinAPIKey}`);
+  const logos = logosResponse.data;
+  const logosObj = {};
+  for(let i=0; i<logos.length; i++) {
+    logosObj[logos[i].asset_id] = logos[i].url;
+  }
+  const saveTo = path.join(__dirname, '../../common/cryptoLogos.json');
+  fs.writeFileSync(saveTo, JSON.stringify(logosObj));
 
   for(let i=0; i<cryptos.length; i++) {
     await new Promise(resolve => setTimeout(resolve, speed));

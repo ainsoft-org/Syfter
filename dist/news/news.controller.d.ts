@@ -44,7 +44,9 @@ declare class GetNewsDto {
 export declare class NewsController {
     private newsService;
     constructor(newsService: NewsService);
-    topNews(req: any, dto: GetNewsDto): Promise<any[]>;
+    topNews(req: any, dto: GetNewsDto): Promise<{
+        news: any[];
+    }>;
     likeNews(req: any, dto: newsIdDto): Promise<import("mongoose").Document<unknown, any, import("./news.schema").News> & import("./news.schema").News & {
         _id: import("mongoose").Types.ObjectId;
     } & Required<{

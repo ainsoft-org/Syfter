@@ -23,6 +23,8 @@ import { FiltersDto } from "./dto/Filters.dto";
 import { getDateFromYearsAgo } from "./funcs/getDateFromYearsAgo";
 import { ReactToAssetDto } from "./dto/ReactToAsset.dto";
 import { getRecommendationsML } from "./machine_learning";
+import * as fs from "fs";
+import * as path from "path";
 
 @Injectable()
 export class AlphavantageService {
@@ -38,32 +40,27 @@ export class AlphavantageService {
     nextDay.setDate(now.getDate() + 1); nextDay.setHours(0);
     nextDay.setMinutes(0); nextDay.setSeconds(0);
 
-    // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+    refreshCurrencies(currencyModel, newsModel, currentStatModel);
     setTimeout(() => {
-      // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      refreshCurrencies(currencyModel, newsModel, currentStatModel);
       setInterval(() => {
-        // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+        refreshCurrencies(currencyModel, newsModel, currentStatModel);
       }, Number(process.env.refreshAssetsEvery));
     }, nextDay.getTime() - now.getTime());
 
-    // refreshCryptoCurrencies(currencyModel, newsModel);
+    refreshCryptoCurrencies(currencyModel, newsModel);
     setTimeout(() => {
-      // refreshCryptoCurrencies(currencyModel, newsModel);
+      refreshCryptoCurrencies(currencyModel, newsModel);
       setInterval(() => {
-        // refreshCryptoCurrencies(currencyModel, newsModel);
+        refreshCryptoCurrencies(currencyModel, newsModel);
       }, Number(process.env.refreshCryptosEvery));
     }, nextDay.getTime() - now.getTime());
 
-    const clearNews = async () => {
-      const news = await this.newsModel.find().limit(10000);
-      for(let i=0; i<news.length; i++) {
-        await news[i].remove();
-      }
-    }
-
-    // clearNews();
+    const cryptoLogosText = fs.readFileSync(path.join(__dirname, '../common/cryptoLogos.json')).toString();
+    this.cryptoLogos  = JSON.parse(cryptoLogosText);
   }
 
+  private cryptoLogos = null;
 
   async getRecommendation(userId: string, filters: FiltersDto, amount = 1, forIgnore: string[] = [], type = "") {
     if(amount <= 0) {
@@ -496,13 +493,18 @@ export class AlphavantageService {
 
       const timeSeries = data[Object.keys(data)[1]];
       try {
-        const lastPrice = timeSeries[Object.keys(timeSeries)[0]]["4. close"];
+        const lastPrice = Number(timeSeries[Object.keys(timeSeries)[0]]["4. close"]);
         const prevPrice = timeSeries[Object.keys(timeSeries)[1]]["4. close"];
 
         asset.lastPrice = lastPrice;
         asset.priceChange30m = lastPrice - prevPrice;
         asset.priceChangePercent30m = (lastPrice - prevPrice) / prevPrice * 100;
         asset.chartData = filteredChartData;
+        if(asset.AssetType !== "Cryptocurrency") {
+          asset.logo = `https://storage.googleapis.com/iex/api/logos/${asset.Symbol}.png`;
+        } else {
+          asset.logo = this.cryptoLogos[asset.Symbol];
+        }
 
         await this.cacheManager.set(`getAssetData-${symbol}-${interval}`, asset, Number(process.env.getAssetDataCashPeriod));
       } catch (err) {

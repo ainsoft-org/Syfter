@@ -13,6 +13,7 @@ export declare class AlphavantageService {
     private currentStatModel;
     private cacheManager;
     constructor(userModel: Model<UserDocument>, currencyModel: Model<CurrencyDocument>, newsModel: Model<NewsDocument>, currentStatModel: Model<CurrentStatDocument>, cacheManager: Cache);
+    private cryptoLogos;
     getRecommendation(userId: string, filters: FiltersDto, amount?: number, forIgnore?: string[], type?: string): Promise<{
         assets: any[];
         type: string;

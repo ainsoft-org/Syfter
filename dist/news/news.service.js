@@ -115,7 +115,7 @@ let NewsService = class NewsService {
                 } },
             { $limit: amount },
         ]);
-        return news;
+        return { news: news };
     }
 };
 NewsService = __decorate([
