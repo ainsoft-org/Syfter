@@ -57,7 +57,7 @@ export class CommentsService {
   }
 
   async removeComment(userId: string, commentId: string) {
-    const comment = await this.commentModel.findById(commentId);
+    const comment = await this.commentModel.findById(commentId).select("+replies");
     if(!comment) throw new HttpException("Comment not found", HttpStatus.NOT_FOUND);
     if(comment.author.toString() !== userId) throw new HttpException("No access", HttpStatus.FORBIDDEN);
 
@@ -78,6 +78,13 @@ export class CommentsService {
         mainComment.replies.splice(replyIndex, 1);
       }
       await mainComment.save();
+    }
+    for(let i=0; i<comment.replies.length; i++) {
+      try {
+        await this.commentModel.findByIdAndDelete(comment.replies);
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     const user = await this.userModel.findById(userId);

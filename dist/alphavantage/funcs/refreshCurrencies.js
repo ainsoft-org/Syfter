@@ -109,16 +109,21 @@ function trimNewlines(text) {
     return trimmedText;
 }
 async function findMainContent(url) {
-    const response = await axios_1.default.get(url);
-    if (response.statusText !== "OK") {
-        console.log("NOT OK");
+    try {
+        const response = await axios_1.default.get(url);
+        if (response.statusText !== "OK") {
+            console.log("NOT OK");
+            return null;
+        }
+        const html = await response.data;
+        const doc = new jsdom_1.JSDOM(html, { url: url });
+        const reader = new readability_1.Readability(doc.window.document);
+        const article = reader.parse();
+        return { textContent: trimNewlines(article.textContent), content: trimNewlines(article.content) };
+    }
+    catch (err) {
         return null;
     }
-    const html = await response.data;
-    const doc = new jsdom_1.JSDOM(html, { url: url });
-    const reader = new readability_1.Readability(doc.window.document);
-    const article = reader.parse();
-    return { textContent: trimNewlines(article.textContent), content: trimNewlines(article.content) };
 }
 async function loadNews(symbol, foundCurrency, newsModel) {
     try {
@@ -142,6 +147,8 @@ async function loadNews(symbol, foundCurrency, newsModel) {
             for (let j = 0; j < news.feed.length; j++) {
                 const date = (0, convertDate_1.toDate)(news.feed[j].time_published);
                 const contents = await findMainContent(news.feed[j].url);
+                if (!contents)
+                    return "continue";
                 const newNews = new newsModel({
                     currency: foundCurrency,
                     ...news.feed[j],
@@ -180,6 +187,8 @@ async function loadNews(symbol, foundCurrency, newsModel) {
         const newNewsList = news.feed.slice(0, lastNewsIndex);
         for (let j = newNewsList.length - 1; j >= 0; j--) {
             const contents = await findMainContent(news.feed[j].url);
+            if (!contents)
+                return "continue";
             const newNews = new newsModel({
                 currency: foundCurrency,
                 ...newNewsList[j],

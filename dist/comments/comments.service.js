@@ -64,7 +64,7 @@ let CommentsService = class CommentsService {
         return reply;
     }
     async removeComment(userId, commentId) {
-        const comment = await this.commentModel.findById(commentId);
+        const comment = await this.commentModel.findById(commentId).select("+replies");
         if (!comment)
             throw new common_1.HttpException("Comment not found", common_1.HttpStatus.NOT_FOUND);
         if (comment.author.toString() !== userId)
@@ -84,6 +84,14 @@ let CommentsService = class CommentsService {
                 mainComment.replies.splice(replyIndex, 1);
             }
             await mainComment.save();
+        }
+        for (let i = 0; i < comment.replies.length; i++) {
+            try {
+                await this.commentModel.findByIdAndDelete(comment.replies);
+            }
+            catch (err) {
+                console.log(err);
+            }
         }
         const user = await this.userModel.findById(userId);
         const commentIndex = user.comments.findIndex(userComment => userComment.toString() === commentId);

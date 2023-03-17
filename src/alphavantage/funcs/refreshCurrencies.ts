@@ -135,19 +135,23 @@ function trimNewlines(text) {
   return trimmedText;
 }
 async function findMainContent(url) {
-  const response = await axios.get(url);
-  if(response.statusText !== "OK") {
-    console.log("NOT OK")
+  try {
+    const response = await axios.get(url);
+    if (response.statusText !== "OK") {
+      console.log("NOT OK")
+      return null;
+    }
+    // console.log(response.statusText)
+    const html = await response.data;
+
+    const doc = new JSDOM(html, { url: url });
+    const reader = new Readability(doc.window.document);
+    const article = reader.parse();
+
+    return { textContent: trimNewlines(article.textContent), content: trimNewlines(article.content) };
+  } catch (err) {
     return null;
   }
-  // console.log(response.statusText)
-  const html = await response.data;
-
-  const doc = new JSDOM(html, { url: url });
-  const reader = new Readability(doc.window.document);
-  const article = reader.parse();
-
-  return {textContent: trimNewlines(article.textContent), content: trimNewlines(article.content)};
 }
 
 export async function loadNews(symbol: string, foundCurrency, newsModel: Model<NewsDocument>) { // symbol - `CRYPTO:${cryptos[i]["currency code"]}` / currencies[i].symbol
@@ -177,6 +181,7 @@ export async function loadNews(symbol: string, foundCurrency, newsModel: Model<N
       for(let j=0; j<news.feed.length; j++) {
         const date = toDate(news.feed[j].time_published);
         const contents = await findMainContent(news.feed[j].url);
+        if(!contents) return "continue";
 
         const newNews = new newsModel({
           currency: foundCurrency,
@@ -224,6 +229,7 @@ export async function loadNews(symbol: string, foundCurrency, newsModel: Model<N
     const newNewsList = news.feed.slice(0, lastNewsIndex);
     for (let j = newNewsList.length - 1; j >= 0; j--) { // adding new news to top
       const contents = await findMainContent(news.feed[j].url);
+      if(!contents) return "continue";
 
       const newNews = new newsModel({
         currency: foundCurrency,
