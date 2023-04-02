@@ -123,7 +123,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "sessionTerminationTimeframe", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: String, unique: true }),
+    (0, mongoose_1.Prop)({ type: String, unique: false }),
     __metadata("design:type", String)
 ], User.prototype, "twitterId", void 0);
 __decorate([

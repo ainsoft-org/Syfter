@@ -40,84 +40,19 @@ export class AuthService {
     private alphaVantageService: AlphavantageService
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
-    // setInterval(async () => {
-    //   if(await clearRegisteringUsers(regingUserModel)) {
-    //     console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
-    //   }
-    //   if(await clearAuthingUsers(authingUserModel)) {
-    //     console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
-    //   }
-    // }, clearRegisteringUsersEvery);
-
-
-    const regTestUsers = async () => {
-      for(let i=0; i<100; i++) {
-        let numberIterator = i.toString();
-        if(numberIterator.length === 1) numberIterator = "0" + numberIterator;
-        let data;
-        try {
-          const data0 = await this.sendRegConfirmationCode({ number: `+3809896968${numberIterator}` });
-          data = data0.data;
-        } catch (err) {
-          console.log(err);
-          continue;
-        }
-
-        const data2 = await this.checkRegConfirmationCode({regToken: data.regToken, code: data.verificationCode});
-
-        const data3 = await this.setPinReg({ regToken: data.regToken, pin: numberIterator });
-
-        const data4 = await this.setUsernameReg({ regToken: data.regToken, username: "user" + numberIterator });
-
-        const data5 = await this.setEmailReg({ regToken: data.regToken, email: `user${numberIterator}@gmail.com`, acceptNotifications: true });
-
-
-        // const data6 = await this.setAddressReg({
-        //   regToken: data.regToken,
-        //   address: "0xB7F24dAc40DFaBd7e89EDc07F49BfeCE6E5bAFa8",
-        //   device: "iPhone Turbo GT 600-" + numberIterator,
-        //   country: "Ukraine",
-        //   deviceID: "deviceID-" + numberIterator
-        // });
-
-        const user = await this.userModel.findOne({ mobileNumber: `+380 98 969 68${numberIterator}` });
-        console.log(user)
-        const userId = user._id.toString();
-
-
-        for(let j=0; j<100; j++) {
-          const recommendations:any = await this.alphaVantageService.getRecommendation(userId, {}, 1);
-          for(let f=0; f<recommendations.assets; f++) {
-            const reactToAsset = await this.alphaVantageService.reactToAsset({ assetId: recommendations.assets[f]._id.toString(), reaction: Math.random() > 0.5 }, userId);
-          }
-        }
-
+    setInterval(async () => {
+      if(await clearRegisteringUsers(regingUserModel)) {
+        console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
       }
-    }
-
-    // regTestUsers();
-
-    const getTok = async () => {
-      const tokens = await this.getTokens({
-        roles: ["user"],
-        sub: "64093900841e5695f863d461",
-        sessionId: "2346"
-      });
-
-      console.log(tokens)
-    }
-
-    // getTok()
-
+      if(await clearAuthingUsers(authingUserModel)) {
+        console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
+      }
+    }, clearRegisteringUsersEvery);
   }
-
-  // Common endpoints
 
   getCountries() {
     return countries;
   }
-
-  // Basic endpoints
 
   private async getTokens(params: any) {
     const [at, rt] = await Promise.all([
@@ -145,11 +80,9 @@ export class AuthService {
     );
   }
 
-  // signupLocal() {}
-
   private getCountry(ip) {
     const country = lookupIP(ip)?.country;
-    return country || lookupIP("91.224.45.179").country;
+    return country || "unknown";
   }
 
   async signinLocal(dto: SignInLocalDto, ip: string) {
@@ -377,7 +310,7 @@ export class AuthService {
     await foundRegingUser.save();
 
     const foundRegingUserObj = foundRegingUser.toObject();
-    // delete foundRegingUserObj.verificationCode;
+    delete foundRegingUserObj.verificationCode;
 
     return foundRegingUserObj;
   }
@@ -418,8 +351,6 @@ export class AuthService {
     if(foundByEmail) {
       throw new HttpException('This email is already taken', HttpStatus.BAD_REQUEST);
     }
-
-    // await sendEmail("", "", "");
 
     const foundRegingUser = await this.regingUserModel.findOne({ regToken: dto.regToken })
     if(!foundRegingUser) {

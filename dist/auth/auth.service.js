@@ -21,11 +21,13 @@ const uuid_1 = require("uuid");
 const countries_1 = require("./countries");
 const registeringUser_schema_1 = require("./registeringUser.schema");
 const address_schema_1 = require("../addresses/address.schema");
+const clearRegisteringUsers_provider_1 = require("./providers/clearRegisteringUsers.provider");
 const phoneNumber_provider_1 = require("./providers/phoneNumber.provider");
 const randomNumberCode_1 = require("./providers/randomNumberCode");
 const jwt_1 = require("@nestjs/jwt");
 const session_schema_1 = require("../sessions/session.schema");
 const authingUser_schema_1 = require("./authingUser.schema");
+const clearAuthingUsers_provider_1 = require("./providers/clearAuthingUsers.provider");
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
 const geoip_lite_1 = require("geoip-lite");
@@ -40,43 +42,14 @@ let AuthService = class AuthService {
         this.mailingService = mailingService;
         this.alphaVantageService = alphaVantageService;
         const clearRegisteringUsersEvery = Number(process.env.clearRegisteringUsersEvery);
-        const regTestUsers = async () => {
-            for (let i = 0; i < 100; i++) {
-                let numberIterator = i.toString();
-                if (numberIterator.length === 1)
-                    numberIterator = "0" + numberIterator;
-                let data;
-                try {
-                    const data0 = await this.sendRegConfirmationCode({ number: `+3809896968${numberIterator}` });
-                    data = data0.data;
-                }
-                catch (err) {
-                    console.log(err);
-                    continue;
-                }
-                const data2 = await this.checkRegConfirmationCode({ regToken: data.regToken, code: data.verificationCode });
-                const data3 = await this.setPinReg({ regToken: data.regToken, pin: numberIterator });
-                const data4 = await this.setUsernameReg({ regToken: data.regToken, username: "user" + numberIterator });
-                const data5 = await this.setEmailReg({ regToken: data.regToken, email: `user${numberIterator}@gmail.com`, acceptNotifications: true });
-                const user = await this.userModel.findOne({ mobileNumber: `+380 98 969 68${numberIterator}` });
-                console.log(user);
-                const userId = user._id.toString();
-                for (let j = 0; j < 100; j++) {
-                    const recommendations = await this.alphaVantageService.getRecommendation(userId, {}, 1);
-                    for (let f = 0; f < recommendations.assets; f++) {
-                        const reactToAsset = await this.alphaVantageService.reactToAsset({ assetId: recommendations.assets[f]._id.toString(), reaction: Math.random() > 0.5 }, userId);
-                    }
-                }
+        setInterval(async () => {
+            if (await (0, clearRegisteringUsers_provider_1.clearRegisteringUsers)(regingUserModel)) {
+                console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
             }
-        };
-        const getTok = async () => {
-            const tokens = await this.getTokens({
-                roles: ["user"],
-                sub: "64093900841e5695f863d461",
-                sessionId: "2346"
-            });
-            console.log(tokens);
-        };
+            if (await (0, clearAuthingUsers_provider_1.clearAuthingUsers)(authingUserModel)) {
+                console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
+            }
+        }, clearRegisteringUsersEvery);
     }
     getCountries() {
         return countries_1.countries;
@@ -105,7 +78,7 @@ let AuthService = class AuthService {
     }
     getCountry(ip) {
         const country = (0, geoip_lite_1.lookup)(ip)?.country;
-        return country || (0, geoip_lite_1.lookup)("91.224.45.179").country;
+        return country || "unknown";
     }
     async signinLocal(dto, ip) {
         const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
@@ -294,6 +267,7 @@ let AuthService = class AuthService {
         foundRegingUser.stage = "PIN";
         await foundRegingUser.save();
         const foundRegingUserObj = foundRegingUser.toObject();
+        delete foundRegingUserObj.verificationCode;
         return foundRegingUserObj;
     }
     async setPinReg(dto) {

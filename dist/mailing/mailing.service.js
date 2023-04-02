@@ -34,7 +34,6 @@ let MailingService = class MailingService {
                 console.log(`--cleared email confirmations after specified time (.env)--${new Date()}`);
             }
         }, clearEmailConfirmationsEvery);
-        this.generateSMSConfirmation("+380963739436");
     }
     async generateEmailConfirmation(user) {
         try {

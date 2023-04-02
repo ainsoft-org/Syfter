@@ -25,7 +25,7 @@ let NewsService = class NewsService {
         this.cacheManager = cacheManager;
     }
     async likeNews(userId, newsId) {
-        const user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId).select("likedNews dislikedNews removedLikedNews");
         const news = await this.newsModel.findById(newsId);
         if (!news)
             throw new common_1.HttpException("News not found", common_1.HttpStatus.NOT_FOUND);
@@ -35,7 +35,7 @@ let NewsService = class NewsService {
             user.likedNews.splice(likedNewsIndex, 1);
             await user.save();
             await news.save();
-            return news;
+            return { ...news.toObject(), isLiked: false, isDisliked: false, reputation: news.likes - news.dislikes };
         }
         const dislikedNewsIndex = user.dislikedNews.findIndex(disliked => disliked.toString() === newsId);
         if (dislikedNewsIndex !== -1) {
@@ -53,10 +53,10 @@ let NewsService = class NewsService {
         user.likedNews.push(news);
         await news.save();
         await user.save();
-        return news;
+        return { ...news.toObject(), isLiked: true, isDisliked: false, reputation: news.likes - news.dislikes };
     }
     async dislikeNews(userId, newsId) {
-        const user = await this.userModel.findById(userId);
+        const user = await this.userModel.findById(userId).select("likedNews dislikedNews removedLikedNews");
         const news = await this.newsModel.findById(newsId);
         if (!news)
             throw new common_1.HttpException("News not found", common_1.HttpStatus.NOT_FOUND);
@@ -66,7 +66,7 @@ let NewsService = class NewsService {
             user.dislikedNews.splice(dislikedNewsIndex, 1);
             await user.save();
             await news.save();
-            return news;
+            return { ...news.toObject(), isLiked: false, isDisliked: false, reputation: news.likes - news.dislikes };
         }
         const likedNewsIndex = user.likedNews.findIndex(liked => liked.toString() === newsId);
         if (likedNewsIndex !== -1) {
@@ -78,9 +78,10 @@ let NewsService = class NewsService {
         user.dislikedNews.push(news);
         await news.save();
         await user.save();
-        return news;
+        return { ...news.toObject(), isLiked: false, isDisliked: true, reputation: news.likes - news.dislikes };
     }
-    async getNews(amount, asset = "", filters = {}, forIgnore = []) {
+    async getNews(userId, amount, asset = "", filters = {}, forIgnore = []) {
+        const user = await this.userModel.findById(userId).select("likedNews dislikedNews");
         const newPeriod = 605000000;
         const matches = {};
         if (filters.period === "new") {
@@ -102,7 +103,10 @@ let NewsService = class NewsService {
                             startDate: "$time_published",
                             endDate: new Date(),
                             unit: "millisecond"
-                        } }
+                        } },
+                    isLiked: { $in: ["$_id", user.likedNews] },
+                    isDisliked: { $in: ["$_id", user.dislikedNews] },
+                    reputation: { $subtract: ["$likes", "$dislikes"] }
                 } },
             { $match: {
                     _id: {

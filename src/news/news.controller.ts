@@ -52,7 +52,7 @@ export class NewsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('topNews')
   async topNews(@Request() req, @Body() dto: GetNewsDto) {
-    return this.newsService.getNews(dto.amount, dto?.asset || "",  dto?.filters || {}, dto.forIgnore || []);
+    return this.newsService.getNews(req.user.sub, dto.amount, dto?.asset || "",  dto?.filters || {}, dto.forIgnore || []);
   }
 
   @UseGuards(AuthGuard('jwt'))

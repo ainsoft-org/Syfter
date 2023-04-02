@@ -4,8 +4,6 @@ import { News, NewsDocument } from "./news.schema";
 import mongoose, { Model } from "mongoose";
 import { Cache } from "cache-manager";
 import { User, UserDocument } from "../user/user.schema";
-import { Readability } from "@mozilla/readability";
-import { JSDOM } from 'jsdom';
 
 @Injectable()
 export class NewsService {
@@ -13,12 +11,10 @@ export class NewsService {
     @InjectModel(News.name) private newsModel: Model<NewsDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @Inject(CACHE_MANAGER) private cacheManager: Cache
-  ) {
-
-  }
+  ) {}
 
   async likeNews(userId: string, newsId: string) {
-    const user = await this.userModel.findById(userId);
+    const user = await this.userModel.findById(userId).select("likedNews dislikedNews removedLikedNews");
     const news = await this.newsModel.findById(newsId);
     if(!news) throw new HttpException("News not found", HttpStatus.NOT_FOUND);
 
@@ -29,7 +25,7 @@ export class NewsService {
       user.likedNews.splice(likedNewsIndex, 1);
       await user.save();
       await news.save();
-      return news;
+      return { ...news.toObject(), isLiked: false, isDisliked: false, reputation: news.likes - news.dislikes  };
     }
 
     const dislikedNewsIndex = user.dislikedNews.findIndex(disliked => disliked.toString() === newsId);
@@ -53,11 +49,11 @@ export class NewsService {
 
     await news.save();
     await user.save();
-    return news;
+    return { ...news.toObject(), isLiked: true, isDisliked: false, reputation: news.likes - news.dislikes  };
   }
 
   async dislikeNews(userId: string, newsId: string) {
-    const user = await this.userModel.findById(userId);
+    const user = await this.userModel.findById(userId).select("likedNews dislikedNews removedLikedNews");
     const news = await this.newsModel.findById(newsId);
     if(!news) throw new HttpException("News not found", HttpStatus.NOT_FOUND);
 
@@ -68,7 +64,7 @@ export class NewsService {
       user.dislikedNews.splice(dislikedNewsIndex, 1);
       await user.save();
       await news.save();
-      return news;
+      return { ...news.toObject(), isLiked: false, isDisliked: false, reputation: news.likes - news.dislikes  };
     }
 
     const likedNewsIndex = user.likedNews.findIndex(liked => liked.toString() === newsId);
@@ -82,10 +78,12 @@ export class NewsService {
     user.dislikedNews.push(news);
     await news.save();
     await user.save();
-    return news;
+    return { ...news.toObject(), isLiked: false, isDisliked: true, reputation: news.likes - news.dislikes };
   }
 
-  async getNews(amount: number, asset = "", filters: any = {}, forIgnore: string[] = []) {
+  async getNews(userId: string, amount: number, asset = "", filters: any = {}, forIgnore: string[] = []) {
+    const user = await this.userModel.findById(userId).select("likedNews dislikedNews");
+
     const newPeriod = 605000000;
     // const oldPeriod = 1210000000;
 
@@ -110,7 +108,10 @@ export class NewsService {
           startDate: "$time_published",
           endDate: new Date(),
           unit: "millisecond"
-        }}
+        }},
+        isLiked: { $in: ["$_id", user.likedNews] },
+        isDisliked: { $in: ["$_id", user.dislikedNews] },
+        reputation: {$subtract: ["$likes", "$dislikes"]}
       }},
       {$match: {
         _id: {
@@ -122,7 +123,7 @@ export class NewsService {
         coeffLike: -1
       }},
       {$limit: amount},
-    ])
+    ]);
 
     return { news: news };
   }

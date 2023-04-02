@@ -81,7 +81,7 @@ export class User {
   sessionTerminationTimeframe: string;
 
 
-  @Prop({ type: String, unique: true })
+  @Prop({ type: String, unique: false })
   twitterId: string;
   @Prop({ type: String })
   image: string;

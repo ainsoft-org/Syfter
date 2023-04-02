@@ -4,7 +4,6 @@ import { User, UserDocument } from "../user/user.schema";
 import mongoose, { Model } from "mongoose";
 import { CommentDocument, Comment } from "./comments.schema";
 import { Currency, CurrencyDocument } from "../alphavantage/currency.schema";
-import { first } from "rxjs";
 
 @Injectable()
 export class CommentsService {
@@ -16,6 +15,9 @@ export class CommentsService {
 
   async addComment(userId: string, assetId: string, content: string, replyTo = "") {
     const author = await this.userModel.findById(userId);
+    if(!author.twitterId) {
+      throw new HttpException("Only users who have linked their twitter account can add comments",  HttpStatus.FORBIDDEN);
+    }
 
     const asset = await this.currencyModel.findById(assetId).select("comments");
     if(!asset) throw new HttpException("Asset not found", HttpStatus.NOT_FOUND);
@@ -99,9 +101,6 @@ export class CommentsService {
     return { message: "removed" };
   }
 
-
-
-
   async likeComment(userId: string, commentId: string) {
     const user = await this.userModel.findById(userId);
     const comment = await this.commentModel.findById(commentId);
@@ -114,7 +113,7 @@ export class CommentsService {
       user.likedComments.splice(likedCommentIndex, 1);
       await user.save();
       await comment.save();
-      return comment;
+      return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: false };
     }
 
     const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
@@ -129,7 +128,7 @@ export class CommentsService {
 
     await comment.save();
     await user.save();
-    return comment;
+    return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: true, isDisliked: false };
   }
 
   async dislikeComment(userId: string, commentId: string) {
@@ -143,7 +142,7 @@ export class CommentsService {
       user.dislikedComments.splice(dislikedCommentIndex, 1);
       await user.save();
       await comment.save();
-      return comment;
+      return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: false };
     }
 
     const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
@@ -156,10 +155,12 @@ export class CommentsService {
     user.dislikedComments.push(comment);
     await comment.save();
     await user.save();
-    return comment;
+    return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: true };
   }
 
-  async getIdeas(amount: number, sortBy: string, forIgnore: string[], repliesTo: string) {
+  async getIdeas(userId: string, asset: string, amount: number, sortBy: string, forIgnore: string[], repliesTo: string) {
+    const user = await this.userModel.findById(userId).select("likedComments dislikedComments twitterId");
+
     const sortByKey: any = {};
     if(sortBy === "reputation") {
       sortByKey.createdAt = -1;
@@ -178,6 +179,7 @@ export class CommentsService {
 
     const ideas = await this.commentModel.aggregate([
       {$match: {
+        asset: new mongoose.Types.ObjectId(asset),
         _id: {
           $nin: forIgnore.map(id => new mongoose.Types.ObjectId(id))
         },
@@ -199,6 +201,10 @@ export class CommentsService {
       {$unwind:
         "$author"
       },
+      {$addFields: {
+        isLiked: { $in: ["$_id", user.likedComments] },
+        isDisliked: { $in: ["$_id", user.dislikedComments] }
+      }},
       {$project: {
         "_id": 1,
         "content": 1,
@@ -208,12 +214,14 @@ export class CommentsService {
         "replies": 1,
         "reputation": 1,
         "createdAt": 1,
-        "author.avatar": 1,
-        "author.username": 1
+        "author.image": 1,
+        "author.username": 1,
+        "isLiked": 1,
+        "isDisliked": 1
       }}
     ]);
 
-    return ideas;
+    return { ideas, isTwitterConnected: user.twitterId ? true : false };
   }
 
 }

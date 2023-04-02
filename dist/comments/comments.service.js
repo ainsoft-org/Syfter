@@ -27,6 +27,9 @@ let CommentsService = class CommentsService {
     }
     async addComment(userId, assetId, content, replyTo = "") {
         const author = await this.userModel.findById(userId);
+        if (!author.twitterId) {
+            throw new common_1.HttpException("Only users who have linked their twitter account can add comments", common_1.HttpStatus.FORBIDDEN);
+        }
         const asset = await this.currencyModel.findById(assetId).select("comments");
         if (!asset)
             throw new common_1.HttpException("Asset not found", common_1.HttpStatus.NOT_FOUND);
@@ -113,7 +116,7 @@ let CommentsService = class CommentsService {
             user.likedComments.splice(likedCommentIndex, 1);
             await user.save();
             await comment.save();
-            return comment;
+            return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: false };
         }
         const dislikedCommentIndex = user.dislikedComments.findIndex(disliked => disliked.toString() === commentId);
         if (dislikedCommentIndex !== -1) {
@@ -124,7 +127,7 @@ let CommentsService = class CommentsService {
         user.likedComments.push(comment);
         await comment.save();
         await user.save();
-        return comment;
+        return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: true, isDisliked: false };
     }
     async dislikeComment(userId, commentId) {
         const user = await this.userModel.findById(userId);
@@ -137,7 +140,7 @@ let CommentsService = class CommentsService {
             user.dislikedComments.splice(dislikedCommentIndex, 1);
             await user.save();
             await comment.save();
-            return comment;
+            return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: false };
         }
         const likedCommentIndex = user.likedComments.findIndex(liked => liked.toString() === commentId);
         if (likedCommentIndex !== -1) {
@@ -148,9 +151,10 @@ let CommentsService = class CommentsService {
         user.dislikedComments.push(comment);
         await comment.save();
         await user.save();
-        return comment;
+        return { ...comment.toObject(), reputation: comment.likes - comment.dislikes, isLiked: false, isDisliked: true };
     }
-    async getIdeas(amount, sortBy, forIgnore, repliesTo) {
+    async getIdeas(userId, asset, amount, sortBy, forIgnore, repliesTo) {
+        const user = await this.userModel.findById(userId).select("likedComments dislikedComments twitterId");
         const sortByKey = {};
         if (sortBy === "reputation") {
             sortByKey.createdAt = -1;
@@ -169,6 +173,7 @@ let CommentsService = class CommentsService {
         }
         const ideas = await this.commentModel.aggregate([
             { $match: {
+                    asset: new mongoose_2.default.Types.ObjectId(asset),
                     _id: {
                         $nin: forIgnore.map(id => new mongoose_2.default.Types.ObjectId(id))
                     },
@@ -189,6 +194,10 @@ let CommentsService = class CommentsService {
                 } },
             { $unwind: "$author"
             },
+            { $addFields: {
+                    isLiked: { $in: ["$_id", user.likedComments] },
+                    isDisliked: { $in: ["$_id", user.dislikedComments] }
+                } },
             { $project: {
                     "_id": 1,
                     "content": 1,
@@ -198,11 +207,13 @@ let CommentsService = class CommentsService {
                     "replies": 1,
                     "reputation": 1,
                     "createdAt": 1,
-                    "author.avatar": 1,
-                    "author.username": 1
+                    "author.image": 1,
+                    "author.username": 1,
+                    "isLiked": 1,
+                    "isDisliked": 1
                 } }
         ]);
-        return ideas;
+        return { ideas, isTwitterConnected: user.twitterId ? true : false };
     }
 };
 CommentsService = __decorate([

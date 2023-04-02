@@ -30,6 +30,10 @@ export class GetIdeasDto {
   @IsString()
   @IsNotEmpty()
   repliesTo?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  asset: string;
 }
 
 @Controller('comments')
@@ -65,6 +69,6 @@ export class CommentsController {
   @UseGuards(AuthGuard('jwt'))
   @Post('ideas')
   async ideas(@Request() req, @Body() dto: GetIdeasDto) {
-    return this.commentsService.getIdeas(dto.amount, dto.sortBy, dto.forIgnore || [], dto.repliesTo || "");
+    return this.commentsService.getIdeas(req.user.sub, dto.asset, dto.amount, dto.sortBy, dto.forIgnore || [], dto.repliesTo || "");
   }
 }

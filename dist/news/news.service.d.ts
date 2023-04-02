@@ -1,4 +1,4 @@
-import { News, NewsDocument } from "./news.schema";
+import { NewsDocument } from "./news.schema";
 import mongoose, { Model } from "mongoose";
 import { Cache } from "cache-manager";
 import { UserDocument } from "../user/user.schema";
@@ -7,17 +7,79 @@ export declare class NewsService {
     private userModel;
     private cacheManager;
     constructor(newsModel: Model<NewsDocument>, userModel: Model<UserDocument>, cacheManager: Cache);
-    likeNews(userId: string, newsId: string): Promise<mongoose.Document<unknown, any, News> & News & {
+    likeNews(userId: string, newsId: string): Promise<{
+        isLiked: boolean;
+        isDisliked: boolean;
+        reputation: number;
+        textContent: string;
+        content: string;
+        likes: number;
+        dislikes: number;
+        coeffLike: number;
+        timePrevLike: Date;
+        AssetType: string;
+        title: string;
+        url: string;
+        time_published: Date;
+        authors: string[];
+        summary: string;
+        banner_image: string;
+        source: string;
+        category_within_source: string;
+        source_domain: string;
+        sentiment_score: number;
+        sentiment_label: string;
+        newsId: string;
+        topics: {
+            topic: string;
+            relevance_score: number;
+        };
+        sentiments: mongoose.LeanDocument<{
+            ticker: string;
+            relevance_score: number;
+            sentiment_score: number;
+            sentiment_label: string;
+        }>[];
+        currency: import("../alphavantage/currency.schema").Currency;
         _id: mongoose.Types.ObjectId;
-    } & Required<{
+    }>;
+    dislikeNews(userId: string, newsId: string): Promise<{
+        isLiked: boolean;
+        isDisliked: boolean;
+        reputation: number;
+        textContent: string;
+        content: string;
+        likes: number;
+        dislikes: number;
+        coeffLike: number;
+        timePrevLike: Date;
+        AssetType: string;
+        title: string;
+        url: string;
+        time_published: Date;
+        authors: string[];
+        summary: string;
+        banner_image: string;
+        source: string;
+        category_within_source: string;
+        source_domain: string;
+        sentiment_score: number;
+        sentiment_label: string;
+        newsId: string;
+        topics: {
+            topic: string;
+            relevance_score: number;
+        };
+        sentiments: mongoose.LeanDocument<{
+            ticker: string;
+            relevance_score: number;
+            sentiment_score: number;
+            sentiment_label: string;
+        }>[];
+        currency: import("../alphavantage/currency.schema").Currency;
         _id: mongoose.Types.ObjectId;
-    }>>;
-    dislikeNews(userId: string, newsId: string): Promise<mongoose.Document<unknown, any, News> & News & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>>;
-    getNews(amount: number, asset?: string, filters?: any, forIgnore?: string[]): Promise<{
+    }>;
+    getNews(userId: string, amount: number, asset?: string, filters?: any, forIgnore?: string[]): Promise<{
         news: any[];
     }>;
 }

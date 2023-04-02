@@ -1,7 +1,7 @@
-import { UserDocument } from "../user/user.schema";
+import { User, UserDocument } from "../user/user.schema";
 import mongoose, { Model } from "mongoose";
 import { CommentDocument, Comment } from "./comments.schema";
-import { CurrencyDocument } from "../alphavantage/currency.schema";
+import { Currency, CurrencyDocument } from "../alphavantage/currency.schema";
 export declare class CommentsService {
     private userModel;
     private commentModel;
@@ -11,15 +11,38 @@ export declare class CommentsService {
     removeComment(userId: string, commentId: string): Promise<{
         message: string;
     }>;
-    likeComment(userId: string, commentId: string): Promise<mongoose.Document<unknown, any, Comment> & Comment & {
+    likeComment(userId: string, commentId: string): Promise<{
+        reputation: number;
+        isLiked: boolean;
+        isDisliked: boolean;
+        likes: number;
+        dislikes: number;
+        content: string;
+        author: User;
+        asset: Currency;
+        isReply: boolean;
+        replyTo?: Comment;
+        replies: mongoose.LeanDocument<Comment>[];
+        mainComment?: Comment;
         _id: mongoose.Types.ObjectId;
-    } & Required<{
+    }>;
+    dislikeComment(userId: string, commentId: string): Promise<{
+        reputation: number;
+        isLiked: boolean;
+        isDisliked: boolean;
+        likes: number;
+        dislikes: number;
+        content: string;
+        author: User;
+        asset: Currency;
+        isReply: boolean;
+        replyTo?: Comment;
+        replies: mongoose.LeanDocument<Comment>[];
+        mainComment?: Comment;
         _id: mongoose.Types.ObjectId;
-    }>>;
-    dislikeComment(userId: string, commentId: string): Promise<mongoose.Document<unknown, any, Comment> & Comment & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>>;
-    getIdeas(amount: number, sortBy: string, forIgnore: string[], repliesTo: string): Promise<any[]>;
+    }>;
+    getIdeas(userId: string, asset: string, amount: number, sortBy: string, forIgnore: string[], repliesTo: string): Promise<{
+        ideas: any[];
+        isTwitterConnected: boolean;
+    }>;
 }

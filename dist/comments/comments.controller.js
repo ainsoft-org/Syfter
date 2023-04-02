@@ -50,6 +50,11 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], GetIdeasDto.prototype, "repliesTo", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], GetIdeasDto.prototype, "asset", void 0);
 exports.GetIdeasDto = GetIdeasDto;
 let CommentsController = class CommentsController {
     constructor(commentsService) {
@@ -68,7 +73,7 @@ let CommentsController = class CommentsController {
         return this.commentsService.dislikeComment(req.user.sub, dto.commentId);
     }
     async ideas(req, dto) {
-        return this.commentsService.getIdeas(dto.amount, dto.sortBy, dto.forIgnore || [], dto.repliesTo || "");
+        return this.commentsService.getIdeas(req.user.sub, dto.asset, dto.amount, dto.sortBy, dto.forIgnore || [], dto.repliesTo || "");
     }
 };
 __decorate([

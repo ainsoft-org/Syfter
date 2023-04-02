@@ -21,7 +21,7 @@ export class MailingService {
       }
     }, clearEmailConfirmationsEvery);
 
-    this.generateSMSConfirmation("+380963739436");
+    // this.generateSMSConfirmation("+380963739436");
   }
 
   private clientSES = new SESClient({ region: "eu-central-1" });

@@ -70,7 +70,7 @@ let NewsController = class NewsController {
         this.newsService = newsService;
     }
     async topNews(req, dto) {
-        return this.newsService.getNews(dto.amount, dto?.asset || "", dto?.filters || {}, dto.forIgnore || []);
+        return this.newsService.getNews(req.user.sub, dto.amount, dto?.asset || "", dto?.filters || {}, dto.forIgnore || []);
     }
     async likeNews(req, dto) {
         return this.newsService.likeNews(req.user.sub, dto.newsId);
