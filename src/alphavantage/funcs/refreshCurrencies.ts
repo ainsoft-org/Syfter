@@ -145,7 +145,7 @@ async function findMainContent(url) {
     const html = await response.data;
 
     const doc = new JSDOM(html, { url: url });
-    const reader = new Readability(doc.window.document);
+    const reader = new Readability(doc.window.document, {});
     const article = reader.parse();
 
     return { textContent: trimNewlines(article.textContent), content: trimNewlines(article.content) };
