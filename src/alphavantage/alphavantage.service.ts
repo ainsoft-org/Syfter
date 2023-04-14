@@ -214,12 +214,12 @@ export class AlphavantageService {
   async getTrendingNow(userId: string, amount: number, forIgnore = [], filters = {}) {
     const user = await this.userModel.findById(userId).select("favourites");
 
-    if(!forIgnore.length && !Object.keys(filters).length) {
-      const cashed_assets: any = await this.cacheManager.get(amount + "trendingAssets");
-      if (cashed_assets) {
-        return { assets: await this.getAssetData(cashed_assets), amount: cashed_assets.length };
-      }
-    }
+    // if(!forIgnore.length && !Object.keys(filters).length) {
+    //   const cashed_assets: any = await this.cacheManager.get(amount + "trendingAssets");
+    //   if (cashed_assets) {
+    //     return { assets: await this.getAssetData(cashed_assets), amount: cashed_assets.length };
+    //   }
+    // }
 
     const assets = await this.currencyModel.aggregate([
       {$match: {
@@ -236,9 +236,9 @@ export class AlphavantageService {
       {$unset: ["news"]}
     ]);
 
-    if(!forIgnore.length && !Object.keys(filters).length) {
-      await this.cacheManager.set(amount + "trendingAssets", assets, 3600000);
-    }
+    // if(!forIgnore.length && !Object.keys(filters).length) {
+    //   await this.cacheManager.set(amount + "trendingAssets", assets, 3600000);
+    // }
 
     const fullAssets = await this.getAssetData(assets);
 
