@@ -6,7 +6,8 @@ const common_1 = require("@nestjs/common");
 const passport = require("passport");
 const session = require("express-session");
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { cors: true });
+    app.enableCors({ credentials: true });
     app.useGlobalPipes(new common_1.ValidationPipe({}));
     app.use(session({
         secret: 'my-syfter_danish_secretkey',

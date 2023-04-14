@@ -53,7 +53,7 @@ export declare class AlphavantageController {
     removeReaction(req: any, assetId: string): Promise<{
         message: string;
     }>;
-    trendingNow(dto: GetRecommendationDto): Promise<{
+    trendingNow(req: any, dto: GetRecommendationDto): Promise<{
         assets: any[];
         amount: any;
     }>;

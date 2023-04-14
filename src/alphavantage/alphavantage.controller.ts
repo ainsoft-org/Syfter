@@ -58,8 +58,8 @@ export class AlphavantageController {
 
   @UseGuards(AuthGuard('jwt'))
   @Post('trendingNow')
-  async trendingNow(@Body() dto: GetRecommendationDto) {
-    return this.aplhavantageService.getTrendingNow(dto.amount, dto.forIgnore ? dto.forIgnore : [], dto?.filters);
+  async trendingNow(@Request() req, @Body() dto: GetRecommendationDto) {
+    return this.aplhavantageService.getTrendingNow(req.user.sub, dto.amount, dto.forIgnore ? dto.forIgnore : [], dto?.filters);
   }
 
   @UseGuards(AuthGuard('jwt'), AdminGuard)

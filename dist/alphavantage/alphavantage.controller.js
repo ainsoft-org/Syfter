@@ -60,8 +60,8 @@ let AlphavantageController = class AlphavantageController {
     async removeReaction(req, assetId) {
         return this.aplhavantageService.removeReaction(assetId, req.user.sub);
     }
-    async trendingNow(dto) {
-        return this.aplhavantageService.getTrendingNow(dto.amount, dto.forIgnore ? dto.forIgnore : [], dto?.filters);
+    async trendingNow(req, dto) {
+        return this.aplhavantageService.getTrendingNow(req.user.sub, dto.amount, dto.forIgnore ? dto.forIgnore : [], dto?.filters);
     }
     async setPriority(dto) {
         return this.aplhavantageService.setAssetPriority(dto.assetId, dto.priority);
@@ -121,9 +121,10 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Post)('trendingNow'),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [GetRecommendation_dto_1.GetRecommendationDto]),
+    __metadata("design:paramtypes", [Object, GetRecommendation_dto_1.GetRecommendationDto]),
     __metadata("design:returntype", Promise)
 ], AlphavantageController.prototype, "trendingNow", null);
 __decorate([
