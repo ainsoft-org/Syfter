@@ -558,7 +558,7 @@ export class AlphavantageService {
 
   async getCalibrationAssets(amount: number, filters, forIgnore: string[]) {
     const stockRelation = Number(process.env.stockRelation);
-    const cryptoRelation = Number(process.env.cryptoRalation);
+    const cryptoRelation = Number(process.env.cryptoRelation);
     const denominator = stockRelation + cryptoRelation;
 
     let stocksLimit = amount * stockRelation/denominator;
