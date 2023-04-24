@@ -31,8 +31,10 @@ const clearAuthingUsers_provider_1 = require("./providers/clearAuthingUsers.prov
 const mailing_service_1 = require("../mailing/mailing.service");
 const alphavantage_service_1 = require("../alphavantage/alphavantage.service");
 const geoip_lite_1 = require("geoip-lite");
+const restoringPinUser_schema_1 = require("./restoringPinUser.schema");
+const clearRestoringPinUsers_provider_1 = require("./providers/clearRestoringPinUsers.provider");
 let AuthService = class AuthService {
-    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService) {
+    constructor(regingUserModel, userModel, addressModel, sessionModel, authingUserModel, jwtService, mailingService, alphaVantageService, RestoringPinUserModel) {
         this.regingUserModel = regingUserModel;
         this.userModel = userModel;
         this.addressModel = addressModel;
@@ -41,13 +43,17 @@ let AuthService = class AuthService {
         this.jwtService = jwtService;
         this.mailingService = mailingService;
         this.alphaVantageService = alphaVantageService;
+        this.RestoringPinUserModel = RestoringPinUserModel;
         const clearRegisteringUsersEvery = Number(process.env.clearRegisteringUsersEvery);
         setInterval(async () => {
             if (await (0, clearRegisteringUsers_provider_1.clearRegisteringUsers)(regingUserModel)) {
-                console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
+                console.log(`--cleared some actively registering users after specified time --${new Date()}`);
             }
             if (await (0, clearAuthingUsers_provider_1.clearAuthingUsers)(authingUserModel)) {
-                console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
+                console.log(`--cleared some actively authing users after specified time --${new Date()}`);
+            }
+            if (await (0, clearRestoringPinUsers_provider_1.clearRestoringPinUsers)(RestoringPinUserModel)) {
+                console.log(`--cleared some actively restoring pin users after specified time --${new Date()}`);
             }
         }, clearRegisteringUsersEvery);
     }
@@ -171,6 +177,71 @@ let AuthService = class AuthService {
         });
         return { access_token: newAccessToken };
     }
+    async restorePin(mobileNumber) {
+        let formattedPhone;
+        try {
+            formattedPhone = (0, phoneNumber_provider_1.parsePhone)(mobileNumber).formatInternational();
+        }
+        catch (err) { }
+        let foundUser;
+        if (formattedPhone) {
+            foundUser = await this.userModel.findOne({ mobileNumber: formattedPhone }).select("_id");
+        }
+        if (!foundUser) {
+            throw new common_1.HttpException('Account is not registered', common_1.HttpStatus.FORBIDDEN);
+        }
+        let foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ userID: foundUser._id.toString() });
+        if (!foundRestoringPinUser) {
+            const confirmationCode = (0, randomNumberCode_1.randomNumberCode)(5);
+            foundRestoringPinUser = new this.RestoringPinUserModel({
+                userID: foundUser._id.toString(),
+                verificationCode: confirmationCode,
+                restoreToken: (0, uuid_1.v4)()
+            });
+            await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
+            await foundRestoringPinUser.save();
+            const foundRestoringPinUserObject = foundRestoringPinUser.toObject();
+            delete foundRestoringPinUserObject.verificationCode;
+            return foundRestoringPinUserObject;
+        }
+        if (foundRestoringPinUser.sentConfirmations >= 3) {
+            throw new common_1.HttpException('Too many attempts. Please try again in a hour', common_1.HttpStatus.FORBIDDEN);
+        }
+        const confirmationCode = (0, randomNumberCode_1.randomNumberCode)(5);
+        foundRestoringPinUser.verificationCode = confirmationCode;
+        foundRestoringPinUser.sentConfirmations++;
+        foundRestoringPinUser.prevCodeTime = new Date();
+        await foundRestoringPinUser.save();
+        await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
+        const foundRestoringPinUserObject = foundRestoringPinUser.toObject();
+        delete foundRestoringPinUserObject.verificationCode;
+        return foundRestoringPinUserObject;
+    }
+    async confirmRestorePin(restoreToken, code) {
+        const foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ restoreToken }).select("+verificationCode");
+        if (!foundRestoringPinUser) {
+            throw new common_1.HttpException("Restoring pin session is not found. Try again", common_1.HttpStatus.NOT_FOUND);
+        }
+        if (foundRestoringPinUser.verificationCode !== code) {
+            throw new common_1.HttpException("Incorrect confirmation code", common_1.HttpStatus.BAD_REQUEST);
+        }
+        foundRestoringPinUser.confirmed = true;
+        await foundRestoringPinUser.save();
+        return foundRestoringPinUser;
+    }
+    async restorePin2(dto) {
+        const foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ restoreToken: dto.restoreToken });
+        if (!foundRestoringPinUser) {
+            throw new common_1.HttpException("Restoring pin session is not found. Try again", common_1.HttpStatus.NOT_FOUND);
+        }
+        if (!foundRestoringPinUser.confirmed) {
+            throw new common_1.HttpException("PIN restore request has not yet been confirmed", common_1.HttpStatus.NOT_FOUND);
+        }
+        const user = await this.userModel.findById(foundRestoringPinUser.userID);
+        user.pin = dto.pin;
+        await user.save();
+        return { message: "PIN restored" };
+    }
     async sendAuthConfirmationCode(mobileNumber, twitterId = "") {
         let formattedPhone = null;
         try {
@@ -228,7 +299,9 @@ let AuthService = class AuthService {
                     regToken
                 });
                 await newRegingUser.save();
+                await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
                 const newRegingUserObject = newRegingUser.toObject();
+                delete newRegingUserObject.verificationCode;
                 return {
                     message: `Confirmation code sent to number: ${formattedPhone}`,
                     data: newRegingUserObject
@@ -247,7 +320,9 @@ let AuthService = class AuthService {
         foundRegingUser.sentConfirmations++;
         foundRegingUser.prevCodeTime = new Date();
         await foundRegingUser.save();
+        await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
         const foundRegingUserObject = foundRegingUser.toObject();
+        delete foundRegingUserObject.verificationCode;
         return {
             message: `Confirmation code resent to number: ${formattedPhone}`,
             data: foundRegingUserObject
@@ -387,6 +462,7 @@ AuthService = __decorate([
     __param(2, (0, mongoose_1.InjectModel)(address_schema_1.Address.name)),
     __param(3, (0, mongoose_1.InjectModel)(session_schema_1.Session.name)),
     __param(4, (0, mongoose_1.InjectModel)(authingUser_schema_1.AuthingUser.name)),
+    __param(8, (0, mongoose_1.InjectModel)(restoringPinUser_schema_1.RestoringPinUser.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
@@ -394,7 +470,8 @@ AuthService = __decorate([
         mongoose_2.Model,
         jwt_1.JwtService,
         mailing_service_1.MailingService,
-        alphavantage_service_1.AlphavantageService])
+        alphavantage_service_1.AlphavantageService,
+        mongoose_2.Model])
 ], AuthService);
 exports.AuthService = AuthService;
 //# sourceMappingURL=auth.service.js.map

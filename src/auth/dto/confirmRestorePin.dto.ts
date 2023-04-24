@@ -1,8 +1,8 @@
 import { IsNumberString, IsUUID, Length } from "class-validator";
 
-export class CheckRegConfirmationCode {
+export class ConfirmRestorePinDto {
   @IsUUID(4)
-  regToken: string;
+  restoreToken: string;
 
   @IsNumberString()
   @Length(5, 5)

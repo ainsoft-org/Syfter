@@ -32,6 +32,8 @@ import { SetEmailRegDto } from "./dto/Reg/SetEmailReg.dto";
 import { SetAddressRegDto } from "./dto/Reg/SetAddressReg.dto";
 import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { RefreshTokenDto } from "./dto/RefreshToken.dto";
+import { RestorePinDto } from "./dto/restorePin.dto";
+import { ConfirmRestorePinDto } from "./dto/confirmRestorePin.dto";
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
@@ -1761,6 +1763,17 @@ export declare class AuthController {
     };
     twitterSignin(): string;
     twitterRedirect(req: any): any;
+    restorePin(dto: MobileNumberDto): Promise<import("mongoose").LeanDocument<import("./restoringPinUser.schema").RestoringPinUser> & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    confirmRestorePin(dto: ConfirmRestorePinDto): Promise<import("mongoose").Document<unknown, any, import("./restoringPinUser.schema").RestoringPinUser> & import("./restoringPinUser.schema").RestoringPinUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    restorePin2(dto: RestorePinDto): Promise<{
+        message: string;
+    }>;
     sendAuthConfirmationCode(dto: MobileNumberDto): Promise<{
         message: string;
         authToken: string;

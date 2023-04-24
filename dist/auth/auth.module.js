@@ -22,6 +22,7 @@ const authingUser_schema_1 = require("./authingUser.schema");
 const twitter_strategy_1 = require("./strategies/twitter.strategy");
 const alphavantage_module_1 = require("../alphavantage/alphavantage.module");
 const Serializer_1 = require("./strategies/Serializer");
+const restoringPinUser_schema_1 = require("./restoringPinUser.schema");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -35,6 +36,7 @@ AuthModule = __decorate([
             mailing_module_1.MailingModule,
             jwt_1.JwtModule.register({}),
             alphavantage_module_1.AlphavantageModule,
+            mongoose_1.MongooseModule.forFeature([{ name: restoringPinUser_schema_1.RestoringPinUser.name, schema: restoringPinUser_schema_1.RestoringPinUserSchema }])
         ],
         providers: [
             auth_service_1.AuthService,

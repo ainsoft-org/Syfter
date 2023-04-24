@@ -180,12 +180,6 @@ let AlphavantageService = class AlphavantageService {
     }
     async getTrendingNow(userId, amount, forIgnore = [], filters = {}) {
         const user = await this.userModel.findById(userId).select("favourites");
-        if (!forIgnore.length && !Object.keys(filters).length) {
-            const cashed_assets = await this.cacheManager.get(amount + "trendingAssets");
-            if (cashed_assets) {
-                return { assets: await this.getAssetData(cashed_assets), amount: cashed_assets.length };
-            }
-        }
         const assets = await this.currencyModel.aggregate([
             { $match: {
                     _id: {
@@ -200,9 +194,6 @@ let AlphavantageService = class AlphavantageService {
             { $limit: amount },
             { $unset: ["news"] }
         ]);
-        if (!forIgnore.length && !Object.keys(filters).length) {
-            await this.cacheManager.set(amount + "trendingAssets", assets, 3600000);
-        }
         const fullAssets = await this.getAssetData(assets);
         return { assets: fullAssets.map(asset => {
                 const isLiked = user.favourites.some(favourite => favourite.toString() === asset._id.toString());

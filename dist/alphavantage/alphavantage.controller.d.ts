@@ -55,7 +55,7 @@ export declare class AlphavantageController {
     }>;
     trendingNow(req: any, dto: GetRecommendationDto): Promise<{
         assets: any[];
-        amount: any;
+        amount: number;
     }>;
     setPriority(dto: SetPriorityDto): Promise<import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
         _id: import("mongoose").Types.ObjectId;

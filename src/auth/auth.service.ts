@@ -26,6 +26,9 @@ import { clearAuthingUsers } from "./providers/clearAuthingUsers.provider";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
 import { lookup as lookupIP } from 'geoip-lite';
+import { RestoringPinUser, RestoringPinUserDocument } from "./restoringPinUser.schema";
+import { clearRestoringPinUsers } from "./providers/clearRestoringPinUsers.provider";
+import { RestorePinDto } from "./dto/restorePin.dto";
 
 @Injectable()
 export class AuthService {
@@ -37,15 +40,19 @@ export class AuthService {
     @InjectModel(AuthingUser.name) private authingUserModel: Model<AuthingUserDocument>,
     private jwtService: JwtService,
     private mailingService: MailingService,
-    private alphaVantageService: AlphavantageService
+    private alphaVantageService: AlphavantageService,
+    @InjectModel(RestoringPinUser.name) private RestoringPinUserModel: Model<RestoringPinUserDocument>,
   ) {
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
     setInterval(async () => {
       if(await clearRegisteringUsers(regingUserModel)) {
-        console.log(`--cleared some actively registering users after specified time (.env)--${new Date()}`);
+        console.log(`--cleared some actively registering users after specified time --${new Date()}`);
       }
       if(await clearAuthingUsers(authingUserModel)) {
-        console.log(`--cleared some actively authing users after specified time (.env)--${new Date()}`);
+        console.log(`--cleared some actively authing users after specified time --${new Date()}`);
+      }
+      if(await clearRestoringPinUsers(RestoringPinUserModel)) {
+        console.log(`--cleared some actively restoring pin users after specified time --${new Date()}`);
       }
     }, clearRegisteringUsersEvery);
   }
@@ -193,6 +200,91 @@ export class AuthService {
   }
 
 
+  async restorePin(mobileNumber) {
+    let formattedPhone: any;
+    try {
+      formattedPhone = parsePhone(mobileNumber).formatInternational();
+    } catch (err) {}
+
+    let foundUser;
+    if(formattedPhone) {
+      foundUser = await this.userModel.findOne({ mobileNumber: formattedPhone }).select("_id");
+    }
+    if(!foundUser) {
+      throw new HttpException('Account is not registered', HttpStatus.FORBIDDEN);
+    }
+
+    let foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ userID: foundUser._id.toString() });
+
+    if(!foundRestoringPinUser) {
+      const confirmationCode = randomNumberCode(5);
+      foundRestoringPinUser = new this.RestoringPinUserModel({
+        userID: foundUser._id.toString(),
+        verificationCode: confirmationCode,
+        restoreToken: uuidv4()
+      });
+
+      await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
+      await foundRestoringPinUser.save();
+
+      const foundRestoringPinUserObject = foundRestoringPinUser.toObject();
+      delete foundRestoringPinUserObject.verificationCode;
+
+      return foundRestoringPinUserObject;
+    }
+
+    if(foundRestoringPinUser.sentConfirmations >= 3) {
+      throw new HttpException('Too many attempts. Please try again in a hour', HttpStatus.FORBIDDEN);
+    }
+
+    const confirmationCode = randomNumberCode(5);
+    foundRestoringPinUser.verificationCode = confirmationCode;
+    foundRestoringPinUser.sentConfirmations++;
+    foundRestoringPinUser.prevCodeTime = new Date();
+    await foundRestoringPinUser.save();
+
+    await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
+
+    const foundRestoringPinUserObject = foundRestoringPinUser.toObject();
+    delete foundRestoringPinUserObject.verificationCode;
+
+    return foundRestoringPinUserObject;
+  }
+
+  async confirmRestorePin(restoreToken: string, code: string) {
+    const foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ restoreToken }).select("+verificationCode");
+    if(!foundRestoringPinUser) {
+      throw new HttpException("Restoring pin session is not found. Try again", HttpStatus.NOT_FOUND);
+    }
+
+    if(foundRestoringPinUser.verificationCode !== code) {
+      throw new HttpException("Incorrect confirmation code", HttpStatus.BAD_REQUEST);
+    }
+
+    foundRestoringPinUser.confirmed = true;
+    await foundRestoringPinUser.save();
+
+    return foundRestoringPinUser;
+  }
+
+  async restorePin2(dto: RestorePinDto) {
+    const foundRestoringPinUser = await this.RestoringPinUserModel.findOne({ restoreToken: dto.restoreToken });
+    if(!foundRestoringPinUser) {
+      throw new HttpException("Restoring pin session is not found. Try again", HttpStatus.NOT_FOUND);
+    }
+
+    if(!foundRestoringPinUser.confirmed) {
+      throw new HttpException("PIN restore request has not yet been confirmed", HttpStatus.NOT_FOUND);
+    }
+
+    const user = await this.userModel.findById(foundRestoringPinUser.userID);
+    user.pin = dto.pin;
+
+    await user.save();
+    return { message: "PIN restored" }
+  }
+
+
 
   async sendAuthConfirmationCode(mobileNumber, twitterId = "") {
     let formattedPhone: any = null;
@@ -258,10 +350,11 @@ export class AuthService {
           regToken
         });
         await newRegingUser.save();
-        // await sendSMS("", "", "");
+        await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
 
         const newRegingUserObject = newRegingUser.toObject();
-        // delete newRegingUserObject.verificationCode;
+        delete newRegingUserObject.verificationCode;
+
         return {
           message: `Confirmation code sent to number: ${formattedPhone}`,
           data:  newRegingUserObject
@@ -281,10 +374,10 @@ export class AuthService {
     foundRegingUser.sentConfirmations++;
     foundRegingUser.prevCodeTime = new Date();
     await foundRegingUser.save();
-    // await sendSMS("", "", "");
+    await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
 
     const foundRegingUserObject = foundRegingUser.toObject();
-    // delete foundRegingUserObject.verificationCode;
+    delete foundRegingUserObject.verificationCode;
 
     return {
       message: `Confirmation code resent to number: ${formattedPhone}`,

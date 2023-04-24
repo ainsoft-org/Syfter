@@ -12,9 +12,8 @@ import { Session, SessionSchema } from "../sessions/session.schema";
 import { AuthingUser, AuthingUserSchema } from "./authingUser.schema";
 import { TwitterStrategy } from "./strategies/twitter.strategy";
 import { AlphavantageModule } from "../alphavantage/alphavantage.module";
-import { CacheModule } from "@nestjs/common/cache";
-import { RedisClientOptions } from "redis";
 import { SessionSerializer } from "./strategies/Serializer";
+import { RestoringPinUser, RestoringPinUserSchema } from "./restoringPinUser.schema";
 
 @Module({
   imports: [
@@ -26,6 +25,7 @@ import { SessionSerializer } from "./strategies/Serializer";
     MailingModule,
     JwtModule.register({}),
     AlphavantageModule,
+    MongooseModule.forFeature([{ name: RestoringPinUser.name, schema: RestoringPinUserSchema }])
   ],
   providers: [
     AuthService,

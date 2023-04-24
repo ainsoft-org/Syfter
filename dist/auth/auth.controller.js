@@ -25,6 +25,8 @@ const SignInLocal_dto_1 = require("./dto/SignInLocal.dto");
 const passport_1 = require("@nestjs/passport");
 const RefreshToken_dto_1 = require("./dto/RefreshToken.dto");
 const TwitterAuth_guard_1 = require("./strategies/TwitterAuth.guard");
+const restorePin_dto_1 = require("./dto/restorePin.dto");
+const confirmRestorePin_dto_1 = require("./dto/confirmRestorePin.dto");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -38,6 +40,15 @@ let AuthController = class AuthController {
     }
     twitterRedirect(req) {
         return req.user;
+    }
+    restorePin(dto) {
+        return this.authService.restorePin(dto.number);
+    }
+    confirmRestorePin(dto) {
+        return this.authService.confirmRestorePin(dto.restoreToken, dto.code);
+    }
+    restorePin2(dto) {
+        return this.authService.restorePin2(dto);
     }
     sendAuthConfirmationCode(dto) {
         return this.authService.sendAuthConfirmationCode(dto.number);
@@ -93,6 +104,27 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "twitterRedirect", null);
+__decorate([
+    (0, common_1.Post)('/restorePin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [MobileNumber_dto_1.MobileNumberDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "restorePin", null);
+__decorate([
+    (0, common_1.Post)('/confirmRestorePin'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [confirmRestorePin_dto_1.ConfirmRestorePinDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "confirmRestorePin", null);
+__decorate([
+    (0, common_1.Post)('/restorePin2'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [restorePin_dto_1.RestorePinDto]),
+    __metadata("design:returntype", void 0)
+], AuthController.prototype, "restorePin2", null);
 __decorate([
     (0, common_1.Post)('/checkAccount'),
     __param(0, (0, common_1.Body)()),

@@ -9,5 +9,5 @@ export declare class MailingService {
     private clientSNS;
     generateEmailConfirmation(user: User): Promise<void>;
     confirmEmail(emailConfirmationId: string): Promise<string>;
-    generateSMSConfirmation(number: string): Promise<void>;
+    generateSMSConfirmation(number: string, code: string): Promise<void>;
 }

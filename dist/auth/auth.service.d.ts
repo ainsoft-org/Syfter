@@ -38,6 +38,8 @@ import { AuthingUserDocument } from "./authingUser.schema";
 import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
+import { RestoringPinUser, RestoringPinUserDocument } from "./restoringPinUser.schema";
+import { RestorePinDto } from "./dto/restorePin.dto";
 export declare class AuthService {
     private regingUserModel;
     private userModel;
@@ -47,7 +49,8 @@ export declare class AuthService {
     private jwtService;
     private mailingService;
     private alphaVantageService;
-    constructor(regingUserModel: Model<RegisteringUserDocument>, userModel: Model<UserDocument>, addressModel: Model<AddressDocument>, sessionModel: Model<SessionDocument>, authingUserModel: Model<AuthingUserDocument>, jwtService: JwtService, mailingService: MailingService, alphaVantageService: AlphavantageService);
+    private RestoringPinUserModel;
+    constructor(regingUserModel: Model<RegisteringUserDocument>, userModel: Model<UserDocument>, addressModel: Model<AddressDocument>, sessionModel: Model<SessionDocument>, authingUserModel: Model<AuthingUserDocument>, jwtService: JwtService, mailingService: MailingService, alphaVantageService: AlphavantageService, RestoringPinUserModel: Model<RestoringPinUserDocument>);
     getCountries(): {
         AD: {
             name: string;
@@ -1789,6 +1792,17 @@ export declare class AuthService {
     }>>;
     refreshToken(refreshToken: string): Promise<{
         access_token: string;
+    }>;
+    restorePin(mobileNumber: any): Promise<import("mongoose").LeanDocument<RestoringPinUser> & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    confirmRestorePin(restoreToken: string, code: string): Promise<import("mongoose").Document<unknown, any, RestoringPinUser> & RestoringPinUser & {
+        _id: import("mongoose").Types.ObjectId;
+    } & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }>>;
+    restorePin2(dto: RestorePinDto): Promise<{
+        message: string;
     }>;
     sendAuthConfirmationCode(mobileNumber: any, twitterId?: string): Promise<{
         message: string;

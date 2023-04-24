@@ -61,24 +61,21 @@ export class MailingService {
     return "Confirmed";
   }
 
-  async generateSMSConfirmation(number: string) {
-    const setAttributesCommand = new SetSMSAttributesCommand({
-      attributes: {
-        DefaultSenderID: "Syfter",
-        DefaultSMSType: "Transactional"
-      },
-    });
+  async generateSMSConfirmation(number: string, code: string) {
+    // const setAttributesCommand = new SetSMSAttributesCommand({
+    //   attributes: {
+    //     DefaultSenderID: "Syfter",
+    //     DefaultSMSType: "Transactional"
+    //   },
+    // });
 
     const publishCommand = new PublishCommand({
-      Message: "Test code sdsdg",
+      Message: code + process.env.sms_confirmation,
       PhoneNumber: number
     });
 
     // const res1 = await this.clientSNS.send(setAttributesCommand);
     const res2 = await this.clientSNS.send(publishCommand);
-
-    // console.log(res1, res2)
-    // console.log(res1)
   }
 
 

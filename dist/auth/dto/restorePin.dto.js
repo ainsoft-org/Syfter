@@ -9,18 +9,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CheckRegConfirmationCode = void 0;
+exports.RestorePinDto = void 0;
 const class_validator_1 = require("class-validator");
-class CheckRegConfirmationCode {
+class RestorePinDto {
 }
 __decorate([
     (0, class_validator_1.IsUUID)(4),
     __metadata("design:type", String)
-], CheckRegConfirmationCode.prototype, "regToken", void 0);
+], RestorePinDto.prototype, "restoreToken", void 0);
 __decorate([
     (0, class_validator_1.IsNumberString)(),
-    (0, class_validator_1.Length)(5, 5),
+    (0, class_validator_1.Length)(4, 4),
     __metadata("design:type", String)
-], CheckRegConfirmationCode.prototype, "code", void 0);
-exports.CheckRegConfirmationCode = CheckRegConfirmationCode;
-//# sourceMappingURL=CheckRegConfirmationCode.dto.js.map
+], RestorePinDto.prototype, "pin", void 0);
+exports.RestorePinDto = RestorePinDto;
+//# sourceMappingURL=restorePin.dto.js.map

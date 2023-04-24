@@ -10,6 +10,8 @@ import { SignInLocalDto } from "./dto/SignInLocal.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RefreshTokenDto } from "./dto/RefreshToken.dto";
 import { TwitterAuthGuard } from "./strategies/TwitterAuth.guard";
+import { RestorePinDto } from "./dto/restorePin.dto";
+import { ConfirmRestorePinDto } from "./dto/confirmRestorePin.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -34,6 +36,20 @@ export class AuthController {
     return req.user;
   }
 
+
+
+  @Post('/restorePin')
+  restorePin(@Body() dto: MobileNumberDto) {
+    return this.authService.restorePin(dto.number)
+  }
+  @Post('/confirmRestorePin')
+  confirmRestorePin(@Body() dto: ConfirmRestorePinDto) {
+    return this.authService.confirmRestorePin(dto.restoreToken, dto.code);
+  }
+  @Post('/restorePin2')
+  restorePin2(@Body() dto: RestorePinDto) {
+    return this.authService.restorePin2(dto)
+  }
 
 
   @Post('/checkAccount')

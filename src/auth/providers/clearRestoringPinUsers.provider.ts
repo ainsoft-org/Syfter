@@ -1,16 +1,16 @@
 import { Model } from "mongoose";
-import { RegisteringUserDocument } from "../registeringUser.schema";
 import * as dotenv from 'dotenv';
+import { RestoringPinUserDocument } from "../restoringPinUser.schema";
 dotenv.config();
 
-export async function clearRegisteringUsers(regingUserModel: Model<RegisteringUserDocument>) {
+export async function clearRestoringPinUsers(restoringPinUserModel: Model<RestoringPinUserDocument>) {
   const userUnconfirmedLifeTime = Number(process.env.registringUserLifetime);
   const now = new Date();
 
-  const users = await regingUserModel.find();
+  const users: any = await restoringPinUserModel.find();
 
   users.forEach(user => {
-    const prevCodeDate = new Date(user.prevCodeTime);
+    const prevCodeDate = new Date(user.createdAt);
     if(now.getTime() - prevCodeDate.getTime() >= userUnconfirmedLifeTime) {
       user.remove();
     }

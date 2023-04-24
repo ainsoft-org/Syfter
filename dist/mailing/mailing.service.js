@@ -63,15 +63,9 @@ let MailingService = class MailingService {
         }
         return "Confirmed";
     }
-    async generateSMSConfirmation(number) {
-        const setAttributesCommand = new client_sns_1.SetSMSAttributesCommand({
-            attributes: {
-                DefaultSenderID: "Syfter",
-                DefaultSMSType: "Transactional"
-            },
-        });
+    async generateSMSConfirmation(number, code) {
         const publishCommand = new client_sns_1.PublishCommand({
-            Message: "Test code sdsdg",
+            Message: code + process.env.sms_confirmation,
             PhoneNumber: number
         });
         const res2 = await this.clientSNS.send(publishCommand);

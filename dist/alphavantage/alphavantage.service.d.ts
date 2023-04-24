@@ -36,7 +36,7 @@ export declare class AlphavantageService {
     }>>;
     getTrendingNow(userId: string, amount: number, forIgnore?: any[], filters?: {}): Promise<{
         assets: any[];
-        amount: any;
+        amount: number;
     }>;
     getRecByPriceIncrease(amount: any, forIgnore: any, filters: any): Promise<{
         assets: any[];
