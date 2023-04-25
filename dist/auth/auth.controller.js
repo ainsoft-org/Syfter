@@ -24,9 +24,9 @@ const SetAddressReg_dto_1 = require("./dto/Reg/SetAddressReg.dto");
 const SignInLocal_dto_1 = require("./dto/SignInLocal.dto");
 const passport_1 = require("@nestjs/passport");
 const RefreshToken_dto_1 = require("./dto/RefreshToken.dto");
-const TwitterAuth_guard_1 = require("./strategies/TwitterAuth.guard");
 const restorePin_dto_1 = require("./dto/restorePin.dto");
 const confirmRestorePin_dto_1 = require("./dto/confirmRestorePin.dto");
+const SignInTwitter_dto_1 = require("./dto/SignInTwitter.dto");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -34,12 +34,8 @@ let AuthController = class AuthController {
     getCountries() {
         return this.authService.getCountries();
     }
-    twitterSignin() {
-        console.log("signin");
-        return "yes";
-    }
-    twitterRedirect(req) {
-        return req.user;
+    twitterSignin(dto) {
+        return this.authService.signinTwitter(dto);
     }
     restorePin(dto) {
         return this.authService.restorePin(dto.number);
@@ -90,20 +86,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "getCountries", null);
 __decorate([
-    (0, common_1.UseGuards)(TwitterAuth_guard_1.TwitterAuthGuard),
-    (0, common_1.Get)('/twitter/signin'),
+    (0, common_1.Post)('/twitter/signin'),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [SignInTwitter_dto_1.SignInTwitterDto]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "twitterSignin", null);
-__decorate([
-    (0, common_1.UseGuards)(TwitterAuth_guard_1.TwitterAuthGuard),
-    (0, common_1.Get)('/twitter/redirect'),
-    __param(0, (0, common_1.Request)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", void 0)
-], AuthController.prototype, "twitterRedirect", null);
 __decorate([
     (0, common_1.Post)('/restorePin'),
     __param(0, (0, common_1.Body)()),

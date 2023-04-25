@@ -86,6 +86,35 @@ let AuthService = class AuthService {
         const country = (0, geoip_lite_1.lookup)(ip)?.country;
         return country || "unknown";
     }
+    async signinTwitter(dto) {
+        const user = await this.userModel.findOne({ twitterId: dto.twitterID });
+        if (user) {
+            if (dto.image)
+                user.image = dto.image;
+            await user.save();
+            return { data: await this.sendAuthConfirmationCode("", dto.twitterID), status: "auth" };
+        }
+        const regToken = (0, uuid_1.v4)();
+        const payload = {
+            twitterId: dto.twitterID,
+            regToken,
+            stage: "PIN"
+        };
+        if (dto.image) {
+            payload.image = dto.image;
+        }
+        else {
+            payload.image = process.env.host + "/uploads/default_image.png";
+        }
+        const newRegisteringUser = new this.regingUserModel(payload);
+        await newRegisteringUser.save();
+        return {
+            status: "reg",
+            data: {
+                regToken: newRegisteringUser.regToken
+            }
+        };
+    }
     async signinLocal(dto, ip) {
         const foundAuthingUser = await this.authingUserModel.findOne({ authToken: dto.authToken });
         if (!foundAuthingUser) {
@@ -240,6 +269,7 @@ let AuthService = class AuthService {
         const user = await this.userModel.findById(foundRestoringPinUser.userID);
         user.pin = dto.pin;
         await user.save();
+        await foundRestoringPinUser.remove();
         return { message: "PIN restored" };
     }
     async sendAuthConfirmationCode(mobileNumber, twitterId = "") {

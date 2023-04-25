@@ -11,9 +11,11 @@ import { AlphavantageModule } from './alphavantage/alphavantage.module';
 import { NewsModule } from './news/news.module';
 import { CommentsModule } from './comments/comments.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [
+    ConfigModule.forRoot(),
     // MongooseModule.forRoot('mongodb://127.0.0.1:27017/Syfter'),
     MongooseModule.forRoot(process.env.mongoDB),
     AuthModule,

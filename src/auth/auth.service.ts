@@ -29,6 +29,7 @@ import { lookup as lookupIP } from 'geoip-lite';
 import { RestoringPinUser, RestoringPinUserDocument } from "./restoringPinUser.schema";
 import { clearRestoringPinUsers } from "./providers/clearRestoringPinUsers.provider";
 import { RestorePinDto } from "./dto/restorePin.dto";
+import { SignInTwitterDto } from "./dto/SignInTwitter.dto";
 
 @Injectable()
 export class AuthService {
@@ -90,6 +91,36 @@ export class AuthService {
   private getCountry(ip) {
     const country = lookupIP(ip)?.country;
     return country || "unknown";
+  }
+
+  async signinTwitter(dto: SignInTwitterDto) {
+    const user = await this.userModel.findOne({ twitterId: dto.twitterID });
+    if(user) {
+      if(dto.image) user.image = dto.image;
+      await user.save();
+      return { data: await this.sendAuthConfirmationCode("", dto.twitterID), status: "auth" };
+    }
+
+    const regToken: string = uuidv4();
+    const payload: any = {
+      twitterId: dto.twitterID,
+      regToken,
+      stage: "PIN"
+    };
+    if(dto.image) {
+      payload.image = dto.image;
+    } else {
+      payload.image = process.env.host + "/uploads/default_image.png";
+    }
+    const newRegisteringUser = new this.regingUserModel(payload);
+    await newRegisteringUser.save();
+
+    return {
+      status: "reg",
+      data: {
+        regToken: newRegisteringUser.regToken
+      }
+    }
   }
 
   async signinLocal(dto: SignInLocalDto, ip: string) {
@@ -281,6 +312,8 @@ export class AuthService {
     user.pin = dto.pin;
 
     await user.save();
+    await foundRestoringPinUser.remove();
+
     return { message: "PIN restored" }
   }
 

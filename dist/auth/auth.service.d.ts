@@ -40,6 +40,7 @@ import { MailingService } from "../mailing/mailing.service";
 import { AlphavantageService } from "../alphavantage/alphavantage.service";
 import { RestoringPinUser, RestoringPinUserDocument } from "./restoringPinUser.schema";
 import { RestorePinDto } from "./dto/restorePin.dto";
+import { SignInTwitterDto } from "./dto/SignInTwitter.dto";
 export declare class AuthService {
     private regingUserModel;
     private userModel;
@@ -1778,6 +1779,18 @@ export declare class AuthService {
     private getTokens;
     private generateAt;
     private getCountry;
+    signinTwitter(dto: SignInTwitterDto): Promise<{
+        data: {
+            message: string;
+            authToken: string;
+        };
+        status: string;
+    } | {
+        status: string;
+        data: {
+            regToken: string;
+        };
+    }>;
     signinLocal(dto: SignInLocalDto, ip: string): Promise<{
         username: string;
         email: string;

@@ -40,21 +40,23 @@ export class AlphavantageService {
     nextDay.setDate(now.getDate() + 1); nextDay.setHours(0);
     nextDay.setMinutes(0); nextDay.setSeconds(0);
 
-    refreshCurrencies(currencyModel, newsModel, currentStatModel);
-    setTimeout(() => {
+    if(process.env.isDev !== "true") {
       refreshCurrencies(currencyModel, newsModel, currentStatModel);
-      setInterval(() => {
+      setTimeout(() => {
         refreshCurrencies(currencyModel, newsModel, currentStatModel);
-      }, Number(process.env.refreshAssetsEvery));
-    }, nextDay.getTime() - now.getTime());
+        setInterval(() => {
+          refreshCurrencies(currencyModel, newsModel, currentStatModel);
+        }, Number(process.env.refreshAssetsEvery));
+      }, nextDay.getTime() - now.getTime());
 
-    refreshCryptoCurrencies(currencyModel, newsModel);
-    setTimeout(() => {
       refreshCryptoCurrencies(currencyModel, newsModel);
-      setInterval(() => {
+      setTimeout(() => {
         refreshCryptoCurrencies(currencyModel, newsModel);
-      }, Number(process.env.refreshCryptosEvery));
-    }, nextDay.getTime() - now.getTime());
+        setInterval(() => {
+          refreshCryptoCurrencies(currencyModel, newsModel);
+        }, Number(process.env.refreshCryptosEvery));
+      }, nextDay.getTime() - now.getTime());
+    }
 
     const cryptoLogosText = fs.readFileSync(path.join(__dirname, '../common/cryptoLogos.json')).toString();
     this.cryptoLogos  = JSON.parse(cryptoLogosText);

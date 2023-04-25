@@ -19,11 +19,13 @@ const alphavantage_module_1 = require("./alphavantage/alphavantage.module");
 const news_module_1 = require("./news/news.module");
 const comments_module_1 = require("./comments/comments.module");
 const uploads_module_1 = require("./uploads/uploads.module");
+const config_1 = require("@nestjs/config");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule.forRoot(),
             mongoose_1.MongooseModule.forRoot(process.env.mongoDB),
             auth_module_1.AuthModule,
             db_module_1.DbModule,

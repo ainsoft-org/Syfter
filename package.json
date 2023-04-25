@@ -27,6 +27,7 @@
     "@aws-sdk/client-sns": "^3.290.0",
     "@mozilla/readability": "^0.4.2",
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^9.0.0",
     "@nestjs/jwt": "^10.0.1",
     "@nestjs/mongoose": "^9.2.1",

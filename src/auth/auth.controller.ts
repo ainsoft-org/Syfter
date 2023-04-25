@@ -12,6 +12,7 @@ import { RefreshTokenDto } from "./dto/RefreshToken.dto";
 import { TwitterAuthGuard } from "./strategies/TwitterAuth.guard";
 import { RestorePinDto } from "./dto/restorePin.dto";
 import { ConfirmRestorePinDto } from "./dto/confirmRestorePin.dto";
+import { SignInTwitterDto } from "./dto/SignInTwitter.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -23,18 +24,17 @@ export class AuthController {
   }
 
 
-  @UseGuards(TwitterAuthGuard)
-  @Get('/twitter/signin')
-  twitterSignin() {
-    console.log("signin")
-    return "yes";
+  // @UseGuards(TwitterAuthGuard)
+  @Post('/twitter/signin')
+  twitterSignin(@Body() dto: SignInTwitterDto) {
+    return this.authService.signinTwitter(dto);
   }
 
-  @UseGuards(TwitterAuthGuard)
-  @Get('/twitter/redirect')
-  twitterRedirect(@Request() req) {
-    return req.user;
-  }
+  // @UseGuards(TwitterAuthGuard)
+  // @Get('/twitter/redirect')
+  // twitterRedirect(@Request() req) {
+  //   return req.user;
+  // }
 
 
 

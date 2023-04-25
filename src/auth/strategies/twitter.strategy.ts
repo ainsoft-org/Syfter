@@ -18,6 +18,7 @@ export class TwitterStrategy extends PassportStrategy(Strategy) {
     @InjectModel(Session.name) private sessionModel: Model<SessionDocument>,
     private authService: AuthService
   ) {
+
     super({
       consumerKey: process.env.TWITTER_API_KEY,
       consumerSecret: process.env.TWITTER_API_SECRET,
