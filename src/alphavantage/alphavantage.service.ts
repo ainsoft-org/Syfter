@@ -526,6 +526,22 @@ export class AlphavantageService {
 
   }
 
+  async getFilterDispersions() {
+    const dispersions = {
+      minPercentChange: await this.currencyModel.find().sort({ boomRatio: 1 }).limit(1),
+      maxPercentChange: await this.currencyModel.find().sort({ boomRatio: -1 }).limit(1),
+      minMarketCap: await this.currencyModel.find().sort({ MarketCapitalization: 1 }).limit(1),
+      maxMarketCap: await this.currencyModel.find().sort({ MarketCapitalization: -1 }).limit(1),
+      minVolume: await this.currencyModel.find().sort({ Volume24h: 1 }).limit(1),
+      maxVolume: await this.currencyModel.find().sort({ Volume24h: -1 }).limit(1),
+      minPrice: await this.currencyModel.find().sort({ ExchangeRate: 1 }).limit(1),
+      maxPrice: await this.currencyModel.find().sort({ ExchangeRate: -1 }).limit(1),
+      minCompanyAge: await this.currencyModel.find().sort({ IpoDate: 1 }).limit(1),
+      maxCompanyAge: await this.currencyModel.find().sort({ IpoDate: -1 }).limit(1)
+    }
+
+    return dispersions;
+  }
 
   getAggregationFilter(filters: any = {}) {
     const aggregationFilter = {

@@ -66,6 +66,58 @@ export declare class AlphavantageService {
     }>;
     getAssetsById(assets: string[]): Promise<any>;
     getAssetData(assets: any[], interval?: string, chartType?: string): Promise<any[]>;
+    getFilterDispersions(): Promise<{
+        minPercentChange: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        maxPercentChange: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        minMarketCap: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        maxMarketCap: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        minVolume: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        maxVolume: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        minPrice: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        maxPrice: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        minCompanyAge: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+        maxCompanyAge: (mongoose.Document<unknown, any, Currency> & Currency & {
+            _id: mongoose.Types.ObjectId;
+        } & Required<{
+            _id: mongoose.Types.ObjectId;
+        }>)[];
+    }>;
     getAggregationFilter(filters?: any): {
         $expr: {
             $and: any[];

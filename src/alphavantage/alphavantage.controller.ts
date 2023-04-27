@@ -32,6 +32,12 @@ export class AlphavantageController {
   constructor(private aplhavantageService: AlphavantageService) {}
 
   @UseGuards(AuthGuard('jwt'))
+  @Get('getFilterDispersions')
+  getFilterDispersions() {
+    return this.aplhavantageService.getFilterDispersions();
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Post('getRecommendation')
   getRecommendation(@Request() req, @Body() dto: GetRecommendationDto) {
     return this.aplhavantageService.getRecommendation(req.user.sub, dto?.filters, dto.amount, dto?.forIgnore, dto?.type);

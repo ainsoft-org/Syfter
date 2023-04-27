@@ -47,6 +47,9 @@ let AlphavantageController = class AlphavantageController {
     constructor(aplhavantageService) {
         this.aplhavantageService = aplhavantageService;
     }
+    getFilterDispersions() {
+        return this.aplhavantageService.getFilterDispersions();
+    }
     getRecommendation(req, dto) {
         return this.aplhavantageService.getRecommendation(req.user.sub, dto?.filters, dto.amount, dto?.forIgnore, dto?.type);
     }
@@ -82,6 +85,13 @@ let AlphavantageController = class AlphavantageController {
         return this.aplhavantageService.removeFavourite(req.user.sub, dto.assetId);
     }
 };
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Get)('getFilterDispersions'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AlphavantageController.prototype, "getFilterDispersions", null);
 __decorate([
     (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
     (0, common_1.Post)('getRecommendation'),

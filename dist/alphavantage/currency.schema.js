@@ -105,6 +105,10 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ type: Number }),
     __metadata("design:type", Number)
+], Currency.prototype, "percentChange24h", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Number }),
+    __metadata("design:type", Number)
 ], Currency.prototype, "newsBoomRatio", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: Number, default: 0 }),

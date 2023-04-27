@@ -60,6 +60,9 @@ export class Currency {
   boomRatio: number;
 
   @Prop({ type: Number })
+  percentChange24h: number;
+
+  @Prop({ type: Number })
   newsBoomRatio: number;
 
   @Prop({ type: Number, default: 0 })

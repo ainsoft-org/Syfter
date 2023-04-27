@@ -25,6 +25,7 @@ export declare class Currency {
     IpoDate: Date;
     Volume24h: number;
     boomRatio: number;
+    percentChange24h: number;
     newsBoomRatio: number;
     priority: number;
 }

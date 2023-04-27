@@ -82,6 +82,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
       }
       foundCurrencies.push(cryptoModified.Symbol);
 
+      let exchangeRate24hAgo = 0;
       let volume24h = 0;
       let sumExchangeRate = 0;
       let lengthExchangeRate = 0;
@@ -90,6 +91,7 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
         const date = new Date(item);
         if(new Date(lastItem).getTime() - date.getTime() < 86400000) {
           volume24h += Number(chartSeries[item]["5. volume"]);
+          exchangeRate24hAgo = Number(chartSeries[item]["4. close"]);
         }
 
         if(!avExchangeRate48h && new Date().getTime() - date.getTime() >= 172800000) {
@@ -108,6 +110,8 @@ export const refreshCryptoCurrencies = async (currencyModel: Model<CurrencyDocum
       const boomRatio = (avExchangeRate48h - avExchangeRate) / avExchangeRate * 100;
       foundCurrency.boomRatio = !isNaN(boomRatio) ? boomRatio : -1000
       foundCurrency.Volume24h = volume24h;
+
+      foundCurrency.percentChange24h = (Number(cryptoModified.ExchangeRate) - exchangeRate24hAgo) / exchangeRate24hAgo * 100
 
       const loadingNews = await loadNews(`CRYPTO:${cryptos[i]["currency code"]}`, foundCurrency, newsModel);
       if(loadingNews === "continue") continue;

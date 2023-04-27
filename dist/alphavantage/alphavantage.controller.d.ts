@@ -40,6 +40,58 @@ declare class FindAssetDto {
 export declare class AlphavantageController {
     private aplhavantageService;
     constructor(aplhavantageService: AlphavantageService);
+    getFilterDispersions(): Promise<{
+        minPercentChange: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        maxPercentChange: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        minMarketCap: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        maxMarketCap: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        minVolume: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        maxVolume: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        minPrice: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        maxPrice: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        minCompanyAge: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+        maxCompanyAge: (import("mongoose").Document<unknown, any, import("./currency.schema").Currency> & import("./currency.schema").Currency & {
+            _id: import("mongoose").Types.ObjectId;
+        } & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }>)[];
+    }>;
     getRecommendation(req: any, dto: GetRecommendationDto): Promise<{
         assets: any[];
         type: string;
