@@ -443,8 +443,8 @@ let AlphavantageService = class AlphavantageService {
     }
     async getFilterDispersions() {
         const dispersions = {
-            minPercentChange: await this.currencyModel.find().sort({ boomRatio: 1 }).limit(1),
-            maxPercentChange: await this.currencyModel.find().sort({ boomRatio: -1 }).limit(1),
+            minPercentChange: await this.currencyModel.find().sort({ percentChange24h: 1 }).limit(1).select("percentChange24h"),
+            maxPercentChange: await this.currencyModel.find().sort({ percentChange24h: -1 }).limit(1).select("percentChange24h"),
             minMarketCap: await this.currencyModel.find().sort({ MarketCapitalization: 1 }).limit(1),
             maxMarketCap: await this.currencyModel.find().sort({ MarketCapitalization: -1 }).limit(1),
             minVolume: await this.currencyModel.find().sort({ Volume24h: 1 }).limit(1),
@@ -463,9 +463,9 @@ let AlphavantageService = class AlphavantageService {
             }
         };
         if (filters.minPercentChange)
-            aggregationFilter.$expr.$and.push({ $gte: ["$boomRatio", filters.minPercentChange] });
+            aggregationFilter.$expr.$and.push({ $gte: ["$percentChange24h", filters.minPercentChange] });
         if (filters.maxPercentChange)
-            aggregationFilter.$expr.$and.push({ $lte: ["$boomRatio", filters.maxPercentChange] });
+            aggregationFilter.$expr.$and.push({ $lte: ["$percentChange24h", filters.maxPercentChange] });
         if (filters.minMarketCap)
             aggregationFilter.$expr.$and.push({ $gte: ["$MarketCapitalization", filters.minMarketCap] });
         if (filters.maxMarketCap)
