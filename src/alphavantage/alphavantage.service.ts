@@ -40,22 +40,36 @@ export class AlphavantageService {
     nextDay.setDate(now.getDate() + 1); nextDay.setHours(0);
     nextDay.setMinutes(0); nextDay.setSeconds(0);
 
-    if(process.env.isDev !== "true") {
-      refreshCurrencies(currencyModel, newsModel, currentStatModel);
-      setTimeout(() => {
-        refreshCurrencies(currencyModel, newsModel, currentStatModel);
-        setInterval(() => {
-          refreshCurrencies(currencyModel, newsModel, currentStatModel);
-        }, Number(process.env.refreshAssetsEvery));
-      }, nextDay.getTime() - now.getTime());
+    async function refreshCurrenciesLoop() {
+      while (true) {
+        await refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      }
+    }
+    async function refreshCryptoCurrenciesLoop() {
+      while (true) {
+        await refreshCryptoCurrencies(currencyModel, newsModel);
+      }
+    }
 
-      refreshCryptoCurrencies(currencyModel, newsModel);
-      setTimeout(() => {
-        refreshCryptoCurrencies(currencyModel, newsModel);
-        setInterval(() => {
-          refreshCryptoCurrencies(currencyModel, newsModel);
-        }, Number(process.env.refreshCryptosEvery));
-      }, nextDay.getTime() - now.getTime());
+    if(process.env.isDev !== "true") {
+      // refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      // setTimeout(() => {
+      //   refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      //   setInterval(() => {
+      //     refreshCurrencies(currencyModel, newsModel, currentStatModel);
+      //   }, Number(process.env.refreshAssetsEvery));
+      // }, nextDay.getTime() - now.getTime());
+      //
+      // refreshCryptoCurrencies(currencyModel, newsModel);
+      // setTimeout(() => {
+      //   refreshCryptoCurrencies(currencyModel, newsModel);
+      //   setInterval(() => {
+      //     refreshCryptoCurrencies(currencyModel, newsModel);
+      //   }, Number(process.env.refreshCryptosEvery));
+      // }, nextDay.getTime() - now.getTime());
+
+      refreshCurrenciesLoop();
+      refreshCryptoCurrenciesLoop();
     }
 
     const cryptoLogosText = fs.readFileSync(path.join(__dirname, '../common/cryptoLogos.json')).toString();
