@@ -447,6 +447,10 @@ let AlphavantageService = class AlphavantageService {
                 $and: []
             }
         };
+        if (filters.minPercentChange)
+            aggregationFilter.$expr.$and.push({ $gte: ["$boomRatio", filters.minPercentChange] });
+        if (filters.maxPercentChange)
+            aggregationFilter.$expr.$and.push({ $lte: ["$boomRatio", filters.maxPercentChange] });
         if (filters.minMarketCap)
             aggregationFilter.$expr.$and.push({ $gte: ["$MarketCapitalization", filters.minMarketCap] });
         if (filters.maxMarketCap)
