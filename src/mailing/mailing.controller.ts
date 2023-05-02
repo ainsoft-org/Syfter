@@ -11,10 +11,10 @@ import { SetAddressRegDto } from "../auth/dto/Reg/SetAddressReg.dto";
 export class MailingController {
   constructor(private mailingService: MailingService) {}
 
-  // @Post('/sendEmailConfirmation/*')
-  // sendEmailConfirmation(@Param('0') id: string) {
-  //   return this.mailingService.generateEmailConfirmation(id);
-  // }
+  @Post('/sendEmailConfirmation/*')
+  sendEmailConfirmation(@Param('0') id: string) {
+    return this.mailingService.generateEmailConfirmation(id);
+  }
 
   @Get('/emailConfirmation/*')
   confirmEmail(@Param('0') id: string) {

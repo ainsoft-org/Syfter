@@ -27,8 +27,9 @@ export class MailingService {
   private clientSES = new SESClient({ region: "eu-central-1" });
   private clientSNS = new SNSClient({ region: "eu-central-1" });
 
-  async generateEmailConfirmation(user: User) {
+  async generateEmailConfirmation(userId: string) {
     try {
+      const user = await this.userModel.findById(userId).select("+email");
       const newEmailConfirmation = new this.emailConfirmationModel({ user });
 
       const sendEmailCommand = createEmailConfirmationCommand(
@@ -39,6 +40,7 @@ export class MailingService {
       await this.clientSES.send(sendEmailCommand);
       await newEmailConfirmation.save();
     } catch (err) {
+      console.log(err)
       throw new HttpException('Error sending email confirmation list', HttpStatus.BAD_REQUEST);
     }
   }

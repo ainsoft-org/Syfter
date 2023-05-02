@@ -548,7 +548,7 @@ export class AuthService {
       newSession.refreshToken = tokens.refresh_token;
 
       try {
-        await this.mailingService.generateEmailConfirmation(newUser);
+        await this.mailingService.generateEmailConfirmation(newUser._id.toString());
       } catch (err) {
         console.log(err);
       }

@@ -35,14 +35,16 @@ let MailingService = class MailingService {
             }
         }, clearEmailConfirmationsEvery);
     }
-    async generateEmailConfirmation(user) {
+    async generateEmailConfirmation(userId) {
         try {
+            const user = await this.userModel.findById(userId).select("+email");
             const newEmailConfirmation = new this.emailConfirmationModel({ user });
             const sendEmailCommand = (0, EmailConfirmation_command_1.createEmailConfirmationCommand)(user.email, `${process.env.host}/mailing/emailConfirmation/${newEmailConfirmation._id.toString()}`);
             await this.clientSES.send(sendEmailCommand);
             await newEmailConfirmation.save();
         }
         catch (err) {
+            console.log(err);
             throw new common_1.HttpException('Error sending email confirmation list', common_1.HttpStatus.BAD_REQUEST);
         }
     }

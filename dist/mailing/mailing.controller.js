@@ -19,10 +19,20 @@ let MailingController = class MailingController {
     constructor(mailingService) {
         this.mailingService = mailingService;
     }
+    sendEmailConfirmation(id) {
+        return this.mailingService.generateEmailConfirmation(id);
+    }
     confirmEmail(id) {
         return this.mailingService.confirmEmail(id);
     }
 };
+__decorate([
+    (0, common_1.Post)('/sendEmailConfirmation/*'),
+    __param(0, (0, common_1.Param)('0')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], MailingController.prototype, "sendEmailConfirmation", null);
 __decorate([
     (0, common_1.Get)('/emailConfirmation/*'),
     __param(0, (0, common_1.Param)('0')),
