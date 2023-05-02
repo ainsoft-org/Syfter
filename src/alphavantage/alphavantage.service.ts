@@ -429,7 +429,7 @@ export class AlphavantageService {
       const asset = assets[i];
       const symbol = asset.Symbol;
 
-      const cashed_asset = await this.cacheManager.get(`getAssetData-${symbol}-${interval}`);
+      const cashed_asset = await this.cacheManager.get(`getAssetData-${symbol}-${interval}-${chartType}`);
       if (cashed_asset) {
         assets[i] = cashed_asset;
         continue;
@@ -530,7 +530,7 @@ export class AlphavantageService {
           asset.logo = this.cryptoLogos[asset.Symbol];
         }
 
-        await this.cacheManager.set(`getAssetData-${symbol}-${interval}`, asset, Number(process.env.getAssetDataCashPeriod));
+        await this.cacheManager.set(`getAssetData-${symbol}-${interval}-${chartType}`, asset, Number(process.env.getAssetDataCashPeriod));
       } catch (err) {
         console.log(err);
       }
