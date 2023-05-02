@@ -126,7 +126,6 @@ async function setDayChartSeries(filteredChartData, symbol, chartType) {
         for (const item in chartSeries) {
             const date = new Date(item);
             if (new Date(lastItem).getTime() - date.getTime() < 86400000) {
-                console.log(chartSeries[item]);
                 filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
                 continue;
             }
@@ -146,6 +145,7 @@ async function setDayChartSeriesCrypto(filteredChartData, symbol, chartType) {
         for (const item in chartSeries) {
             const date = new Date(item);
             if (new Date(lastItem).getTime() - date.getTime() < 86400000) {
+                console.log(chartSeries[item]);
                 filteredChartData[item] = chartType === "regular" ? Number(chartSeries[item]["4. close"]) : chartSeries[item];
                 continue;
             }
