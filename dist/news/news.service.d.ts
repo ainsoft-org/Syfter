@@ -11,10 +11,10 @@ export declare class NewsService {
         isLiked: boolean;
         isDisliked: boolean;
         reputation: number;
+        content: string;
         likes: number;
         dislikes: number;
         AssetType: string;
-        content: string;
         textContent: string;
         coeffLike: number;
         timePrevLike: Date;
@@ -47,10 +47,10 @@ export declare class NewsService {
         isLiked: boolean;
         isDisliked: boolean;
         reputation: number;
+        content: string;
         likes: number;
         dislikes: number;
         AssetType: string;
-        content: string;
         textContent: string;
         coeffLike: number;
         timePrevLike: Date;

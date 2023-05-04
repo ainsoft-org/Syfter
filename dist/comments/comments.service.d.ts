@@ -15,9 +15,9 @@ export declare class CommentsService {
         reputation: number;
         isLiked: boolean;
         isDisliked: boolean;
+        content: string;
         likes: number;
         dislikes: number;
-        content: string;
         author: User;
         asset: Currency;
         isReply: boolean;
@@ -30,9 +30,9 @@ export declare class CommentsService {
         reputation: number;
         isLiked: boolean;
         isDisliked: boolean;
+        content: string;
         likes: number;
         dislikes: number;
-        content: string;
         author: User;
         asset: Currency;
         isReply: boolean;

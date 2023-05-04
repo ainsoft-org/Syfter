@@ -45,9 +45,9 @@ export declare class CommentsController {
         reputation: number;
         isLiked: boolean;
         isDisliked: boolean;
+        content: string;
         likes: number;
         dislikes: number;
-        content: string;
         author: import("../user/user.schema").User;
         asset: import("../alphavantage/currency.schema").Currency;
         isReply: boolean;
@@ -60,9 +60,9 @@ export declare class CommentsController {
         reputation: number;
         isLiked: boolean;
         isDisliked: boolean;
+        content: string;
         likes: number;
         dislikes: number;
-        content: string;
         author: import("../user/user.schema").User;
         asset: import("../alphavantage/currency.schema").Currency;
         isReply: boolean;
