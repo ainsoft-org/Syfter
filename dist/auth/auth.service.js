@@ -331,7 +331,6 @@ let AuthService = class AuthService {
                 await newRegingUser.save();
                 await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
                 const newRegingUserObject = newRegingUser.toObject();
-                delete newRegingUserObject.verificationCode;
                 return {
                     message: `Confirmation code sent to number: ${formattedPhone}`,
                     data: newRegingUserObject
@@ -352,7 +351,6 @@ let AuthService = class AuthService {
         await foundRegingUser.save();
         await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
         const foundRegingUserObject = foundRegingUser.toObject();
-        delete foundRegingUserObject.verificationCode;
         return {
             message: `Confirmation code resent to number: ${formattedPhone}`,
             data: foundRegingUserObject

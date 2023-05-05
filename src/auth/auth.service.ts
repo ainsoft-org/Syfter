@@ -386,7 +386,7 @@ export class AuthService {
         await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
 
         const newRegingUserObject = newRegingUser.toObject();
-        delete newRegingUserObject.verificationCode;
+        // delete newRegingUserObject.verificationCode;
 
         return {
           message: `Confirmation code sent to number: ${formattedPhone}`,
@@ -410,7 +410,7 @@ export class AuthService {
     await this.mailingService.generateSMSConfirmation(formattedPhone, confirmationCode);
 
     const foundRegingUserObject = foundRegingUser.toObject();
-    delete foundRegingUserObject.verificationCode;
+    // delete foundRegingUserObject.verificationCode;
 
     return {
       message: `Confirmation code resent to number: ${formattedPhone}`,
