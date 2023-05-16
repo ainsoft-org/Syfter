@@ -26,7 +26,7 @@ AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             config_1.ConfigModule.forRoot(),
-            mongoose_1.MongooseModule.forRoot(process.env.mongoDB),
+            mongoose_1.MongooseModule.forRoot('mongodb://127.0.0.1:27017'),
             auth_module_1.AuthModule,
             db_module_1.DbModule,
             user_module_1.UserModule,
