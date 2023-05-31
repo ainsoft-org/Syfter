@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, UseGuards, Request } from "@nestjs/common";
+import { Body, Controller, Post, Get, UseGuards, Request, Param } from "@nestjs/common";
 import { AuthService } from './auth.service';
 import { MobileNumberDto } from "./dto/MobileNumber.dto";
 import { CheckRegConfirmationCode } from "./dto/Reg/CheckRegConfirmationCode.dto";
@@ -30,10 +30,15 @@ export class AuthController {
     return this.authService.signinTwitter(dto);
   }
 
-  // @UseGuards(TwitterAuthGuard)
-  // @Get('/twitter/redirect')
-  // twitterRedirect(@Request() req) {
-  //   return req.user;
+  @UseGuards(TwitterAuthGuard)
+  @Get('/twitter/redirect')
+  twitterRedirect(@Request() req) {
+    return req.user;
+  }
+
+  // @Post('/metamask/signin')
+  // metamaskSignin(@Body() dto: SignInTwitterDto) {
+  //   return this.authService.signinMetaMask(dto);
   // }
 
 
@@ -55,6 +60,16 @@ export class AuthController {
   @Post('/checkAccount')
   sendAuthConfirmationCode(@Body() dto: MobileNumberDto) {
     return this.authService.sendAuthConfirmationCode(dto.number)
+  }
+
+  @Get('authenticate')
+  async authenticateMetamask(): Promise<string | null> {
+    return this.authService.authenticateMetamask();
+  }
+
+  @Get('balance/:accountAddress')
+  async getBalance(@Param('accountAddress') accountAddress: string): Promise<string> {
+    return this.authService.getBalance(accountAddress);
   }
 
   // @UseGuards(AuthGuard())
