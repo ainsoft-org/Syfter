@@ -30,6 +30,7 @@ import { RestoringPinUser, RestoringPinUserDocument } from "./restoringPinUser.s
 import { clearRestoringPinUsers } from "./providers/clearRestoringPinUsers.provider";
 import { RestorePinDto } from "./dto/restorePin.dto";
 import { SignInTwitterDto } from "./dto/SignInTwitter.dto";
+import Web3 from 'web3';
 
 @Injectable()
 export class AuthService {
@@ -42,9 +43,13 @@ export class AuthService {
     private jwtService: JwtService,
     private mailingService: MailingService,
     private alphaVantageService: AlphavantageService,
+    private web3: Web3,
     @InjectModel(RestoringPinUser.name) private RestoringPinUserModel: Model<RestoringPinUserDocument>,
   ) {
+    this.web3 = new Web3(`https://mainnet.infura.io/v3/${process.env.infuraKey}`);
+
     const clearRegisteringUsersEvery =  Number(process.env.clearRegisteringUsersEvery);
+
     setInterval(async () => {
       if(await clearRegisteringUsers(regingUserModel)) {
         console.log(`--cleared some actively registering users after specified time --${new Date()}`);
@@ -79,6 +84,7 @@ export class AuthService {
       access_token: at
     }
   }
+
 
   private async generateAt (params: any) {
     return await this.jwtService.signAsync(params, {
@@ -120,6 +126,36 @@ export class AuthService {
       data: {
         regToken: newRegisteringUser.regToken
       }
+    }
+  }
+
+  async authenticateMetamask(){
+    const ethereum = (window as any).ethereum;
+
+    if (!ethereum) {
+      throw new Error('Metamask is not available');
+    }
+
+    try {
+      const accounts = await ethereum.enable();
+
+      if (accounts.length === 0) {
+        throw new Error('No accounts found');
+      }
+
+      return accounts[0];
+    } catch (error) {
+      throw new Error('Failed to authenticate Metamask');
+    }
+  }
+
+  async getBalance(accountAddress: string){
+    try {
+      const balance = await this.web3.eth.getBalance(accountAddress);
+
+      return this.web3.utils.fromWei(balance, 'ether');
+    } catch (error) {
+      throw new Error('Failed to retrieve balance');
     }
   }
 
@@ -202,6 +238,8 @@ export class AuthService {
 
     return foundSession
   }
+
+  
 
   async refreshToken(refreshToken: string) {
     const foundSession = await this.sessionModel.findOne({ refreshToken });
@@ -568,5 +606,6 @@ export class AuthService {
       throw new HttpException({message: "Something went wrong. Please try later"}, HttpStatus.BAD_REQUEST);
     }
   }
+
 
 }
